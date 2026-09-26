@@ -1,0 +1,77 @@
+---
+import portfolioData from '../portfolio_cache.json';
+---
+
+<div id="canvas-container" class="w-full h-screen relative bg-neutral-900 overflow-hidden">
+  <div id="instructions" class="absolute top-6 left-6 z-10 text-xs font-mono tracking-widest text-neutral-400 pointer-events-none uppercase">
+    [ IMLAND 3D Matrix — Move Cursor to Refract ]
+  </div>
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import rawData from '../portfolio_cache.json';
+
+  const container = document.getElementById('canvas-container');
+  if (container) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 10;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const textureLoader = new THREE.TextureLoader();
+    const mediaItems = rawData.data || [];
+    const meshes: THREE.Mesh[] = [];
+    const geometry = new THREE.PlaneGeometry(2.2, 2.8);
+
+    mediaItems.forEach((item: any, index: number) => {
+      const imageUrl = item.media_url || item.thumbnail_url;
+      if (!imageUrl) return;
+
+      const texture = textureLoader.load(imageUrl);
+      const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+      const mesh = new THREE.Mesh(geometry, material);
+
+      const col = index % 5;
+      const row = Math.floor(index / 5);
+      mesh.position.x = (col - 2) * 2.8;
+      mesh.position.y = -(row - 2) * 3.4;
+      mesh.position.z = Math.sin(index) * 0.4;
+
+      scene.add(mesh);
+      meshes.push(mesh);
+    });
+
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    window.addEventListener('mousemove', (e) => {
+      mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      mouse.x += (mouse.targetX - mouse.x) * 0.05;
+      mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+      scene.rotation.y = mouse.x * 0.2;
+      scene.rotation.x = -mouse.y * 0.2;
+
+      meshes.forEach((mesh, idx) => {
+        mesh.rotation.z = Math.sin(Date.now() * 0.001 + idx) * 0.03;
+      });
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>
