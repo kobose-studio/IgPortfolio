@@ -5,7 +5,7 @@ import portfolioData from '../portfolio_cache.json';
 <div id="canvas-container">
   <!-- HUD Ambientale Curatoriale -->
   <div id="hud-top-left" class="hud-element font-mono-tech">
-    IMLAND® <span class="hud-divider">//</span> ARCHIVE 2026 <span class="hud-badge">[NEXUS_ONLINE]</span>
+    IMLAND® <span class="hud-divider">//</span> ARCHIVE 2026 <span class="hud-badge">[LASER_LOCK_STABLE]</span>
   </div>
   
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
@@ -14,8 +14,6 @@ import portfolioData from '../portfolio_cache.json';
 
   <!-- Stage Modale Editoriale (Fashion Corner Plaque) -->
   <div id="editorial-stage">
-    
-    <!-- Card Informativa Ancorata in Basso a Destra -->
     <div id="editorial-card">
        <div class="card-meta-bar">
          <div class="status-box">
@@ -25,15 +23,12 @@ import portfolioData from '../portfolio_cache.json';
          <span id="modal-type" class="badge-type font-mono-tech">IMAGE</span>
        </div>
 
-       <!-- Titolo Espanso in Syne Extra Bold -->
        <h1 id="modal-title" class="font-syne">MATERIA_ISOLATA</h1>
 
-       <!-- Didascalia Tipografica -->
        <p id="modal-caption" class="font-sans">
          Caricamento didascalia dall'archivio...
        </p>
 
-       <!-- Azioni di Navigazione -->
        <div class="card-action-bar">
          <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary font-mono-tech">
            INSTAGRAM ↗
@@ -44,13 +39,11 @@ import portfolioData from '../portfolio_cache.json';
        </div>
     </div>
     
-    <!-- Player Video Fullscreen (Se il nodo è un MP4) -->
     <div id="video-stage"></div>
   </div>
 </div>
 
 <style>
-  /* === RESET & GALLERIA MINIMALE === */
   :global(body, html) {
     margin: 0;
     padding: 0;
@@ -75,12 +68,10 @@ import portfolioData from '../portfolio_cache.json';
     cursor: grabbing;
   }
 
-  /* === TYPOGRAPHY SPECS === */
   .font-syne { font-family: 'Syne', sans-serif; font-weight: 800; }
   .font-mono-tech { font-family: 'Space Mono', monospace; }
   .font-sans { font-family: 'Inter', sans-serif; }
 
-  /* === HUD INTERFACE (MINIMAL) === */
   .hud-element {
     position: absolute;
     z-index: 10;
@@ -94,9 +85,8 @@ import portfolioData from '../portfolio_cache.json';
   #hud-top-left { top: 28px; left: 28px; }
   #hud-bottom-left { bottom: 28px; left: 28px; color: #8c8c8c; font-size: 10px; }
   .hud-divider { color: #8c8c8c; margin: 0 4px; }
-  .hud-badge { color: #a6a6a6; margin-left: 8px; font-size: 10px; }
+  .hud-badge { color: #00e676; margin-left: 8px; font-size: 10px; font-weight: bold; }
 
-  /* === EDITORIAL STAGE OVERLAY === */
   #editorial-stage {
     position: fixed;
     top: 0;
@@ -116,7 +106,6 @@ import portfolioData from '../portfolio_cache.json';
     pointer-events: auto;
   }
 
-  /* === BRUTALIST FASHION CARD (ANGOLO IN BASSO A DESTRA) === */
   #editorial-card {
     position: absolute;
     bottom: 36px;
@@ -272,6 +261,23 @@ import portfolioData from '../portfolio_cache.json';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
+
+    // ⚡ MIRINO LASER VETTORIALE (8 SEGMENTI DI ANGOLO)
+    const laserGeometry = new THREE.BufferGeometry();
+    const laserPositions = new Float32Array(48); // 16 vertici XYZ
+    laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
+
+    const laserMaterial = new THREE.LineBasicMaterial({
+      color: 0x00e676,
+      transparent: true,
+      opacity: 0,
+      linewidth: 2,
+      depthTest: false // Elimina artefatti e garantisce massima nitidezza
+    });
+    
+    const laserMesh = new THREE.LineSegments(laserGeometry, laserMaterial);
+    laserMesh.frustumCulled = false; // 🛡️ FIX COLONNE 1 e 5: disabilita il culling automatico
+    scene.add(laserMesh);
 
     const vertexShader = `
       varying vec2 vUv;
@@ -477,6 +483,8 @@ import portfolioData from '../portfolio_cache.json';
     });
 
     const clock = new THREE.Clock();
+    const targetWorldPos = new THREE.Vector3();
+
     function animate() {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
@@ -516,19 +524,71 @@ import portfolioData from '../portfolio_cache.json';
         mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
       });
 
-      // 🎥 REGIA CAMERA: Centramento vettoriale perfetto al centro del monitor (nessun offset Y)
+      // 🎥 REGIA CAMERA & MIRINO LASER D'ANGOLO (BRACKETS)
       if (activeMesh) {
-        camera.position.x += (activeMesh.position.x - camera.position.x) * 0.08;
-        camera.position.y += (activeMesh.position.y - camera.position.y) * 0.08;
-        camera.position.z += (activeMesh.userData.originalZ + 4.0 - camera.position.z) * 0.05;
+        // Estraiamo la posizione reale 3D nel MONDO
+        activeMesh.getWorldPosition(targetWorldPos);
+
+        camera.position.x += (targetWorldPos.x - camera.position.x) * 0.08;
+        camera.position.y += (targetWorldPos.y - camera.position.y) * 0.08;
+        camera.position.z += (4.0 - camera.position.z) * 0.05;
+        
         gridGroup.rotation.y += (0 - gridGroup.rotation.y) * 0.08;
         gridGroup.rotation.x += (0 - gridGroup.rotation.x) * 0.08;
+
+        // ACCENDI IL MIRINO LASER
+        laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
+
+        const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
+        const arr = posAttr.array as Float32Array;
+
+        const twX = targetWorldPos.x;
+        const twY = targetWorldPos.y;
+        const twZ = targetWorldPos.z + 0.05;
+
+        // Dimensioni delle 4 parentesi d'angolo
+        const w = 1.18;
+        const h = 1.48;
+        const len = 0.25;
+
+        let i = 0;
+        // Top-Left Corner
+        arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
+        arr[i++] = twX - w + len; arr[i++] = twY + h;       arr[i++] = twZ;
+        arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
+        arr[i++] = twX - w;       arr[i++] = twY + h - len; arr[i++] = twZ;
+
+        // Top-Right Corner
+        arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
+        arr[i++] = twX + w - len; arr[i++] = twY + h;       arr[i++] = twZ;
+        arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
+        arr[i++] = twX + w;       arr[i++] = twY + h - len; arr[i++] = twZ;
+
+        // Bottom-Right Corner
+        arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
+        arr[i++] = twX + w - len; arr[i++] = twY - h;       arr[i++] = twZ;
+        arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
+        arr[i++] = twX + w;       arr[i++] = twY - h + len; arr[i++] = twZ;
+
+        // Bottom-Left Corner
+        arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
+        arr[i++] = twX - w + len; arr[i++] = twY - h;       arr[i++] = twZ;
+        arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
+        arr[i++] = twX - w;       arr[i++] = twY - h + len; arr[i++] = twZ;
+
+        posAttr.needsUpdate = true;
+
       } else {
         camera.position.x += (0 - camera.position.x) * 0.05;
         camera.position.y += (0 - camera.position.y) * 0.05;
         camera.position.z += (10 - camera.position.z) * 0.05;
+        
         gridGroup.rotation.y = mouse.x * 0.12;
         gridGroup.rotation.x = -mouse.y * 0.12 + scrollVelocity * 0.5;
+
+        // SPEGNI IL MIRINO LASER SENZA LASCIARE RIGHE FANTASMA
+        laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
+        if (laserMaterial.opacity < 0.01) laserMaterial.opacity = 0;
       }
 
       renderer.render(scene, camera);
