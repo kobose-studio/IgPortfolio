@@ -5,7 +5,7 @@ import portfolioData from '../portfolio_cache.json';
 <div id="canvas-container">
   <!-- HUD Ambientale Curatoriale -->
   <div id="hud-top-left" class="hud-element font-mono-tech">
-    IMLAND® <span class="hud-divider">//</span> ARCHIVE 2026 <span class="hud-badge">[LASER_LOCK_STABLE]</span>
+    IMLAND® <span class="hud-divider">//</span> ARCHIVE 2026 <span class="hud-badge">[3D_DEPTH_STUDIO_ACTIVE]</span>
   </div>
   
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
@@ -262,9 +262,9 @@ import portfolioData from '../portfolio_cache.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // ⚡ MIRINO LASER VETTORIALE (8 SEGMENTI DI ANGOLO)
+    // MIRINO LASER VETTORIALE (4 BRACKETS D'ANGOLO)
     const laserGeometry = new THREE.BufferGeometry();
-    const laserPositions = new Float32Array(48); // 16 vertici XYZ
+    const laserPositions = new Float32Array(48);
     laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
 
     const laserMaterial = new THREE.LineBasicMaterial({
@@ -272,13 +272,14 @@ import portfolioData from '../portfolio_cache.json';
       transparent: true,
       opacity: 0,
       linewidth: 2,
-      depthTest: false // Elimina artefatti e garantisce massima nitidezza
+      depthTest: false
     });
     
     const laserMesh = new THREE.LineSegments(laserGeometry, laserMaterial);
-    laserMesh.frustumCulled = false; // 🛡️ FIX COLONNE 1 e 5: disabilita il culling automatico
+    laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
+    // 🔬 SHADER CON RILIEVO CONVESSO & VIGNETTATURA ANALOGICA
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -291,10 +292,16 @@ import portfolioData from '../portfolio_cache.json';
         vec3 pos = position;
         float dist = distance(uv, uMouse);
         
+        // Deformazione liquida durante lo scroll
         float wave = sin(dist * 8.0 - uTime * 2.0) * 0.08;
         float bend = sin(pos.y * 1.5) * uVelocity * 0.25;
         
-        pos.z += wave * (1.0 - uFocus);
+        // Rilievo convesso da stampa fotografica d'archivio quando in uFocus
+        float dx = uv.x - 0.5;
+        float dy = uv.y - 0.5;
+        float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.30 * uFocus;
+        
+        pos.z += wave * (1.0 - uFocus) + focusCurvature;
         pos.z += bend * (1.0 - uFocus);
         
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -312,15 +319,27 @@ import portfolioData from '../portfolio_cache.json';
       void main() {
         vec2 uv = vUv;
         
+        // Distorsione liquida
         float distortion = sin(uv.y * 15.0 + uTime * 2.5) * (0.006 + abs(uVelocity) * 0.02) * (1.0 - uFocus);
         uv.x += distortion;
         
-        float shift = (0.003 + abs(uVelocity) * 0.01) * (1.0 - uFocus);
+        // Micro Aberrazione CROMATICA analogica
+        float shift = (0.003 + abs(uVelocity) * 0.01) * (1.0 - uFocus) + 0.0008 * uFocus;
         float r = texture2D(uTexture, uv + vec2(shift, 0.0)).r;
         float g = texture2D(uTexture, uv).g;
         float b = texture2D(uTexture, uv - vec2(shift, 0.0)).b;
         
-        gl_FragColor = vec4(r, g, b, uOpacity);
+        vec3 color = vec3(r, g, b);
+        
+        // Illuminazione da Galleria & Vignettatura Soft
+        if (uFocus > 0.01) {
+          float distFromCenter = length(uv - vec2(0.5));
+          float vignette = smoothstep(0.75, 0.20, distFromCenter);
+          vec3 warmGalleryLight = vec3(1.02, 0.99, 0.95);
+          color = mix(color, color * warmGalleryLight * (0.88 + 0.12 * vignette), uFocus);
+        }
+        
+        gl_FragColor = vec4(color, uOpacity);
       }
     `;
 
@@ -506,7 +525,14 @@ import portfolioData from '../portfolio_cache.json';
         
         if (activeMesh) {
            if (mesh === activeMesh) {
+             // 🔮 MICRO-PARALLASSE & PARABOLIC BENDING IN FOCUS MODE
+             mesh.rotation.y += (mouse.x * 0.12 - mesh.rotation.y) * 0.1;
+             mesh.rotation.x += (-mouse.y * 0.12 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
+             
+             // Respiro sinusale impercettibile
+             mesh.position.z = mesh.userData.originalZ + Math.sin(elapsedTime * 1.5) * 0.03;
+
              mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
            } else {
@@ -515,6 +541,10 @@ import portfolioData from '../portfolio_cache.json';
            }
         } else {
            mesh.rotation.z = Math.sin(elapsedTime + idx) * 0.03;
+           mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
+           mesh.rotation.y += (0 - mesh.rotation.y) * 0.1;
+           mesh.position.z = mesh.userData.originalZ;
+
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
         }
@@ -524,9 +554,8 @@ import portfolioData from '../portfolio_cache.json';
         mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
       });
 
-      // 🎥 REGIA CAMERA & MIRINO LASER D'ANGOLO (BRACKETS)
+      // 🎥 REGIA CAMERA & MIRINO LASER
       if (activeMesh) {
-        // Estraiamo la posizione reale 3D nel MONDO
         activeMesh.getWorldPosition(targetWorldPos);
 
         camera.position.x += (targetWorldPos.x - camera.position.x) * 0.08;
@@ -536,7 +565,6 @@ import portfolioData from '../portfolio_cache.json';
         gridGroup.rotation.y += (0 - gridGroup.rotation.y) * 0.08;
         gridGroup.rotation.x += (0 - gridGroup.rotation.x) * 0.08;
 
-        // ACCENDI IL MIRINO LASER
         laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
 
         const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
@@ -544,9 +572,8 @@ import portfolioData from '../portfolio_cache.json';
 
         const twX = targetWorldPos.x;
         const twY = targetWorldPos.y;
-        const twZ = targetWorldPos.z + 0.05;
+        const twZ = targetWorldPos.z + 0.08;
 
-        // Dimensioni delle 4 parentesi d'angolo
         const w = 1.18;
         const h = 1.48;
         const len = 0.25;
@@ -586,7 +613,6 @@ import portfolioData from '../portfolio_cache.json';
         gridGroup.rotation.y = mouse.x * 0.12;
         gridGroup.rotation.x = -mouse.y * 0.12 + scrollVelocity * 0.5;
 
-        // SPEGNI IL MIRINO LASER SENZA LASCIARE RIGHE FANTASMA
         laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
         if (laserMaterial.opacity < 0.01) laserMaterial.opacity = 0;
       }
