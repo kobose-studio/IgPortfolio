@@ -3,11 +3,29 @@ import portfolioData from '../portfolio_cache.json';
 ---
 
 <div id="canvas-container" class="w-full h-screen relative bg-neutral-900 overflow-hidden cursor-grab active:cursor-grabbing">
-  <div id="instructions" class="absolute top-6 left-6 z-10 text-xs font-mono tracking-widest text-neutral-400 pointer-events-none uppercase">
-    [ IMLAND 3D Matrix — Infinite Virtual Scroll Active ]
+  <div id="instructions" class="absolute top-6 left-6 z-10 text-xs font-mono tracking-widest text-neutral-400 pointer-events-none uppercase transition-opacity duration-500">
+    [ IMLAND 3D Matrix — Pure Data Matrix ]
   </div>
-  <div id="scroll-indicator" class="absolute bottom-6 right-6 z-10 text-xs font-mono tracking-widest text-neutral-500 pointer-events-none uppercase">
-    Scroll / Drag to Navigate
+  <div id="scroll-indicator" class="absolute bottom-6 right-6 z-10 text-xs font-mono tracking-widest text-neutral-500 pointer-events-none uppercase transition-opacity duration-500">
+    Scroll / Drag / Click to Focus
+  </div>
+
+  <div id="detail-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500 bg-black/85 backdrop-blur-lg p-6">
+    <div class="max-w-xl text-center text-white font-mono uppercase tracking-widest translate-y-4 transition-transform duration-500" id="overlay-content">
+       <p class="text-[10px] text-neutral-500 mb-2 tracking-[0.3em]" id="modal-date">[ 00.00.0000 ]</p>
+       <h2 class="text-xl md:text-2xl mb-4 tracking-[0.2em] font-bold text-neutral-100" id="modal-title">MATERIA ISOLATA</h2>
+       <p class="text-xs text-neutral-300 normal-case tracking-normal mb-8 max-h-36 overflow-y-auto leading-relaxed font-sans px-4 text-left border-l border-white/20 my-4" id="modal-caption">
+         Caricamento didascalia...
+       </p>
+       <div class="flex gap-4 justify-center items-center">
+         <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="border border-white/50 px-6 py-2.5 text-xs hover:bg-white hover:text-black transition-colors duration-300 pointer-events-auto cursor-pointer uppercase tracking-wider">
+           Vedi su Instagram ↗
+         </a>
+         <button id="btn-close" class="border border-white/20 px-6 py-2.5 text-xs hover:border-white text-neutral-400 hover:text-white transition-colors duration-300 pointer-events-auto cursor-pointer uppercase tracking-wider">
+           Ripristina
+         </button>
+       </div>
+    </div>
   </div>
 </div>
 
@@ -31,15 +49,12 @@ import portfolioData from '../portfolio_cache.json';
       uniform float uTime;
       uniform vec2 uMouse;
       uniform float uVelocity;
-
       void main() {
         vUv = uv;
         vec3 pos = position;
-        
         float dist = distance(uv, uMouse);
         pos.z += sin(dist * 8.0 - uTime * 2.0) * 0.08;
         pos.z += sin(pos.y * 1.5) * uVelocity * 0.25;
-
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `;
@@ -49,28 +64,24 @@ import portfolioData from '../portfolio_cache.json';
       uniform sampler2D uTexture;
       uniform float uTime;
       uniform float uVelocity;
-
       void main() {
         vec2 uv = vUv;
-        
         float distortion = sin(uv.y * 15.0 + uTime * 2.5) * (0.006 + abs(uVelocity) * 0.02);
         uv.x += distortion;
-
         float shift = 0.003 + abs(uVelocity) * 0.01;
         float r = texture2D(uTexture, uv + vec2(shift, 0.0)).r;
         float g = texture2D(uTexture, uv).g;
         float b = texture2D(uTexture, uv - vec2(shift, 0.0)).b;
-
         gl_FragColor = vec4(r, g, b, 1.0);
       }
     `;
 
     const textureLoader = new THREE.TextureLoader();
     const mediaItems = rawData.data || [];
+
     const materials: THREE.ShaderMaterial[] = [];
     const meshes: THREE.Mesh[] = [];
     const basePositions: { x: number; y: number }[] = [];
-
     const geometry = new THREE.PlaneGeometry(2.2, 2.8, 32, 32);
 
     const COLS = 5;
@@ -80,14 +91,18 @@ import portfolioData from '../portfolio_cache.json';
     const TOTAL_HEIGHT = ROWS * SPACING_Y;
 
     mediaItems.forEach((item: any, index: number) => {
-      const imageUrl = item.media_url || item.thumbnail_url;
+      // 🛡️ PATCH ALCHEMICA: FILTRO ANTI-MATERIA OSCURA (VIDEO)
+      let imageUrl = item.media_url;
+      if (item.media_type === 'VIDEO') {
+        imageUrl = item.thumbnail_url; // Usa la copertina JPG invece dell'MP4
+      }
+      // Fallback estremo se media_url manca per qualche anomalia dell'API
+      if (!imageUrl) imageUrl = item.thumbnail_url; 
       if (!imageUrl) return;
 
       const texture = textureLoader.load(imageUrl);
-      
       const material = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
+        vertexShader, fragmentShader,
         uniforms: {
           uTexture: { value: texture },
           uTime: { value: 0 },
@@ -98,16 +113,20 @@ import portfolioData from '../portfolio_cache.json';
       });
 
       const mesh = new THREE.Mesh(geometry, material);
-
       const col = index % COLS;
       const row = Math.floor(index / COLS);
       
       const initialX = (col - (COLS - 1) / 2) * SPACING_X;
       const initialY = -(row - (ROWS - 1) / 2) * SPACING_Y;
 
-      mesh.position.x = initialX;
-      mesh.position.y = initialY;
-      mesh.position.z = Math.sin(index) * 0.4;
+      mesh.position.set(initialX, initialY, Math.sin(index) * 0.4);
+      mesh.userData = { 
+        id: item.id,
+        caption: item.caption || "Progetto IMLAND — Nessuna didascalia.",
+        timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO',
+        permalink: item.permalink || '#',
+        originalZ: mesh.position.z 
+      };
 
       basePositions.push({ x: initialX, y: initialY });
       scene.add(mesh);
@@ -115,80 +134,108 @@ import portfolioData from '../portfolio_cache.json';
       materials.push(material);
     });
 
-    let scrollY = 0;
-    let targetScrollY = 0;
-    let scrollVelocity = 0;
+    const raycaster = new THREE.Raycaster();
+    const clickMouse = new THREE.Vector2();
+    let activeMesh: THREE.Mesh | null = null;
+    let scrollY = 0, targetScrollY = 0, scrollVelocity = 0, isDragging = false, startY = 0, dragDistance = 0;
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    
+    const overlay = document.getElementById('detail-overlay');
+    const overlayContent = document.getElementById('overlay-content');
+    const instructions = document.getElementById('instructions');
+    const scrollInd = document.getElementById('scroll-indicator');
+    const btnClose = document.getElementById('btn-close');
+    const modalDate = document.getElementById('modal-date');
+    const modalCaption = document.getElementById('modal-caption');
+    const modalLink = document.getElementById('modal-link') as HTMLAnchorElement;
 
-    let isDragging = false;
-    let startY = 0;
-
-    window.addEventListener('wheel', (e) => {
-      targetScrollY += e.deltaY * 0.004;
-    }, { passive: true });
-
-    window.addEventListener('pointerdown', (e) => {
-      isDragging = true;
-      startY = e.clientY;
+    btnClose?.addEventListener('click', () => {
+      activeMesh = null;
+      overlay?.classList.add('opacity-0', 'pointer-events-none');
+      overlayContent?.classList.add('translate-y-4');
+      instructions?.classList.remove('opacity-0');
+      scrollInd?.classList.remove('opacity-0');
     });
 
+    window.addEventListener('wheel', (e) => { if(!activeMesh) targetScrollY += e.deltaY * 0.004; }, { passive: true });
+    window.addEventListener('pointerdown', (e) => { isDragging = true; startY = e.clientY; dragDistance = 0; });
     window.addEventListener('pointermove', (e) => {
-      if (isDragging) {
+      if (isDragging && !activeMesh) {
         const deltaY = e.clientY - startY;
+        dragDistance += Math.abs(deltaY);
         targetScrollY -= deltaY * 0.008;
         startY = e.clientY;
       }
-    });
-
-    window.addEventListener('pointerup', () => { isDragging = false; });
-    window.addEventListener('pointerleave', () => { isDragging = false; });
-
-    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    window.addEventListener('mousemove', (e) => {
       mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
     });
+    window.addEventListener('pointerup', (e) => {
+      isDragging = false;
+      if (dragDistance < 5 && !activeMesh) {
+        clickMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        clickMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(clickMouse, camera);
+        const intersects = raycaster.intersectObjects(meshes);
+        if (intersects.length > 0) {
+          activeMesh = intersects[0].object as THREE.Mesh;
+          const data = activeMesh.userData;
+          if (modalDate) modalDate.innerText = `[ ${data.timestamp} ]`;
+          if (modalCaption) modalCaption.innerText = data.caption;
+          if (modalLink) modalLink.href = data.permalink;
+          overlay?.classList.remove('opacity-0', 'pointer-events-none');
+          overlayContent?.classList.remove('translate-y-4');
+          instructions?.classList.add('opacity-0');
+          scrollInd?.classList.add('opacity-0');
+        }
+      }
+    });
 
     const clock = new THREE.Clock();
-
     function animate() {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
-
       const prevScrollY = scrollY;
       scrollY += (targetScrollY - scrollY) * 0.07;
       scrollVelocity = scrollY - prevScrollY;
-
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      scene.rotation.y = mouse.x * 0.15;
-      scene.rotation.x = -mouse.y * 0.15 + scrollVelocity * 0.6;
-
       const halfHeight = TOTAL_HEIGHT / 2;
-
       meshes.forEach((mesh, idx) => {
         const basePos = basePositions[idx];
         let currentY = basePos.y + scrollY;
-
         currentY = ((currentY + halfHeight) % TOTAL_HEIGHT + TOTAL_HEIGHT) % TOTAL_HEIGHT - halfHeight;
         mesh.position.y = currentY;
-
-        mesh.rotation.z = Math.sin(elapsedTime + idx) * 0.03;
+        
+        if (mesh !== activeMesh) {
+           mesh.rotation.z = Math.sin(elapsedTime + idx) * 0.03;
+        } else {
+           mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
+        }
       });
+
+      if (activeMesh) {
+        camera.position.x += (activeMesh.position.x - camera.position.x) * 0.05;
+        camera.position.y += (activeMesh.position.y - camera.position.y) * 0.05;
+        camera.position.z += (activeMesh.userData.originalZ + 2.8 - camera.position.z) * 0.04;
+        scene.rotation.y += (0 - scene.rotation.y) * 0.05;
+        scene.rotation.x += (0 - scene.rotation.x) * 0.05;
+      } else {
+        camera.position.x += (0 - camera.position.x) * 0.05;
+        camera.position.y += (0 - camera.position.y) * 0.05;
+        camera.position.z += (10 - camera.position.z) * 0.05;
+        scene.rotation.y = mouse.x * 0.15;
+        scene.rotation.x = -mouse.y * 0.15 + scrollVelocity * 0.6;
+      }
 
       materials.forEach((mat) => {
         mat.uniforms.uTime.value = elapsedTime;
-        mat.uniforms.uVelocity.value = scrollVelocity;
-        mat.uniforms.uMouse.value.set(
-          (mouse.x + 1) * 0.5,
-          (mouse.y + 1) * 0.5
-        );
+        mat.uniforms.uVelocity.value = activeMesh ? 0 : scrollVelocity;
+        mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
       });
-
       renderer.render(scene, camera);
     }
     animate();
-
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
