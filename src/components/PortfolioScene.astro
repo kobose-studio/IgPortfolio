@@ -18,7 +18,7 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[SOFT_WAVE_CALIBRATED]</span>
+    <span class="hud-badge hidden md:inline">[ROYAL_SEPIA_GOLD_ACTIVE]</span>
   </div>
   
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
@@ -26,7 +26,7 @@ import portfolioData from '../portfolio_cache.json';
     <span class="md:hidden">SWIPE / TAP TO ISOLATE</span>
   </div>
 
-  <!-- Stage Modale Editoriale (Con Slider Carosello Interattivo) -->
+  <!-- Stage Modale Editoriale -->
   <div id="editorial-stage">
     <div id="editorial-card">
        <div class="card-meta-bar">
@@ -37,13 +37,22 @@ import portfolioData from '../portfolio_cache.json';
          <span id="modal-type" class="badge-type font-mono-tech">IMAGE</span>
        </div>
 
-       <h1 id="modal-title" class="font-syne">MATERIA_ISOLATA</h1>
+       <!-- GLOBAL WORK NAVIGATOR -->
+       <div class="work-nav-bar">
+         <button id="btn-prev-work" class="btn-nav font-mono-tech">[ ◄ PREV ]</button>
+         <span id="work-counter" class="work-counter-text font-mono-tech">01 / 00</span>
+         <button id="btn-next-work" class="btn-nav font-mono-tech">[ NEXT ► ]</button>
+       </div>
 
+       <!-- TITOLO BILINGUE ITALIANO / INGLESE -->
+       <h1 id="modal-title" class="font-syne">TITOLO_ITALIANO / ENGLISH_TITLE</h1>
+
+       <!-- DIDASCALIA COMPLETA -->
        <p id="modal-caption" class="font-sans">
          Caricamento didascalia dall'archivio...
        </p>
 
-       <div class="card-action-bar flex-row justify-between items-center gap-2">
+       <div class="card-action-bar">
          <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary font-mono-tech text-center">
            INSTAGRAM ↗
          </a>
@@ -53,7 +62,7 @@ import portfolioData from '../portfolio_cache.json';
        </div>
     </div>
 
-    <!-- Contenitore Multimediale Fullscreen (Video & Caroselli) -->
+    <!-- Contenitore Comandi Slider per Carosello / Video Embed -->
     <div id="video-stage"></div>
   </div>
 </div>
@@ -76,7 +85,7 @@ import portfolioData from '../portfolio_cache.json';
     background: linear-gradient(to bottom, #f2f2f0 10%, transparent 100%);
     z-index: 50; pointer-events: none;
   }
-  @media (min-width: 768px) { .top-vapour-mask { height: 240px; } }
+  @media (min-width: 768px) { .top-vapour-mask { height: 260px; } }
 
   #canvas-container { width: 100vw; height: 100vh; position: relative; background-color: #f2f2f0; overflow: hidden; cursor: grab; }
   #canvas-container:active { cursor: grabbing; }
@@ -87,7 +96,7 @@ import portfolioData from '../portfolio_cache.json';
 
   #global-brand-logo {
     position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-    width: 285px; height: 130px; z-index: 110; pointer-events: none; mix-blend-mode: multiply;
+    width: 356px; height: 160px; z-index: 110; pointer-events: none; mix-blend-mode: multiply;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
   #global-brand-logo img {
@@ -97,7 +106,7 @@ import portfolioData from '../portfolio_cache.json';
   #global-brand-logo.is-focused img { transform: scale(0.9); }
 
   @media (min-width: 768px) {
-    #global-brand-logo { top: 15px; left: 36px; transform: none; width: 495px; height: 210px; }
+    #global-brand-logo { top: 15px; left: 36px; transform: none; width: 618px; height: 260px; }
     #global-brand-logo img { object-position: left top; }
     #global-brand-logo.is-focused { left: 36px; top: 15px; }
     #global-brand-logo.is-focused img { transform: scale(1); }
@@ -111,7 +120,9 @@ import portfolioData from '../portfolio_cache.json';
   #hud-right-vertical { top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg); white-space: nowrap; text-align: center; display: flex; align-items: center; }
   @media (min-width: 768px) { #hud-right-vertical { right: 16px; transform: translate(25%, -50%) rotate(90deg); } }
   .hud-divider { color: #8c8c8c; margin: 0 8px; }
-  .hud-badge { color: #00e676; margin-left: 8px; font-size: 10px; font-weight: bold; }
+  
+  /* ⚜️ SEPIA GOLD HUD BADGE */
+  .hud-badge { color: #C09E5A; margin-left: 8px; font-size: 10px; font-weight: bold; }
 
   #editorial-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; display: none; opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
   #editorial-stage.is-active { display: block; opacity: 1; pointer-events: auto; }
@@ -122,30 +133,121 @@ import portfolioData from '../portfolio_cache.json';
   @media (min-width: 768px) { .card-meta-bar { margin-bottom: 12px; padding-bottom: 10px; } }
   .status-box { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #666666; letter-spacing: 0.15em; }
   @media (min-width: 768px) { .status-box { font-size: 10px; gap: 8px; letter-spacing: 0.2em; } }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background-color: #00e676; box-shadow: 0 0 8px #00e676; }
+  
+  /* ⚜️ SEPIA GOLD STATUS DOT */
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background-color: #C09E5A; box-shadow: 0 0 8px #C09E5A; }
   .badge-type { font-size: 8px; font-weight: 700; letter-spacing: 0.15em; background: #0d0d0d; color: #ffffff; padding: 2px 6px; text-transform: uppercase; }
   @media (min-width: 768px) { .badge-type { font-size: 9px; padding: 3px 8px; letter-spacing: 0.2em; } }
-  #modal-title { font-size: 16px; letter-spacing: -0.02em; color: #0d0d0d; text-transform: uppercase; margin: 4px 0; line-height: 1.1; }
-  @media (min-width: 768px) { #modal-title { font-size: 22px; margin: 8px 0; } }
+  
+  .work-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    margin: 6px 0 10px 0;
+    border-top: 1px solid rgba(13, 13, 13, 0.1);
+    border-bottom: 1px solid rgba(13, 13, 13, 0.1);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .btn-nav {
+    background: transparent;
+    border: 1px solid #0d0d0d;
+    color: #0d0d0d;
+    font-size: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.10em;
+    padding: 4px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+  @media (min-width: 768px) { 
+    .btn-nav { font-size: 9px; padding: 5px 10px; } 
+  }
+
+  /* ⚜️ SEPIA GOLD HOVER STATE */
+  .btn-nav:hover {
+    background: #C09E5A;
+    border-color: #C09E5A;
+    color: #ffffff;
+  }
+
+  .work-counter-text {
+    font-size: 9px;
+    color: #0d0d0d;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: center;
+  }
+  @media (min-width: 768px) { .work-counter-text { font-size: 10px; } }
+
+  #modal-title { font-size: 15px; letter-spacing: -0.02em; color: #0d0d0d; text-transform: uppercase; margin: 6px 0; line-height: 1.25; }
+  @media (min-width: 768px) { #modal-title { font-size: 18px; margin: 8px 0; } }
   #modal-caption { font-size: 11px; color: #404040; line-height: 1.45; max-height: 54px; overflow-y: auto; margin: 8px 0; padding-left: 8px; border-left: 2px solid #0d0d0d; }
   @media (min-width: 768px) { #modal-caption { font-size: 12px; max-height: 110px; line-height: 1.6; margin: 12px 0; padding-left: 12px; } }
-  .card-action-bar { display: flex; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(13, 13, 13, 0.08); }
+  .card-action-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(13, 13, 13, 0.08); }
   @media (min-width: 768px) { .card-action-bar { margin-top: 16px; padding-top: 12px; } }
   .btn-primary { background: #0d0d0d; color: #ffffff; padding: 8px 14px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-decoration: none; text-transform: uppercase; transition: all 0.25s ease; border: 1px solid #0d0d0d; }
   @media (min-width: 768px) { .btn-primary { padding: 10px 18px; font-size: 10px; letter-spacing: 0.15em; } }
-  .btn-primary:hover { background: #00e676; color: #0d0d0d; border-color: #00e676; }
+  .btn-primary:hover { background: #C09E5A; color: #ffffff; border-color: #C09E5A; }
   .btn-secondary { background: transparent; border: none; color: #737373; font-size: 9px; letter-spacing: 0.12em; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease; padding: 6px 0; }
   @media (min-width: 768px) { .btn-secondary { font-size: 10px; letter-spacing: 0.15em; padding: 8px 0; } }
   .btn-secondary:hover { color: #0d0d0d; }
 
-  #video-stage { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 800px; max-height: 45vh; display: flex; justify-content: center; align-items: center; pointer-events: none; z-index: 90; }
-  @media (min-width: 768px) { #video-stage { top: 50%; max-height: 65vh; width: 100%; } }
+  #video-stage { 
+    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; 
+    pointer-events: none; z-index: 90; display: flex; justify-content: center; align-items: center;
+  }
 </style>
 
 <script>
   import * as THREE from 'three';
   import rawData from '../portfolio_cache.json';
 
+  function parseBilingualTitle(caption: string) {
+    if (!caption) return "OPERA D'ARCHIVIO";
+
+    let cleanText = caption.replace(/#\w+/g, '').replace(/@\w+/g, '').trim();
+    if (!cleanText) return "MATERIA ISOLATA";
+
+    let rawLines = cleanText.split(/[\r\n]+/).map(l => l.trim()).filter(l => l.length > 0);
+    let contentLines = rawLines.filter(line => !/IMLAND/i.test(line));
+
+    if (contentLines.length === 0) return "MATERIA ISOLATA";
+
+    let targetLine = contentLines[0];
+
+    if (targetLine.includes('/')) {
+      let parts = targetLine.split('/').map(p => p.trim().replace(/^['"•\s]+|['"•\s]+$/g, '')).filter(p => p.length > 0);
+      parts = parts.filter(p => !/IMLAND/i.test(p));
+      
+      if (parts.length >= 2) {
+        return `${parts[0].toUpperCase()} / ${parts[1].toUpperCase()}`;
+      } else if (parts.length === 1) {
+        return parts[0].toUpperCase();
+      }
+    }
+
+    if (contentLines.length >= 2) {
+      let itTitle = targetLine.toUpperCase();
+      let enTitle = contentLines[1].toUpperCase();
+      if (enTitle.length > 2 && !enTitle.startsWith('HTTP') && !/IMLAND/i.test(enTitle)) {
+        if ((itTitle.length + enTitle.length) < 60) {
+          return `${itTitle} / ${enTitle}`;
+        }
+      }
+    }
+
+    return targetLine.substring(0, 48).toUpperCase();
+  }
+
+  // ⚜️ SEPIA GOLD CANVAS BADGE CREATOR (#C09E5A)
   function createBadgeTexture(type: string) {
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
@@ -153,8 +255,8 @@ import portfolioData from '../portfolio_cache.json';
     if (!ctx) return new THREE.CanvasTexture(canvas);
 
     ctx.clearRect(0, 0, 128, 128); 
-    ctx.fillStyle = '#00e676';
-    ctx.strokeStyle = '#00e676';
+    ctx.fillStyle = '#C09E5A';
+    ctx.strokeStyle = '#C09E5A';
 
     if (type === 'VIDEO') {
       ctx.beginPath(); 
@@ -214,24 +316,31 @@ import portfolioData from '../portfolio_cache.json';
     const laserGeometry = new THREE.BufferGeometry();
     const laserPositions = new Float32Array(48);
     laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
+    
+    // ⚜️ CORNICI LASER 3D IN SEPIA GOLD (0xC09E5A)
     const laserMaterial = new THREE.LineBasicMaterial({
-      color: 0x00e676, transparent: true, opacity: 0, linewidth: 2, depthTest: false
+      color: 0xc09e5a, transparent: true, opacity: 0, linewidth: 2, depthTest: false
     });
     const laserMesh = new THREE.LineSegments(laserGeometry, laserMaterial);
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
-    // 🌊 GLSL SHADERS RIGENERATI: Onde morbide per non deformare la tipografia interna alle foto
     const vertexShader = `
       varying vec2 vUv; uniform float uTime; uniform vec2 uMouse; uniform float uVelocity; uniform float uFocus;
       void main() {
         vUv = uv; vec3 pos = position; float dist = distance(uv, uMouse);
-        float wave = sin(dist * 6.0 - uTime * 1.8) * 0.035;
-        float bend = sin(pos.y * 1.2) * uVelocity * 0.10;
+        
+        float wave = sin(dist * 6.5 - uTime * 2.0) * 0.048;
+        float scrollZBend = sin(pos.y * 1.2) * uVelocity * 0.35;
+        float depthConveyor = (pos.y * pos.y - 1.5) * abs(uVelocity) * 0.15;
+        
         float dx = uv.x - 0.5; float dy = uv.y - 0.5;
-        float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.18 * uFocus;
-        pos.z += wave * (1.0 - uFocus) + focusCurvature;
-        pos.z += bend * (1.0 - uFocus);
+        float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.22 * uFocus;
+        
+        pos.z += wave * (1.0 - uFocus);
+        pos.z += (scrollZBend + depthConveyor) * (1.0 - uFocus);
+        pos.z += focusCurvature;
+        
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `;
@@ -241,11 +350,11 @@ import portfolioData from '../portfolio_cache.json';
       void main() {
         vec2 uv = vUv;
         float distFromCenter = length(uv - vec2(0.5));
-        float distortion = sin(uv.y * 10.0 + uTime * 2.0) * (0.002 + abs(uVelocity) * 0.008) * (1.0 - uFocus);
+        float distortion = sin(uv.y * 10.0 + uTime * 2.0) * (0.003 + abs(uVelocity) * 0.012) * (1.0 - uFocus);
         uv.x += distortion;
         float chromaMask = smoothstep(0.15, 0.70, distFromCenter);
-        vec2 redOffset  = (vec2(0.0025, 0.001) * uFocus * chromaMask) + vec2((0.0015 + abs(uVelocity) * 0.005) * (1.0 - uFocus), 0.0);
-        vec2 blueOffset = (vec2(-0.0025, -0.001) * uFocus * chromaMask) - vec2((0.0015 + abs(uVelocity) * 0.005) * (1.0 - uFocus), 0.0);
+        vec2 redOffset  = (vec2(0.0025, 0.001) * uFocus * chromaMask) + vec2((0.002 + abs(uVelocity) * 0.006) * (1.0 - uFocus), 0.0);
+        vec2 blueOffset = (vec2(-0.0025, -0.001) * uFocus * chromaMask) - vec2((0.002 + abs(uVelocity) * 0.006) * (1.0 - uFocus), 0.0);
         float r = texture2D(uTexture, uv + redOffset).r;
         float g = texture2D(uTexture, uv).g;
         float b = texture2D(uTexture, uv + blueOffset).b;
@@ -260,17 +369,16 @@ import portfolioData from '../portfolio_cache.json';
     `;
 
     const textureLoader = new THREE.TextureLoader();
-    const mediaItems = rawData.data || [];
+    const rawItems = rawData.data || [];
+    const mediaItems = rawItems.slice(0, 100); 
+
     const materials: THREE.ShaderMaterial[] = [];
     const meshes: THREE.Mesh[] = [];
-    const badgeMaterials: THREE.MeshBasicMaterial[] = []; // Tracciamento materiali badge per pulsazione
     const basePositions: { x: number; y: number }[] = [];
     const geometry = new THREE.PlaneGeometry(2.2, 2.8, 32, 32);
     
     const videoBadgeTexture = createBadgeTexture('VIDEO');
     const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
-    
-    // 🔍 DIMENSIONE ICONA RICALIBRATA (0.20 x 0.20)
     const badgeGeometry = new THREE.PlaneGeometry(0.20, 0.20);
 
     let COLS = 5; let SPACING_X = 2.8; let SPACING_Y = 3.6; let DRAG_MULTIPLIER = 0.008; let FOCUS_Z = 4.0; let TOTAL_HEIGHT = 0; let planeW = 2.2; let planeH = 2.8;
@@ -290,32 +398,29 @@ import portfolioData from '../portfolio_cache.json';
 
       const mesh = new THREE.Mesh(geometry, material);
       let rawCaption = item.caption || "IMLAND ARCHIVE WORK";
-      let cleanTitle = rawCaption.split('\n')[0].substring(0, 24).toUpperCase();
+      let cleanTitle = parseBilingualTitle(rawCaption);
       
-      mesh.userData = { 
-        id: item.id, title: cleanTitle, media_type: item.media_type, media_url: item.media_url, 
-        thumbnail_url: item.thumbnail_url, caption: rawCaption, 
-        timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
-        permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
-        originalZ: Math.sin(index) * 0.4 
-      };
+      let badgeMat: THREE.MeshBasicMaterial | null = null;
 
-      // 🛡️ ICONA CON PADDING AUMENTATO (0.22) & MATERIALE PULSANTE
       if (item.media_type === 'VIDEO' || item.media_type === 'CAROUSEL_ALBUM') {
         const badgeTex = item.media_type === 'VIDEO' ? videoBadgeTexture : carouselBadgeTexture;
-        
-        const badgeMat = new THREE.MeshBasicMaterial({ 
+        badgeMat = new THREE.MeshBasicMaterial({ 
             map: badgeTex, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false
         });
         const badgeMesh = new THREE.Mesh(badgeGeometry, badgeMat);
         badgeMesh.frustumCulled = false; 
         badgeMesh.renderOrder = 9999; 
-        
-        // Posizionata con maggiori margini interni (0.22)
         badgeMesh.position.set(2.2 / 2 - 0.22, -2.8 / 2 + 0.22, 0.15);
         mesh.add(badgeMesh);
-        badgeMaterials.push(badgeMat);
       }
+
+      mesh.userData = { 
+        id: item.id, title: cleanTitle, media_type: item.media_type, media_url: item.media_url, 
+        thumbnail_url: item.thumbnail_url, caption: rawCaption, 
+        timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
+        permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
+        originalZ: 0, coverTexture: texture, badgeMat: badgeMat 
+      };
 
       basePositions.push({ x: 0, y: 0 });
       gridGroup.add(mesh); meshes.push(mesh); materials.push(material);
@@ -347,6 +452,8 @@ import portfolioData from '../portfolio_cache.json';
     const raycaster = new THREE.Raycaster();
     const clickMouse = new THREE.Vector2();
     let activeMesh: THREE.Mesh | null = null;
+    let activeMeshIndex = -1;
+
     let scrollY = 0, targetScrollY = 0, scrollVelocity = 0, isDragging = false, startY = 0, dragDistance = 0;
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     
@@ -357,6 +464,10 @@ import portfolioData from '../portfolio_cache.json';
     const btnClose = document.getElementById('btn-close');
     const videoStage = document.getElementById('video-stage');
     
+    const btnPrevWork = document.getElementById('btn-prev-work');
+    const btnNextWork = document.getElementById('btn-next-work');
+    const workCounter = document.getElementById('work-counter');
+
     const modalDate = document.getElementById('modal-date');
     const modalType = document.getElementById('modal-type');
     const modalTitle = document.getElementById('modal-title');
@@ -364,7 +475,11 @@ import portfolioData from '../portfolio_cache.json';
     const modalLink = document.getElementById('modal-link') as HTMLAnchorElement;
 
     function closeModal() {
+      if (activeMesh && activeMesh.userData.coverTexture) {
+        activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      }
       activeMesh = null;
+      activeMeshIndex = -1;
       editorialStage?.classList.remove('is-active');
       brandLogo?.classList.remove('is-focused'); 
       
@@ -373,8 +488,116 @@ import portfolioData from '../portfolio_cache.json';
       if (videoStage) videoStage.innerHTML = '';
     }
 
+    function openModalForMesh(mesh: THREE.Mesh) {
+      if (activeMesh && activeMesh.userData.coverTexture) {
+        activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      }
+
+      activeMesh = mesh;
+      activeMeshIndex = meshes.indexOf(mesh);
+      const data = activeMesh.userData;
+
+      if (workCounter) {
+        workCounter.innerText = `${String(activeMeshIndex + 1).padStart(2, '0')} / ${String(meshes.length).padStart(2, '0')}`;
+      }
+
+      if (modalDate) modalDate.innerText = `DATE // ${data.timestamp}`;
+      if (modalType) modalType.innerText = data.media_type || 'IMAGE';
+      if (modalTitle) modalTitle.innerText = data.title;
+      if (modalCaption) modalCaption.innerText = data.caption;
+      if (modalLink) modalLink.href = data.permalink;
+
+      if (videoStage) {
+        videoStage.innerHTML = '';
+        
+        if (data.media_type === 'VIDEO') {
+          const video = document.createElement('video');
+          video.src = data.media_url;
+          video.autoplay = true; video.loop = true; video.controls = true; video.playsInline = true;
+          video.style.cssText = 'width:90%; max-width:800px; max-height:55vh; object-fit:contain; border-radius:4px; box-shadow:0 30px 60px rgba(0,0,0,0.12); pointer-events:auto;';
+          videoStage.appendChild(video);
+        
+        } else if (data.media_type === 'CAROUSEL_ALBUM') {
+          const children = data.children || [];
+          let slideIndex = 0;
+          
+          const slides = children.length > 0 
+            ? children.map((c: any) => c.media_url || c.thumbnail_url)
+            : [data.media_url];
+
+          const slideTextures = slides.map(url => textureLoader.load(url));
+
+          const controlsBox = document.createElement('div');
+          controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
+
+          // ⚜️ SEPIA GOLD CAROUSEL SLIDER CONTROLS
+          const controls = document.createElement('div');
+          controls.style.cssText = 'display:flex; align-items:center; gap:16px; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border:1px solid #C09E5A; padding:8px 22px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px; box-shadow:0 12px 32px rgba(0,0,0,0.25);';
+
+          const btnPrev = document.createElement('button');
+          btnPrev.innerText = '[ PREV SLIDE ]';
+          btnPrev.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
+
+          const counter = document.createElement('span');
+          counter.innerText = `01 / ${String(slides.length).padStart(2, '0')}`;
+
+          const btnNext = document.createElement('button');
+          btnNext.innerText = '[ NEXT SLIDE ]';
+          btnNext.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
+
+          function updateSlide(newIdx: number) {
+            slideIndex = (newIdx + slides.length) % slides.length;
+            if (activeMesh) {
+              activeMesh.material.uniforms.uTexture.value = slideTextures[slideIndex];
+            }
+            counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+          }
+
+          btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
+          btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
+
+          controls.appendChild(btnPrev);
+          controls.appendChild(counter);
+          controls.appendChild(btnNext);
+          controlsBox.appendChild(controls);
+
+          if (slides.length > 1) videoStage.appendChild(controlsBox);
+        }
+      }
+
+      editorialStage?.classList.add('is-active');
+      brandLogo?.classList.add('is-focused'); 
+      
+      if (hudRightVertical) hudRightVertical.style.opacity = '0'; 
+      if (hudBottomLeft) hudBottomLeft.style.opacity = '0';
+    }
+
+    function navigateWork(direction: number) {
+      if (meshes.length === 0 || activeMeshIndex === -1) return;
+      
+      const currentIdx = activeMeshIndex;
+      const nextIdx = (currentIdx + direction + meshes.length) % meshes.length;
+      
+      const currentY = basePositions[currentIdx].y;
+      const nextY = basePositions[nextIdx].y;
+      const dy = nextY - currentY;
+      
+      targetScrollY -= dy;
+      openModalForMesh(meshes[nextIdx]);
+    }
+
+    btnPrevWork?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(-1); });
+    btnNextWork?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(1); });
+
     btnClose?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    
+    window.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape') closeModal(); 
+      if (activeMesh) {
+        if (e.key === 'ArrowRight') navigateWork(1);
+        if (e.key === 'ArrowLeft') navigateWork(-1);
+      }
+    });
 
     window.addEventListener('wheel', (e) => { if(!activeMesh) targetScrollY += e.deltaY * 0.004; }, { passive: true });
     window.addEventListener('pointerdown', (e) => { isDragging = true; startY = e.clientY; dragDistance = 0; });
@@ -389,14 +612,28 @@ import portfolioData from '../portfolio_cache.json';
       mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
     });
 
+    // 🚀 BACKDROP DISMISS & SHIELD: Cliccare sullo sfondo chiude la modale!
     window.addEventListener('pointerup', (e) => {
       isDragging = false;
       if (dragDistance > 6) return;
-      if (activeMesh) { closeModal(); return; }
 
-      const rect = renderer.domElement.getBoundingClientRect();
-      clickMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      clickMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      if (activeMesh) {
+        const card = document.getElementById('editorial-card');
+        const stageControls = document.getElementById('video-stage');
+
+        const isClickOnCard = card && card.contains(e.target as Node);
+        const isClickOnControls = stageControls && stageControls.contains(e.target as Node);
+
+        // Se il click NON è avvenuto sulla scheda o sui comandi, CHIUDI LA MODALE!
+        if (!isClickOnCard && !isClickOnControls) {
+          closeModal();
+        }
+        return;
+      }
+
+      const rectDom = renderer.domElement.getBoundingClientRect();
+      clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1;
+      clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
       
       gridGroup.updateMatrixWorld(true);
       camera.updateMatrixWorld(true);
@@ -405,82 +642,8 @@ import portfolioData from '../portfolio_cache.json';
       const intersects = raycaster.intersectObjects(meshes, false);
       
       if (intersects.length > 0) {
-        activeMesh = intersects[0].object as THREE.Mesh;
-        const data = activeMesh.userData;
-
-        if (modalDate) modalDate.innerText = `DATE // ${data.timestamp}`;
-        if (modalType) modalType.innerText = data.media_type || 'IMAGE';
-        if (modalTitle) modalTitle.innerText = data.title;
-        if (modalCaption) modalCaption.innerText = data.caption;
-        if (modalLink) modalLink.href = data.permalink;
-
-        if (videoStage) {
-          videoStage.innerHTML = '';
-          
-          if (data.media_type === 'VIDEO') {
-            const video = document.createElement('video');
-            video.src = data.media_url;
-            video.autoplay = true; video.loop = true; video.controls = true; video.playsInline = true;
-            video.style.cssText = 'width:100%; height:100%; object-fit:contain; border-radius:4px; box-shadow:0 30px 60px rgba(0,0,0,0.12); pointer-events:auto;';
-            videoStage.appendChild(video);
-          
-          } else if (data.media_type === 'CAROUSEL_ALBUM') {
-            const children = data.children || [];
-            let slideIndex = 0;
-            
-            const slides = children.length > 0 
-              ? children.map((c: any) => c.media_url || c.thumbnail_url)
-              : [data.media_url];
-
-            const sliderBox = document.createElement('div');
-            sliderBox.style.cssText = 'width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:auto; position:relative;';
-
-            const img = document.createElement('img');
-            img.src = slides[0];
-            img.style.cssText = 'width:100%; max-height:55vh; object-fit:contain; border-radius:4px; box-shadow:0 30px 60px rgba(0,0,0,0.15); transition: opacity 0.3s ease;';
-
-            const controls = document.createElement('div');
-            controls.style.cssText = 'display:flex; align-items:center; gap:16px; margin-top:12px; background:rgba(13,13,13,0.92); border:1px solid #00e676; padding:6px 16px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px;';
-
-            const btnPrev = document.createElement('button');
-            btnPrev.innerText = '[ PREV ]';
-            btnPrev.style.cssText = 'background:none; border:none; color:#00e676; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
-
-            const counter = document.createElement('span');
-            counter.innerText = `01 / ${String(slides.length).padStart(2, '0')}`;
-
-            const btnNext = document.createElement('button');
-            btnNext.innerText = '[ NEXT ]';
-            btnNext.style.cssText = 'background:none; border:none; color:#00e676; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
-
-            function updateSlide(newIdx: number) {
-              slideIndex = (newIdx + slides.length) % slides.length;
-              img.style.opacity = '0.3';
-              setTimeout(() => {
-                img.src = slides[slideIndex];
-                img.style.opacity = '1';
-                counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
-              }, 150);
-            }
-
-            btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
-            btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
-
-            controls.appendChild(btnPrev);
-            controls.appendChild(counter);
-            controls.appendChild(btnNext);
-
-            sliderBox.appendChild(img);
-            if (slides.length > 1) sliderBox.appendChild(controls);
-            videoStage.appendChild(sliderBox);
-          }
-        }
-
-        editorialStage?.classList.add('is-active');
-        brandLogo?.classList.add('is-focused'); 
-        
-        if (hudRightVertical) hudRightVertical.style.opacity = '0'; 
-        if (hudBottomLeft) hudBottomLeft.style.opacity = '0';
+        const selectedMesh = intersects[0].object as THREE.Mesh;
+        openModalForMesh(selectedMesh);
       }
     });
 
@@ -496,11 +659,7 @@ import portfolioData from '../portfolio_cache.json';
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      // 💫 ANIMAZIONE PULSAZIONE SINUSOIDALE MICRICONE (Effetto Respiro)
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
-      badgeMaterials.forEach(mat => {
-        mat.opacity = pulseOpacity;
-      });
 
       const pArr = particleGeometry.attributes.position.array as Float32Array;
       for (let p = 0; p < particleCount; p++) {
@@ -524,6 +683,8 @@ import portfolioData from '../portfolio_cache.json';
       
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const basePos = basePositions[idx];
+        const badgeMat = mesh.userData.badgeMat as THREE.MeshBasicMaterial | null;
+
         let currentY = basePos.y + scrollY;
         currentY = ((currentY + halfHeight) % TOTAL_HEIGHT + TOTAL_HEIGHT) % TOTAL_HEIGHT - halfHeight;
         mesh.position.y = currentY; mesh.position.x = basePos.x;
@@ -536,18 +697,23 @@ import portfolioData from '../portfolio_cache.json';
              mesh.position.z = mesh.userData.originalZ + Math.sin(elapsedTime * 1.5) * 0.03;
              mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
+             
+             if (badgeMat) badgeMat.opacity = pulseOpacity;
            } else {
-             // 🧹 CLEANUP GHOSTING: uOpacity va a 0.0 per eliminare fasce grigie laterali in modale!
              mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (0.00 - mat.uniforms.uOpacity.value) * 0.1;
+             
+             if (badgeMat) badgeMat.opacity = 0.0;
            }
         } else {
-           mesh.rotation.z = Math.sin(elapsedTime + idx) * 0.03;
+           mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
            mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
            mesh.rotation.y += (0 - mesh.rotation.y) * 0.1;
            mesh.position.z = mesh.userData.originalZ;
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
+           
+           if (badgeMat) badgeMat.opacity = pulseOpacity;
         }
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
@@ -562,9 +728,6 @@ import portfolioData from '../portfolio_cache.json';
         camera.position.x += (targetWorldPos.x - camera.position.x) * 0.08;
         camera.position.y += ((targetWorldPos.y + offsetY) - camera.position.y) * 0.08;
         camera.position.z += (FOCUS_Z - camera.position.z) * 0.05;
-        
-        gridGroup.rotation.y += (0 - gridGroup.rotation.y) * 0.08;
-        gridGroup.rotation.x += (0 - gridGroup.rotation.x) * 0.08;
 
         laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
         const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
