@@ -5,7 +5,7 @@ import portfolioData from '../portfolio_cache.json';
 <div id="canvas-container">
   <!-- HUD Ambientale Curatoriale -->
   <div id="hud-top-left" class="hud-element font-mono-tech">
-    IMLAND® <span class="hud-divider">//</span> ARCHIVE 2026 <span class="hud-badge">[3D_DEPTH_STUDIO_ACTIVE]</span>
+    IMLAND® <span class="hud-divider">//</span> ARCHIVE 2026 <span class="hud-badge">[RADIAL_OPTICS_ACTIVE]</span>
   </div>
   
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
@@ -262,7 +262,6 @@ import portfolioData from '../portfolio_cache.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // MIRINO LASER VETTORIALE (4 BRACKETS D'ANGOLO)
     const laserGeometry = new THREE.BufferGeometry();
     const laserPositions = new Float32Array(48);
     laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
@@ -279,7 +278,6 @@ import portfolioData from '../portfolio_cache.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
-    // 🔬 SHADER CON RILIEVO CONVESSO & VIGNETTATURA ANALOGICA
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -292,11 +290,10 @@ import portfolioData from '../portfolio_cache.json';
         vec3 pos = position;
         float dist = distance(uv, uMouse);
         
-        // Deformazione liquida durante lo scroll
         float wave = sin(dist * 8.0 - uTime * 2.0) * 0.08;
         float bend = sin(pos.y * 1.5) * uVelocity * 0.25;
         
-        // Rilievo convesso da stampa fotografica d'archivio quando in uFocus
+        // Curvatura fisica in fase di focus
         float dx = uv.x - 0.5;
         float dy = uv.y - 0.5;
         float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.30 * uFocus;
@@ -308,6 +305,7 @@ import portfolioData from '../portfolio_cache.json';
       }
     `;
 
+    // 🔬 SHADER FRAGMENT: Ottica Radiale per l'aberrazione cromatica
     const fragmentShader = `
       varying vec2 vUv;
       uniform sampler2D uTexture;
@@ -319,21 +317,29 @@ import portfolioData from '../portfolio_cache.json';
       void main() {
         vec2 uv = vUv;
         
-        // Distorsione liquida
+        // 1. Calcolo distanza dal centro esatto per l'effetto lente
+        float distFromCenter = length(uv - vec2(0.5));
+        
+        // Distorsione da velocità liquida (applicata solo fuori focus)
         float distortion = sin(uv.y * 15.0 + uTime * 2.5) * (0.006 + abs(uVelocity) * 0.02) * (1.0 - uFocus);
         uv.x += distortion;
         
-        // Micro Aberrazione CROMATICA analogica
-        float shift = (0.003 + abs(uVelocity) * 0.01) * (1.0 - uFocus) + 0.0008 * uFocus;
-        float r = texture2D(uTexture, uv + vec2(shift, 0.0)).r;
+        // 2. MASCHERA RADIALE: 0.0 al centro, cresce dolcemente verso i bordi
+        float chromaMask = smoothstep(0.15, 0.70, distFromCenter);
+        
+        // 3. OFFSET CROMATICO: Modulato dalla maschera radiale
+        // Al centro (chromaMask = 0), l'offset è nullo e l'immagine è nitidissima. Ai lati esplode il 3D.
+        vec2 redOffset  = (vec2(0.0055, 0.002) * uFocus * chromaMask) + vec2((0.003 + abs(uVelocity) * 0.01) * (1.0 - uFocus), 0.0);
+        vec2 blueOffset = (vec2(-0.0055, -0.002) * uFocus * chromaMask) - vec2((0.003 + abs(uVelocity) * 0.01) * (1.0 - uFocus), 0.0);
+
+        float r = texture2D(uTexture, uv + redOffset).r;
         float g = texture2D(uTexture, uv).g;
-        float b = texture2D(uTexture, uv - vec2(shift, 0.0)).b;
+        float b = texture2D(uTexture, uv + blueOffset).b;
         
         vec3 color = vec3(r, g, b);
         
-        // Illuminazione da Galleria & Vignettatura Soft
+        // 4. LUCE DA STUDIO E VIGNETTATURA
         if (uFocus > 0.01) {
-          float distFromCenter = length(uv - vec2(0.5));
           float vignette = smoothstep(0.75, 0.20, distFromCenter);
           vec3 warmGalleryLight = vec3(1.02, 0.99, 0.95);
           color = mix(color, color * warmGalleryLight * (0.88 + 0.12 * vignette), uFocus);
@@ -414,7 +420,6 @@ import portfolioData from '../portfolio_cache.json';
     let scrollY = 0, targetScrollY = 0, scrollVelocity = 0, isDragging = false, startY = 0, dragDistance = 0;
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     
-    // UI Elements
     const editorialStage = document.getElementById('editorial-stage');
     const hudTopLeft = document.getElementById('hud-top-left');
     const hudBottomLeft = document.getElementById('hud-bottom-left');
@@ -525,12 +530,9 @@ import portfolioData from '../portfolio_cache.json';
         
         if (activeMesh) {
            if (mesh === activeMesh) {
-             // 🔮 MICRO-PARALLASSE & PARABOLIC BENDING IN FOCUS MODE
-             mesh.rotation.y += (mouse.x * 0.12 - mesh.rotation.y) * 0.1;
-             mesh.rotation.x += (-mouse.y * 0.12 - mesh.rotation.x) * 0.1;
+             mesh.rotation.y += (mouse.x * 0.10 - mesh.rotation.y) * 0.1;
+             mesh.rotation.x += (-mouse.y * 0.10 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
-             
-             // Respiro sinusale impercettibile
              mesh.position.z = mesh.userData.originalZ + Math.sin(elapsedTime * 1.5) * 0.03;
 
              mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
@@ -554,7 +556,6 @@ import portfolioData from '../portfolio_cache.json';
         mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
       });
 
-      // 🎥 REGIA CAMERA & MIRINO LASER
       if (activeMesh) {
         activeMesh.getWorldPosition(targetWorldPos);
 
@@ -579,25 +580,21 @@ import portfolioData from '../portfolio_cache.json';
         const len = 0.25;
 
         let i = 0;
-        // Top-Left Corner
         arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
         arr[i++] = twX - w + len; arr[i++] = twY + h;       arr[i++] = twZ;
         arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
         arr[i++] = twX - w;       arr[i++] = twY + h - len; arr[i++] = twZ;
 
-        // Top-Right Corner
         arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
         arr[i++] = twX + w - len; arr[i++] = twY + h;       arr[i++] = twZ;
         arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
         arr[i++] = twX + w;       arr[i++] = twY + h - len; arr[i++] = twZ;
 
-        // Bottom-Right Corner
         arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
         arr[i++] = twX + w - len; arr[i++] = twY - h;       arr[i++] = twZ;
         arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
         arr[i++] = twX + w;       arr[i++] = twY - h + len; arr[i++] = twZ;
 
-        // Bottom-Left Corner
         arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
         arr[i++] = twX - w + len; arr[i++] = twY - h;       arr[i++] = twZ;
         arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
