@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[WIDESCREEN_ASPECT_LOCKED]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[DEMO3_STATE_LOCKED]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -242,15 +242,16 @@ import brandProducts from '../brand_products.json';
   .hud-label { color: #C09E5A; font-size: 9px; letter-spacing: 0.18em; font-weight: 700; }
   #fixed-hover-title { color: #ffffff; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+  /* 🏛️ VETRI TRASLUCIDI CALIBRATI PER LA MASSIMA VISIBILITÀ DELLA NEVE 3D */
   .editorial-drawer {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 200; display: none; opacity: 0; pointer-events: none;
-    background: rgba(242, 242, 240, 0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    background: rgba(242, 242, 240, 0.18); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; box-sizing: border-box; padding: 20px;
   }
   @media (min-width: 768px) { .editorial-drawer { padding: 60px 80px; } }
   .editorial-drawer.is-active { display: block; opacity: 1; pointer-events: auto; }
 
-  .drawer-content-box { max-width: 720px; margin: 40px auto; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid #0d0d0d; padding: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.12); }
+  .drawer-content-box { max-width: 720px; margin: 40px auto; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid #0d0d0d; padding: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.12); }
   @media (min-width: 768px) { .drawer-content-box { padding: 40px; margin: 60px auto; } }
   .gear-wide-box { max-width: 1100px; }
 
@@ -388,7 +389,7 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
-  // ⚜️ LOGICA DRAWERS MENU
+  // ⚜️ LOGICA DRAWERS MENU & BACKDROP DISMISSAL (CLICK ESTERNO PER CHIUDERE!)
   let activeDrawer: HTMLElement | null = null;
 
   function closeAllDrawers() {
@@ -420,6 +421,16 @@ import brandProducts from '../brand_products.json';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       closeAllDrawers();
+    });
+  });
+
+  // 🎯 CHIUSURA TATTICA QUANDO SI CLICCA FUORI DALLA SCHEDA BIANCA
+  document.querySelectorAll('.editorial-drawer').forEach(drawer => {
+    drawer.addEventListener('click', (e) => {
+      const contentBox = drawer.querySelector('.drawer-content-box');
+      if (contentBox && !contentBox.contains(e.target as Node)) {
+        closeAllDrawers();
+      }
     });
   });
 
@@ -486,7 +497,6 @@ import brandProducts from '../brand_products.json';
     let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
     let snowSpeedFactor = 0.55;
 
-    // 🌐 ESPANSIONE X/Y WIDESCREEN PER COPRIREI MARGINI LATERALI DEL MONITOR (X: -24 -> +24)
     const particleData: any[] = [];
     for (let p = 0; p < particleCount; p++) {
       pixelSnowSystem.setColorAt(p, snowPalette[Math.floor(Math.random() * snowPalette.length)]);
@@ -623,7 +633,6 @@ import brandProducts from '../brand_products.json';
 
       const mesh = new THREE.Mesh(geometry, material);
       
-      // 🪐 RAGGIO ADATTIVO DINAMICO PER APRIRE LA SPIRALE AI MARGINI WIDESCREEN
       const theta = index * GOLDEN_ANGLE;
       const radiusLayer = 6.2 + (index % 5) * 3.8 + (index * 0.025);
       
@@ -907,12 +916,12 @@ import brandProducts from '../brand_products.json';
 
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // ❄️ DISSOLVENZA OPACITÀ NEVE DINAMICA IN BASE ALLA MODALITÀ!
-      // In Ispezione Opera o Drawer aperto -> Opacità sottile (0.12) per non disturbare la visione!
-      const targetSnowOpacity = (activeMesh || activeDrawer) ? 0.12 : 0.42;
+      // ❄️ OPACITÀ DELLA NEVE DIVERSIFICATA PER STATO:
+      // Volo Libero = 0.42 | Drawer Aperto = 0.38 (Ben visibile in trasparenza) | Ispezione = 0.12 (Soffusa per non distrarre!)
+      const targetSnowOpacity = activeMesh ? 0.12 : (activeDrawer ? 0.38 : 0.42);
       particleMaterial.opacity += (targetSnowOpacity - particleMaterial.opacity) * 0.08;
 
-      // 💫 FISICA NEVE TRICROMA WIDESCREEN
+      // 💫 FISICA NEVE TRICROMA
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
         
@@ -929,7 +938,6 @@ import brandProducts from '../brand_products.json';
           pData.z = -5.2 - Math.random() * 8.0;
         }
 
-        // Rigenerazione su ampiezza Widescreen X: [-24, +24]
         if (pData.y < -16) { pData.y = 16; pData.x = (Math.random() - 0.5) * 48; }
         if (pData.z > 5) pData.z -= 40;
         if (pData.z < -35) pData.z += 40;
