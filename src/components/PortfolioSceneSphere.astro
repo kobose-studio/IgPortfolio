@@ -18,10 +18,10 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[SINUOUS_SERPENTINE_TUNNEL]</span>
+    <span class="hud-badge hidden md:inline">[ALPINE_ROLLERCOASTER_ENVELOPE]</span>
   </div>
   
-  <!-- ⚜️ HUD FISSO IN ALTO A DESTRA PER IL TITOLO SU HOVER -->
+  <!-- HUD FISSO IN ALTO A DESTRA PER IL TITOLO SU HOVER -->
   <div id="fixed-hover-hud" class="font-syne">
     <span class="hud-label font-mono-tech">TARGET //</span>
     <span id="fixed-hover-title">ESPLORA L'ARCHIVIO</span>
@@ -29,7 +29,7 @@ import portfolioData from '../portfolio_cache.json';
 
   <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
-    <span class="hidden md:inline">SCROLL TO FLY THROUGH WINDING TUNNEL</span>
+    <span class="hidden md:inline">SCROLL TO FLY THROUGH ROLLERCOASTER TUNNEL</span>
     <span class="hud-divider hidden md:inline">//</span>
     <span class="hud-sepia hidden md:inline">[▲/▼] 3D SNOW</span>
     <span class="hud-divider">//</span>
@@ -102,7 +102,6 @@ import portfolioData from '../portfolio_cache.json';
   .hud-badge { color: #C09E5A; margin-left: 8px; font-size: 10px; font-weight: bold; }
   .hud-sepia { color: #C09E5A; }
 
-  /* 🏛️ FIX HUD BADGE SU HOVER IN ALTO A DESTRA */
   #fixed-hover-hud {
     position: fixed;
     top: 20px;
@@ -283,7 +282,7 @@ import portfolioData from '../portfolio_cache.json';
         float wave = sin(dist * 7.0 - uTime * 2.5) * (0.03 + abs(uVelocity) * 0.12);
         float focusCurvature = (0.25 - (uv.x - 0.5)*(uv.x - 0.5) - (uv.y - 0.5)*(uv.y - 0.5)) * 0.35 * uFocus;
 
-        pos.z += wave * (1.0 - uFocus); // Annullamento durante l'ispezione della foto
+        pos.z += wave * (1.0 - uFocus);
         pos.z += focusCurvature;
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -419,7 +418,6 @@ import portfolioData from '../portfolio_cache.json';
     const brandLogo = document.getElementById('global-brand-logo'); 
     const videoStage = document.getElementById('video-stage');
     
-    // ⚜️ ELEMENTI HUD FISSO IN ALTO A DESTRA
     const fixedHoverHud = document.getElementById('fixed-hover-hud');
     const fixedHoverTitle = document.getElementById('fixed-hover-title');
 
@@ -539,7 +537,6 @@ import portfolioData from '../portfolio_cache.json';
       mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
 
-      // ⚜️ RAYCASTING ED ATTIVAZIONE BADGE HUD FISSO IN ALTO A DESTRA
       if (!activeMesh && !isDragging) {
         const rectDom = renderer.domElement.getBoundingClientRect();
         clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1; 
@@ -606,24 +603,25 @@ import portfolioData from '../portfolio_cache.json';
 
       const maxTilt = 0.22;
 
-      // 🐍 CURVA SINUOSA DEL TUBO DI FIBONACCI (SERPENTINA 3D NEL VOLO)
-      const curveFreqX = 0.04;
-      const curveFreqY = 0.03;
-      const curveAmpX = 7.5;
-      const curveAmpY = 5.0;
+      // 🎢 BUSTA ARMONICA DELLA MONTAGNA RUSSA (Rettilinei lunghi alternati a ampie svolte)
+      const envelope = Math.sin((-scrollZ) * 0.008); 
+      const curveX = Math.sin((-scrollZ) * 0.035) * envelope * 12.0;
+      const curveY = Math.cos((-scrollZ) * 0.028) * envelope * 8.0;
 
       if (!activeMesh) {
-        // Parallasse inclinazione da mouse
         worldGroup.rotation.y += (Math.max(-maxTilt, Math.min(maxTilt, mouse.x * 0.22)) - worldGroup.rotation.y) * 0.05;
         worldGroup.rotation.x += (Math.max(-maxTilt, Math.min(maxTilt, -mouse.y * 0.22)) - worldGroup.rotation.x) * 0.05;
 
         camera.position.x += (mouse.x * 1.2 - camera.position.x) * 0.05;
         camera.position.y += (-mouse.y * 1.2 - camera.position.y) * 0.05;
         
-        // 🎯 ANCORAGGIO DELLO SGUARDO LUNGO LA CURVA DEL TUNNEL IN AVANTI!
-        const camLookX = Math.sin((-18 - scrollZ) * curveFreqX) * curveAmpX * 0.5;
-        const camLookY = Math.cos((-18 - scrollZ) * curveFreqY) * curveAmpY * 0.5;
-        camera.lookAt(camLookX, camLookY, -20);
+        // 🎯 TARGET TRAJECTORY PROIETTATO NEL PUNTO FINALE DEL TUNNEL
+        const lookZ = -22.0 - scrollZ;
+        const lookEnv = Math.sin(lookZ * 0.008);
+        const camLookX = Math.sin(lookZ * 0.035) * lookEnv * 8.0;
+        const camLookY = Math.cos(lookZ * 0.028) * lookEnv * 5.0;
+        
+        camera.lookAt(camLookX, camLookY, -25);
       } else {
         worldGroup.rotation.y += (0 - worldGroup.rotation.y) * 0.08;
         worldGroup.rotation.x += (0 - worldGroup.rotation.x) * 0.08;
@@ -652,7 +650,7 @@ import portfolioData from '../portfolio_cache.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA VORTICE & SERPENTINA AUREA
+      // 🌌 MATEMATICA MONTAGNA RUSSA CON BUSTA DI STASI
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
@@ -661,9 +659,9 @@ import portfolioData from '../portfolio_cache.json';
         if (currentZ > 10) currentZ -= TOTAL_DEPTH;
         if (currentZ < -TOTAL_DEPTH + 10) currentZ += TOTAL_DEPTH;
 
-        // 🐍 ONDEGIAMENTO SERPENTINO SULLE COORDINATE BASE DEL TUBO
-        const tunnelCurveX = Math.sin((currentZ - scrollZ) * curveFreqX) * curveAmpX;
-        const tunnelCurveY = Math.cos((currentZ - scrollZ) * curveFreqY) * curveAmpY;
+        const meshEnv = Math.sin((currentZ - scrollZ) * 0.008);
+        const tunnelCurveX = Math.sin((currentZ - scrollZ) * 0.035) * meshEnv * 12.0;
+        const tunnelCurveY = Math.cos((currentZ - scrollZ) * 0.028) * meshEnv * 8.0;
 
         const targetX = data.baseX + tunnelCurveX;
         const targetY = data.baseY + tunnelCurveY;
@@ -682,7 +680,6 @@ import portfolioData from '../portfolio_cache.json';
              mesh.position.y += (isolationY - mesh.position.y) * 0.1;
              mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
 
-             // 🎯 MICRO-TILT ULTRA STABILIZZATO (0.04 rad)
              mesh.rotation.y += (mouse.x * 0.04 - mesh.rotation.y) * 0.1;
              mesh.rotation.x += (-mouse.y * 0.04 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
@@ -692,7 +689,6 @@ import portfolioData from '../portfolio_cache.json';
              mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // ⚜️ LASER FRAMEWORK
              laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
              const arr = posAttr.array as Float32Array;
