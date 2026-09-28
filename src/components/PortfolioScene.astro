@@ -10,7 +10,7 @@ import portfolioData from '../portfolio_cache.json';
   <!-- LA NEBBIA MINERALE -->
   <div class="top-vapour-mask"></div>
 
-  <!-- BRAND HEADER GLOBALE -->
+  <!-- BRAND HEADER GLOBALE (+25% BOOST) -->
   <div id="global-brand-logo">
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
@@ -18,12 +18,16 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[ROYAL_SEPIA_GOLD_ACTIVE]</span>
+    <span class="hud-badge hidden md:inline">[FULL_ARCHIVE_UNLOCKED]</span>
   </div>
   
+  <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
     <span class="hidden md:inline">SCROLL / DRAG / CLICK TO ISOLATE</span>
-    <span class="md:hidden">SWIPE / TAP TO ISOLATE</span>
+    <span class="hud-divider hidden md:inline">//</span>
+    <span class="hud-sepia hidden md:inline">[▲/▼] 3D TRIANGLE SCALE</span>
+    <span class="hud-divider">//</span>
+    <span>SWIPE / TAP TO ISOLATE</span>
   </div>
 
   <!-- Stage Modale Editoriale -->
@@ -40,11 +44,11 @@ import portfolioData from '../portfolio_cache.json';
        <!-- GLOBAL WORK NAVIGATOR -->
        <div class="work-nav-bar">
          <button id="btn-prev-work" class="btn-nav font-mono-tech">[ ◄ PREV ]</button>
-         <span id="work-counter" class="work-counter-text font-mono-tech">01 / 00</span>
+         <span id="work-counter" class="work-counter-text font-mono-tech">001 / 000</span>
          <button id="btn-next-work" class="btn-nav font-mono-tech">[ NEXT ► ]</button>
        </div>
 
-       <!-- TITOLO BILINGUE ITALIANO / INGLESE -->
+       <!-- TITOLO BILINGUE ITALIANO / INGLESE (ESTRATTO DA RIGA 2) -->
        <h1 id="modal-title" class="font-syne">TITOLO_ITALIANO / ENGLISH_TITLE</h1>
 
        <!-- DIDASCALIA COMPLETA -->
@@ -114,15 +118,14 @@ import portfolioData from '../portfolio_cache.json';
 
   .hud-element { position: absolute; z-index: 10; font-size: 10px; letter-spacing: 0.15em; color: #1a1a1a; text-transform: uppercase; pointer-events: none; transition: opacity 0.4s ease; }
   @media (min-width: 768px) { .hud-element { font-size: 11px; letter-spacing: 0.22em; } }
-  #hud-bottom-left { bottom: 20px; left: 20px; color: #8c8c8c; }
-  @media (min-width: 768px) { #hud-bottom-left { bottom: 36px; left: 36px; } }
+  #hud-bottom-left { bottom: 20px; left: 20px; color: #8c8c8c; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+  @media (min-width: 768px) { #hud-bottom-left { bottom: 36px; left: 36px; gap: 6px; } }
 
   #hud-right-vertical { top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg); white-space: nowrap; text-align: center; display: flex; align-items: center; }
   @media (min-width: 768px) { #hud-right-vertical { right: 16px; transform: translate(25%, -50%) rotate(90deg); } }
-  .hud-divider { color: #8c8c8c; margin: 0 8px; }
-  
-  /* ⚜️ SEPIA GOLD HUD BADGE */
+  .hud-divider { color: #8c8c8c; margin: 0 4px; }
   .hud-badge { color: #C09E5A; margin-left: 8px; font-size: 10px; font-weight: bold; }
+  .hud-sepia { color: #C09E5A; }
 
   #editorial-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; display: none; opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
   #editorial-stage.is-active { display: block; opacity: 1; pointer-events: auto; }
@@ -133,8 +136,6 @@ import portfolioData from '../portfolio_cache.json';
   @media (min-width: 768px) { .card-meta-bar { margin-bottom: 12px; padding-bottom: 10px; } }
   .status-box { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #666666; letter-spacing: 0.15em; }
   @media (min-width: 768px) { .status-box { font-size: 10px; gap: 8px; letter-spacing: 0.2em; } }
-  
-  /* ⚜️ SEPIA GOLD STATUS DOT */
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background-color: #C09E5A; box-shadow: 0 0 8px #C09E5A; }
   .badge-type { font-size: 8px; font-weight: 700; letter-spacing: 0.15em; background: #0d0d0d; color: #ffffff; padding: 2px 6px; text-transform: uppercase; }
   @media (min-width: 768px) { .badge-type { font-size: 9px; padding: 3px 8px; letter-spacing: 0.2em; } }
@@ -170,7 +171,6 @@ import portfolioData from '../portfolio_cache.json';
     .btn-nav { font-size: 9px; padding: 5px 10px; } 
   }
 
-  /* ⚜️ SEPIA GOLD HOVER STATE */
   .btn-nav:hover {
     background: #C09E5A;
     border-color: #C09E5A;
@@ -210,6 +210,7 @@ import portfolioData from '../portfolio_cache.json';
   import * as THREE from 'three';
   import rawData from '../portfolio_cache.json';
 
+  // 🇮🇹 PARSER BILINGUE RIGA-2 (Ignora prefissi IMLAND)
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
 
@@ -247,7 +248,6 @@ import portfolioData from '../portfolio_cache.json';
     return targetLine.substring(0, 48).toUpperCase();
   }
 
-  // ⚜️ SEPIA GOLD CANVAS BADGE CREATOR (#C09E5A)
   function createBadgeTexture(type: string) {
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
@@ -294,30 +294,65 @@ import portfolioData from '../portfolio_cache.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
+    // 🔺 MOTORE NEVE TRIANGOLARE 3D INSTANCED
     const particleCount = 220;
-    const particleGeometry = new THREE.BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
-    const particleVelocities: { y: number; xFactor: number }[] = [];
+    const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
+    
+    const particleMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.38,
+      depthTest: false,
+      side: THREE.DoubleSide
+    });
 
-    for (let p = 0; p < particleCount * 3; p += 3) {
-      particlePositions[p]     = (Math.random() - 0.5) * 26; 
-      particlePositions[p + 1] = (Math.random() - 0.5) * 32; 
-      particlePositions[p + 2] = (Math.random() - 0.5) * 8 - 1; 
-      particleVelocities.push({ y: 0.003 + Math.random() * 0.006, xFactor: Math.random() * 10 });
+    const pixelSnowSystem = new THREE.InstancedMesh(particleTriangleGeo, particleMaterial, particleCount);
+    pixelSnowSystem.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+    const snowPalette = [
+      new THREE.Color('#282828'), // Onyx Charcoal
+      new THREE.Color('#C09E5A'), // Sepia Gold
+      new THREE.Color('#2C5260')  // Alpine Mineral Blue
+    ];
+
+    const dummyMatrix = new THREE.Object3D();
+    let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
+
+    const particleData: {
+      x: number; y: number; z: number;
+      vy: number; xFactor: number;
+      rx: number; ry: number; rz: number;
+      vrx: number; vry: number; vrz: number;
+    }[] = [];
+
+    for (let p = 0; p < particleCount; p++) {
+      const assignedColor = snowPalette[Math.floor(Math.random() * snowPalette.length)];
+      pixelSnowSystem.setColorAt(p, assignedColor);
+
+      particleData.push({
+        x: (Math.random() - 0.5) * 26,
+        y: (Math.random() - 0.5) * 32,
+        z: (Math.random() - 0.5) * 8 - 1,
+        vy: 0.003 + Math.random() * 0.006,
+        xFactor: Math.random() * 10,
+        rx: Math.random() * Math.PI * 2,
+        ry: Math.random() * Math.PI * 2,
+        rz: Math.random() * Math.PI * 2,
+        vrx: (Math.random() - 0.5) * 0.035,
+        vry: (Math.random() - 0.5) * 0.045,
+        vrz: (Math.random() - 0.5) * 0.025
+      });
     }
 
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particleMaterial = new THREE.PointsMaterial({
-      color: 0x0d0d0d, size: window.innerWidth < 640 ? 0.05 : 0.07, transparent: true, opacity: 0.28, depthTest: false
-    });
-    const pixelSnowSystem = new THREE.Points(particleGeometry, particleMaterial);
+    if (pixelSnowSystem.instanceColor) {
+      pixelSnowSystem.instanceColor.needsUpdate = true;
+    }
     scene.add(pixelSnowSystem);
 
     const laserGeometry = new THREE.BufferGeometry();
     const laserPositions = new Float32Array(48);
     laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
     
-    // ⚜️ CORNICI LASER 3D IN SEPIA GOLD (0xC09E5A)
     const laserMaterial = new THREE.LineBasicMaterial({
       color: 0xc09e5a, transparent: true, opacity: 0, linewidth: 2, depthTest: false
     });
@@ -369,8 +404,9 @@ import portfolioData from '../portfolio_cache.json';
     `;
 
     const textureLoader = new THREE.TextureLoader();
-    const rawItems = rawData.data || [];
-    const mediaItems = rawItems.slice(0, 100); 
+    
+    // 🔓 SBLOCCO ARCHIVIO INTEGRALE: Carica tutti i ~400/450 media salvati da update_cache.js!
+    const mediaItems = rawData.data || []; 
 
     const materials: THREE.ShaderMaterial[] = [];
     const meshes: THREE.Mesh[] = [];
@@ -498,7 +534,8 @@ import portfolioData from '../portfolio_cache.json';
       const data = activeMesh.userData;
 
       if (workCounter) {
-        workCounter.innerText = `${String(activeMeshIndex + 1).padStart(2, '0')} / ${String(meshes.length).padStart(2, '0')}`;
+        // Formattazione a 3 cifre (es. 001 / 450)
+        workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
       }
 
       if (modalDate) modalDate.innerText = `DATE // ${data.timestamp}`;
@@ -530,7 +567,6 @@ import portfolioData from '../portfolio_cache.json';
           const controlsBox = document.createElement('div');
           controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
 
-          // ⚜️ SEPIA GOLD CAROUSEL SLIDER CONTROLS
           const controls = document.createElement('div');
           controls.style.cssText = 'display:flex; align-items:center; gap:16px; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border:1px solid #C09E5A; padding:8px 22px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px; box-shadow:0 12px 32px rgba(0,0,0,0.25);';
 
@@ -572,6 +608,7 @@ import portfolioData from '../portfolio_cache.json';
       if (hudBottomLeft) hudBottomLeft.style.opacity = '0';
     }
 
+    // 🚀 NAVIGATORE TOROIDALE AD ALTA CAPACITÀ (Senza salto o looping errato)
     function navigateWork(direction: number) {
       if (meshes.length === 0 || activeMeshIndex === -1) return;
       
@@ -580,7 +617,16 @@ import portfolioData from '../portfolio_cache.json';
       
       const currentY = basePositions[currentIdx].y;
       const nextY = basePositions[nextIdx].y;
-      const dy = nextY - currentY;
+      let dy = nextY - currentY;
+
+      // 🎯 MODULO TOROIDALE: Se si supera il confine dell'archivio, calcola il salto minimo
+      if (Math.abs(dy) > TOTAL_HEIGHT / 2) {
+        if (dy > 0) {
+          dy -= TOTAL_HEIGHT;
+        } else {
+          dy += TOTAL_HEIGHT;
+        }
+      }
       
       targetScrollY -= dy;
       openModalForMesh(meshes[nextIdx]);
@@ -593,9 +639,17 @@ import portfolioData from '../portfolio_cache.json';
     
     window.addEventListener('keydown', (e) => { 
       if (e.key === 'Escape') closeModal(); 
+      
       if (activeMesh) {
         if (e.key === 'ArrowRight') navigateWork(1);
         if (e.key === 'ArrowLeft') navigateWork(-1);
+      }
+
+      if (e.key === 'ArrowUp') {
+        snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
+      }
+      if (e.key === 'ArrowDown') {
+        snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
       }
     });
 
@@ -612,7 +666,6 @@ import portfolioData from '../portfolio_cache.json';
       mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
     });
 
-    // 🚀 BACKDROP DISMISS & SHIELD: Cliccare sullo sfondo chiude la modale!
     window.addEventListener('pointerup', (e) => {
       isDragging = false;
       if (dragDistance > 6) return;
@@ -624,7 +677,6 @@ import portfolioData from '../portfolio_cache.json';
         const isClickOnCard = card && card.contains(e.target as Node);
         const isClickOnControls = stageControls && stageControls.contains(e.target as Node);
 
-        // Se il click NON è avvenuto sulla scheda o sui comandi, CHIUDI LA MODALE!
         if (!isClickOnCard && !isClickOnControls) {
           closeModal();
         }
@@ -661,23 +713,36 @@ import portfolioData from '../portfolio_cache.json';
 
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      const pArr = particleGeometry.attributes.position.array as Float32Array;
       for (let p = 0; p < particleCount; p++) {
-        const idx = p * 3; const vel = particleVelocities[p];
-        pArr[idx + 1] -= vel.y; 
-        pArr[idx] += Math.sin(elapsedTime * 1.2 + vel.xFactor) * 0.002; 
-        const dx = pArr[idx] - (mouse.x * 6);
-        const dy = pArr[idx + 1] - (mouse.y * 4);
+        const pData = particleData[p];
+        pData.y -= pData.vy;
+        pData.x += Math.sin(elapsedTime * 1.2 + pData.xFactor) * 0.002;
+        
+        pData.rx += pData.vrx;
+        pData.ry += pData.vry;
+        pData.rz += pData.vrz;
+
+        const dx = pData.x - (mouse.x * 6);
+        const dy = pData.y - (mouse.y * 4);
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 2.2) {
-          pArr[idx] += (dx / dist) * 0.012;
-          pArr[idx + 1] += (dy / dist) * 0.012;
+          pData.x += (dx / dist) * 0.012;
+          pData.y += (dy / dist) * 0.012;
         }
-        if (pArr[idx + 1] < -16) {
-          pArr[idx + 1] = 16; pArr[idx] = (Math.random() - 0.5) * 26;
+
+        if (pData.y < -16) {
+          pData.y = 16;
+          pData.x = (Math.random() - 0.5) * 26;
         }
+
+        dummyMatrix.position.set(pData.x, pData.y, pData.z);
+        dummyMatrix.rotation.set(pData.rx, pData.ry, pData.rz);
+        dummyMatrix.scale.set(snowScaleFactor, snowScaleFactor, snowScaleFactor);
+        dummyMatrix.updateMatrix();
+
+        pixelSnowSystem.setMatrixAt(p, dummyMatrix.matrix);
       }
-      particleGeometry.attributes.position.needsUpdate = true;
+      pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
       const halfHeight = TOTAL_HEIGHT / 2;
       
