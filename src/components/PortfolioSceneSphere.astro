@@ -27,12 +27,10 @@ import brandProducts from '../brand_products.json';
     <button id="btn-audio-toggle" class="hud-menu-btn text-sepia">🔊 SOUND: OFF</button>
   </nav>
 
-  <!-- 🎯 HUD RIGHT VERTICAL CON DOPPIO BOTTONE DI FILTRAGGIO -->
+  <!-- 🎯 HUD RIGHT VERTICAL CON BOTTONE FILTRO UNIFICATO -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     <span>ARCHIVE 2026 //</span>
-    <button id="btn-filter-carousel" class="filter-btn font-mono-tech">[ CAROUSEL ]</button>
-    <span class="hud-divider">//</span>
-    <button id="btn-filter-video" class="filter-btn font-mono-tech">[ VIDEO ]</button>
+    <button id="btn-filter-mix" class="filter-btn font-mono-tech">[ VIDEO / CAROUSEL ]</button>
   </div>
   
   <!-- HUD Hover Target -->
@@ -243,6 +241,7 @@ import brandProducts from '../brand_products.json';
   .hud-menu-btn:hover { color: #C09E5A; }
   .hud-menu-btn.text-sepia { color: #C09E5A; }
 
+  /* 🎯 STILI BOTTONE FILTRO UNIFICATO HUD DESTRO */
   #hud-right-vertical {
     top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg);
     white-space: nowrap; text-align: center; display: flex; align-items: center; gap: 8px;
@@ -428,30 +427,14 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
-  // 🎯 FILTRO CINETICO DOPPIO INDIPENDENTE: [ CAROUSEL ] e [ VIDEO ]
-  let activeFilter: 'ALL' | 'CAROUSEL_ALBUM' | 'VIDEO' = 'ALL';
-  const btnCarousel = document.getElementById('btn-filter-carousel');
-  const btnVideo = document.getElementById('btn-filter-video');
+  // 🎯 FILTRO UNIFICATO MEDIA: [ VIDEO / CAROUSEL ]
+  let isMixFiltered = false;
+  const btnFilterMix = document.getElementById('btn-filter-mix');
 
-  function setFilter(targetFilter: 'CAROUSEL_ALBUM' | 'VIDEO') {
-    if (activeFilter === targetFilter) {
-      activeFilter = 'ALL'; // Toggle off
-    } else {
-      activeFilter = targetFilter;
-    }
-
-    if (btnCarousel) btnCarousel.classList.toggle('is-active', activeFilter === 'CAROUSEL_ALBUM');
-    if (btnVideo) btnVideo.classList.toggle('is-active', activeFilter === 'VIDEO');
-  }
-
-  btnCarousel?.addEventListener('click', (e) => {
+  btnFilterMix?.addEventListener('click', (e) => {
     e.stopPropagation();
-    setFilter('CAROUSEL_ALBUM');
-  });
-
-  btnVideo?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    setFilter('VIDEO');
+    isMixFiltered = !isMixFiltered;
+    btnFilterMix.classList.toggle('is-active', isMixFiltered);
   });
 
   // ⚜️ LOGICA DRAWERS MENU
@@ -649,7 +632,6 @@ import brandProducts from '../brand_products.json';
         float dist = distance(uv, uMouse);
         float wave = sin(dist * 7.0 - uTime * 2.5) * (0.03 + abs(uVelocity) * 0.12);
         
-        // 🎯 AMMORTIZZAZIONE PERFETTA: sia l'onda che la curvatura si azzerano quando uFocus = 1.0!
         pos.z += wave * (1.0 - uFocus);
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -763,14 +745,14 @@ import brandProducts from '../brand_products.json';
       mesh.position.set(baseX, baseY, zBase);
       mesh.rotation.set(rotX, rotY, 0);
 
-      // 🏔️ CREAZIONE DELL'ANELLO TOPOGRAFICO DI NODO PER CIASCUNA FOTO 3D!
+      // 🏔️ ANELLO TOPOGRAFICO AMPIO D'AMPIEZZA DI SICUREZZA (ZERO COLLISIONI CON GLI ANGOLI)
       const ringPointsCount = 48;
       const ringPositions = new Float32Array((ringPointsCount + 1) * 3);
-      const ringRX = 1.30;
-      const ringRY = 1.62;
+      const ringRX = 2.10; // Ampio per non toccare mai l'immagine
+      const ringRY = 2.60;
       for (let rIdx = 0; rIdx <= ringPointsCount; rIdx++) {
         const rTheta = (rIdx / ringPointsCount) * Math.PI * 2;
-        const rNoise = Math.sin(rTheta * 4.0 + index * 1.5) * 0.10;
+        const rNoise = Math.sin(rTheta * 4.0 + index * 1.5) * 0.08;
         ringPositions[rIdx * 3] = Math.cos(rTheta) * (ringRX + rNoise);
         ringPositions[rIdx * 3 + 1] = Math.sin(rTheta) * (ringRY + rNoise);
         ringPositions[rIdx * 3 + 2] = 0.01;
@@ -919,8 +901,8 @@ import brandProducts from '../brand_products.json';
       if (meshes.length === 0 || activeMeshIndex === -1) return;
       
       let filteredMeshes = meshes;
-      if (activeFilter !== 'ALL') {
-        filteredMeshes = meshes.filter(m => m.userData.media_type === activeFilter);
+      if (isMixFiltered) {
+        filteredMeshes = meshes.filter(m => m.userData.media_type === 'VIDEO' || m.userData.media_type === 'CAROUSEL_ALBUM');
       }
       if (filteredMeshes.length === 0) return;
 
@@ -976,8 +958,8 @@ import brandProducts from '../brand_products.json';
 
         const visibleCandidates = meshes.filter(m => {
           if (!m.userData.isLoaded) return false;
-          if (activeFilter === 'ALL') return true;
-          return m.userData.media_type === activeFilter;
+          if (!isMixFiltered) return true;
+          return m.userData.media_type === 'VIDEO' || m.userData.media_type === 'CAROUSEL_ALBUM';
         });
 
         const intersects = raycaster.intersectObjects(visibleCandidates, false);
@@ -1018,8 +1000,8 @@ import brandProducts from '../brand_products.json';
 
       const visibleCandidates = meshes.filter(m => {
         if (!m.userData.isLoaded) return false;
-        if (activeFilter === 'ALL') return true;
-        return m.userData.media_type === activeFilter;
+        if (!isMixFiltered) return true;
+        return m.userData.media_type === 'VIDEO' || m.userData.media_type === 'CAROUSEL_ALBUM';
       });
 
       const intersects = raycaster.intersectObjects(visibleCandidates, false);
@@ -1029,6 +1011,7 @@ import brandProducts from '../brand_products.json';
     });
 
     const clock = new THREE.Clock();
+    const tempVec = new THREE.Vector3();
 
     function animate() {
       requestAnimationFrame(animate);
@@ -1138,13 +1121,11 @@ import brandProducts from '../brand_products.json';
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
 
-        const matchesFilter = (activeFilter === 'ALL') || (data.media_type === activeFilter);
+        const matchesFilter = (!isMixFiltered) || (data.media_type === 'VIDEO' || data.media_type === 'CAROUSEL_ALBUM');
         const loadedOpacity = (data.isLoaded && matchesFilter) ? 1.0 : 0.0;
 
-        // 🎯 RIMOZIONE BORDI SUI VIDEO: Se è un VIDEO isolato, l'opacità del mesh WebGL va a 0.0 per lasciare solo il player HTML!
         let targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? (data.media_type === 'VIDEO' ? 0.0 : 1.0 * loadedOpacity) : 1.0 * loadedOpacity);
 
-        // 🏔️ OPACITÀ ANELLO TOPOGRAFICO DI NODO: visibile in spirale, scompare in ispezione o drawer!
         if (topoRingMat) {
           const targetRingOp = (mesh === activeMesh || activeDrawer || !matchesFilter) ? 0.0 : (data.isLoaded ? 0.35 : 0.0);
           topoRingMat.opacity += (targetRingOp - topoRingMat.opacity) * 0.1;
@@ -1169,7 +1150,7 @@ import brandProducts from '../brand_products.json';
              mesh.position.y += (isolationY - mesh.position.y) * 0.1;
              mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
 
-             // 🎯 SMORZAMENTO OSCILLAZIONE IN ISPEZIONE (ADDIO ONTIMENTO/ONDEGGIAMENTO)
+             // SMORZAMENTO OSCILLAZIONE
              mesh.rotation.y += (mouse.x * 0.008 - mesh.rotation.y) * 0.1;
              mesh.rotation.x += (-mouse.y * 0.008 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
@@ -1179,32 +1160,35 @@ import brandProducts from '../brand_products.json';
              mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
+             // 🎯 SINCRONIZZAZIONE MATRICIALE 3D PERFETTA DELLA CORNICE LASER CON L'ONDEGGIAMENTO DELLA FOTO!
+             mesh.updateMatrixWorld(true);
              laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
              const arr = posAttr.array as Float32Array;
-             const twX = mesh.position.x; const twY = mesh.position.y; const twZ = mesh.position.z + 0.08;
-             const w = 1.1 + 0.25; const h = 1.4 + 0.25; const len = 0.25;
+             
+             const w = 1.28; const h = 1.58; const zOff = 0.05; const len = 0.25;
+             let ptr = 0;
 
-             let i = 0;
-             arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
-             arr[i++] = twX - w + len; arr[i++] = twY + h;       arr[i++] = twZ;
-             arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
-             arr[i++] = twX - w;       arr[i++] = twY + h - len; arr[i++] = twZ;
+             function addSeg(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
+               tempVec.set(x1, y1, z1).applyMatrix4(mesh.matrixWorld);
+               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
+               tempVec.set(x2, y2, z2).applyMatrix4(mesh.matrixWorld);
+               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
+             }
 
-             arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
-             arr[i++] = twX + w - len; arr[i++] = twY + h;       arr[i++] = twZ;
-             arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
-             arr[i++] = twX + w;       arr[i++] = twY + h - len; arr[i++] = twZ;
+             // Top-Left
+             addSeg(-w, h, zOff, -w + len, h, zOff);
+             addSeg(-w, h, zOff, -w, h - len, zOff);
+             // Top-Right
+             addSeg(w, h, zOff, w - len, h, zOff);
+             addSeg(w, h, zOff, w, h - len, zOff);
+             // Bottom-Right
+             addSeg(w, -h, zOff, w - len, -h, zOff);
+             addSeg(w, -h, zOff, w, -h + len, zOff);
+             // Bottom-Left
+             addSeg(-w, -h, zOff, -w + len, -h, zOff);
+             addSeg(-w, -h, zOff, -w, -h + len, zOff);
 
-             arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
-             arr[i++] = twX + w - len; arr[i++] = twY - h;       arr[i++] = twZ;
-             arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
-             arr[i++] = twX + w;       arr[i++] = twY - h + len; arr[i++] = twZ;
-
-             arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
-             arr[i++] = twX - w + len; arr[i++] = twY - h;       arr[i++] = twZ;
-             arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
-             arr[i++] = twX - w;       arr[i++] = twY - h + len; arr[i++] = twZ;
              posAttr.needsUpdate = true;
 
            } else {
@@ -1216,7 +1200,7 @@ import brandProducts from '../brand_products.json';
              mesh.rotation.y += (data.rotY - mesh.rotation.y) * 0.1;
 
              mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
-             mat.uniforms.uOpacity.value += (0.00 - mat.uniforms.uOpacity.value) * 0.1;
+             mat.uniforms.uOpacity.value += (0.00 - mat.uniforms.uOpacity.value) * 0.08;
              if (badgeMat) badgeMat.opacity = 0.0;
            }
         } else {
