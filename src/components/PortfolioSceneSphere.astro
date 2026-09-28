@@ -243,7 +243,6 @@ import brandProducts from '../brand_products.json';
   .hud-menu-btn:hover { color: #C09E5A; }
   .hud-menu-btn.text-sepia { color: #C09E5A; }
 
-  /* 🎯 STILI BOTTONI FILTRO HUD DESTRO */
   #hud-right-vertical {
     top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg);
     white-space: nowrap; text-align: center; display: flex; align-items: center; gap: 8px;
@@ -436,12 +435,11 @@ import brandProducts from '../brand_products.json';
 
   function setFilter(targetFilter: 'CAROUSEL_ALBUM' | 'VIDEO') {
     if (activeFilter === targetFilter) {
-      activeFilter = 'ALL'; // Se clicchi su quello già attivo, resetta a ALL!
+      activeFilter = 'ALL'; // Toggle off
     } else {
       activeFilter = targetFilter;
     }
 
-    // Aggiorna classi visive stato attivo
     if (btnCarousel) btnCarousel.classList.toggle('is-active', activeFilter === 'CAROUSEL_ALBUM');
     if (btnVideo) btnVideo.classList.toggle('is-active', activeFilter === 'VIDEO');
   }
@@ -636,6 +634,7 @@ import brandProducts from '../brand_products.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
+    // 🌊 VERTEX SHADER CON DISATTIVAZIONE CURVATURA ED ONDE IN MODALITÀ FOCUS!
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -649,10 +648,9 @@ import brandProducts from '../brand_products.json';
 
         float dist = distance(uv, uMouse);
         float wave = sin(dist * 7.0 - uTime * 2.5) * (0.03 + abs(uVelocity) * 0.12);
-        float focusCurvature = (0.25 - (uv.x - 0.5)*(uv.x - 0.5) - (uv.y - 0.5)*(uv.y - 0.5)) * 0.35 * uFocus;
-
+        
+        // 🎯 AMMORTIZZAZIONE PERFETTA: sia l'onda che la curvatura si azzerano quando uFocus = 1.0!
         pos.z += wave * (1.0 - uFocus);
-        pos.z += focusCurvature;
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
@@ -765,6 +763,25 @@ import brandProducts from '../brand_products.json';
       mesh.position.set(baseX, baseY, zBase);
       mesh.rotation.set(rotX, rotY, 0);
 
+      // 🏔️ CREAZIONE DELL'ANELLO TOPOGRAFICO DI NODO PER CIASCUNA FOTO 3D!
+      const ringPointsCount = 48;
+      const ringPositions = new Float32Array((ringPointsCount + 1) * 3);
+      const ringRX = 1.30;
+      const ringRY = 1.62;
+      for (let rIdx = 0; rIdx <= ringPointsCount; rIdx++) {
+        const rTheta = (rIdx / ringPointsCount) * Math.PI * 2;
+        const rNoise = Math.sin(rTheta * 4.0 + index * 1.5) * 0.10;
+        ringPositions[rIdx * 3] = Math.cos(rTheta) * (ringRX + rNoise);
+        ringPositions[rIdx * 3 + 1] = Math.sin(rTheta) * (ringRY + rNoise);
+        ringPositions[rIdx * 3 + 2] = 0.01;
+      }
+      const ringGeo = new THREE.BufferGeometry();
+      ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPositions, 3));
+      const ringMat = new THREE.LineBasicMaterial({ color: 0xC09E5A, transparent: true, opacity: 0.0, linewidth: 1 });
+      const topoRingMesh = new THREE.LineLoop(ringGeo, ringMat);
+      topoRingMesh.frustumCulled = false;
+      mesh.add(topoRingMesh);
+
       let badgeMat: THREE.MeshBasicMaterial | null = null;
       if (item.media_type === 'VIDEO' || item.media_type === 'CAROUSEL_ALBUM') {
         const badgeTex = item.media_type === 'VIDEO' ? videoBadgeTexture : carouselBadgeTexture;
@@ -780,7 +797,7 @@ import brandProducts from '../brand_products.json';
         thumbnail_url: item.thumbnail_url, caption: item.caption, timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
         permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
         baseX: baseX, baseY: baseY, zBase: zBase, rotY: rotY, rotX: rotX,
-        coverTexture: texture, badgeMat: badgeMat, isLoaded: false 
+        coverTexture: texture, badgeMat: badgeMat, topoRingMat: ringMat, isLoaded: false 
       };
 
       worldGroup.add(mesh); meshes.push(mesh); materials.push(material);
@@ -957,7 +974,6 @@ import brandProducts from '../brand_products.json';
         camera.updateMatrixWorld(true);
         raycaster.setFromCamera(clickMouse, camera);
 
-        // 🎯 INTERSEZIONE SOLO SUI MEDIA CHE RISPETTANO IL FILTRO
         const visibleCandidates = meshes.filter(m => {
           if (!m.userData.isLoaded) return false;
           if (activeFilter === 'ALL') return true;
@@ -1109,10 +1125,11 @@ import brandProducts from '../brand_products.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA VORTICE & DISSOLVENZA SHADER SUI MEDIA FILTRATI
+      // 🌌 MATEMATICA VORTICE & DISSOLVENZA SHADER
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
+        const topoRingMat = data.topoRingMat as THREE.LineBasicMaterial | null;
 
         let currentZ = (data.zBase + scrollZ) % TOTAL_DEPTH;
         if (currentZ > 10) currentZ -= TOTAL_DEPTH;
@@ -1121,11 +1138,17 @@ import brandProducts from '../brand_products.json';
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
 
-        // 🎯 FILTRAGGIO CHIRURGICO: se l'opera non appartiene al filtro attivo, sfuma a 0.0!
         const matchesFilter = (activeFilter === 'ALL') || (data.media_type === activeFilter);
         const loadedOpacity = (data.isLoaded && matchesFilter) ? 1.0 : 0.0;
 
-        const targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? 1.0 * loadedOpacity : 1.0 * loadedOpacity);
+        // 🎯 RIMOZIONE BORDI SUI VIDEO: Se è un VIDEO isolato, l'opacità del mesh WebGL va a 0.0 per lasciare solo il player HTML!
+        let targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? (data.media_type === 'VIDEO' ? 0.0 : 1.0 * loadedOpacity) : 1.0 * loadedOpacity);
+
+        // 🏔️ OPACITÀ ANELLO TOPOGRAFICO DI NODO: visibile in spirale, scompare in ispezione o drawer!
+        if (topoRingMat) {
+          const targetRingOp = (mesh === activeMesh || activeDrawer || !matchesFilter) ? 0.0 : (data.isLoaded ? 0.35 : 0.0);
+          topoRingMat.opacity += (targetRingOp - topoRingMat.opacity) * 0.1;
+        }
 
         if (activeDrawer) {
           mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
@@ -1146,8 +1169,9 @@ import brandProducts from '../brand_products.json';
              mesh.position.y += (isolationY - mesh.position.y) * 0.1;
              mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
 
-             mesh.rotation.y += (mouse.x * 0.04 - mesh.rotation.y) * 0.1;
-             mesh.rotation.x += (-mouse.y * 0.04 - mesh.rotation.x) * 0.1;
+             // 🎯 SMORZAMENTO OSCILLAZIONE IN ISPEZIONE (ADDIO ONTIMENTO/ONDEGGIAMENTO)
+             mesh.rotation.y += (mouse.x * 0.008 - mesh.rotation.y) * 0.1;
+             mesh.rotation.x += (-mouse.y * 0.008 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
 
              mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
