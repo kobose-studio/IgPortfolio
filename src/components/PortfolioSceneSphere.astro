@@ -27,10 +27,12 @@ import brandProducts from '../brand_products.json';
     <button id="btn-audio-toggle" class="hud-menu-btn text-sepia">🔊 SOUND: OFF</button>
   </nav>
 
-  <!-- 🎯 HUD RIGHT VERTICAL CON FILTRO DINAMICO INTERATTIVO -->
-  <div id="hud-right-vertical" class="hud-element font-mono-tech pointer-events-auto">
-    ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <button id="btn-filter-toggle" class="hud-badge text-sepia cursor-pointer pointer-events-auto bg-transparent border-none font-mono-tech p-0 font-bold">[ FILTER: ALL ]</button>
+  <!-- 🎯 HUD RIGHT VERTICAL CON DOPPIO BOTTONE DI FILTRAGGIO -->
+  <div id="hud-right-vertical" class="hud-element font-mono-tech">
+    <span>ARCHIVE 2026 //</span>
+    <button id="btn-filter-carousel" class="filter-btn font-mono-tech">[ CAROUSEL ]</button>
+    <span class="hud-divider">//</span>
+    <button id="btn-filter-video" class="filter-btn font-mono-tech">[ VIDEO ]</button>
   </div>
   
   <!-- HUD Hover Target -->
@@ -241,6 +243,21 @@ import brandProducts from '../brand_products.json';
   .hud-menu-btn:hover { color: #C09E5A; }
   .hud-menu-btn.text-sepia { color: #C09E5A; }
 
+  /* 🎯 STILI BOTTONI FILTRO HUD DESTRO */
+  #hud-right-vertical {
+    top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg);
+    white-space: nowrap; text-align: center; display: flex; align-items: center; gap: 8px;
+    pointer-events: auto !important; z-index: 250;
+  }
+  @media (min-width: 768px) { #hud-right-vertical { right: 16px; transform: translate(25%, -50%) rotate(90deg); } }
+
+  .filter-btn {
+    background: transparent; border: none; color: #8c8c8c; font-size: 10px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s ease; padding: 2px 4px; font-family: 'Space Mono', monospace;
+  }
+  .filter-btn:hover { color: #C09E5A; }
+  .filter-btn.is-active { color: #C09E5A; font-weight: 800; text-shadow: 0 0 8px rgba(192, 158, 90, 0.4); }
+
   #global-brand-logo { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 356px; height: 160px; z-index: 105; pointer-events: none; mix-blend-mode: multiply; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
   #global-brand-logo img { width: 100%; height: 100%; object-fit: contain; object-position: center top; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.05)); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
   #global-brand-logo.is-focused img { transform: scale(0.9); }
@@ -250,8 +267,6 @@ import brandProducts from '../brand_products.json';
   @media (min-width: 768px) { .hud-element { font-size: 11px; letter-spacing: 0.22em; } }
   #hud-bottom-left { bottom: 20px; left: 20px; color: #8c8c8c; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
   @media (min-width: 768px) { #hud-bottom-left { bottom: 36px; left: 36px; gap: 6px; } }
-  #hud-right-vertical { top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg); white-space: nowrap; text-align: center; display: flex; align-items: center; }
-  @media (min-width: 768px) { #hud-right-vertical { right: 16px; transform: translate(25%, -50%) rotate(90deg); } }
   .hud-divider { color: #8c8c8c; margin: 0 4px; }
   .hud-badge { color: #C09E5A; margin-left: 8px; font-size: 10px; font-weight: bold; }
   .hud-sepia { color: #C09E5A; }
@@ -414,26 +429,31 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
-  // 🎯 FILTRO CINETICO ARCHIVIO MEDIA: ALL -> CAROUSEL -> VIDEO -> ALL
-  let currentFilter: 'ALL' | 'CAROUSEL_ALBUM' | 'VIDEO' = 'ALL';
-  const btnFilterToggle = document.getElementById('btn-filter-toggle');
+  // 🎯 FILTRO CINETICO DOPPIO INDIPENDENTE: [ CAROUSEL ] e [ VIDEO ]
+  let activeFilter: 'ALL' | 'CAROUSEL_ALBUM' | 'VIDEO' = 'ALL';
+  const btnCarousel = document.getElementById('btn-filter-carousel');
+  const btnVideo = document.getElementById('btn-filter-video');
 
-  function cycleFilter() {
-    if (currentFilter === 'ALL') {
-      currentFilter = 'CAROUSEL_ALBUM';
-      if (btnFilterToggle) btnFilterToggle.innerText = '[ FILTER: CAROUSEL ]';
-    } else if (currentFilter === 'CAROUSEL_ALBUM') {
-      currentFilter = 'VIDEO';
-      if (btnFilterToggle) btnFilterToggle.innerText = '[ FILTER: VIDEO ]';
+  function setFilter(targetFilter: 'CAROUSEL_ALBUM' | 'VIDEO') {
+    if (activeFilter === targetFilter) {
+      activeFilter = 'ALL'; // Se clicchi su quello già attivo, resetta a ALL!
     } else {
-      currentFilter = 'ALL';
-      if (btnFilterToggle) btnFilterToggle.innerText = '[ FILTER: ALL ]';
+      activeFilter = targetFilter;
     }
+
+    // Aggiorna classi visive stato attivo
+    if (btnCarousel) btnCarousel.classList.toggle('is-active', activeFilter === 'CAROUSEL_ALBUM');
+    if (btnVideo) btnVideo.classList.toggle('is-active', activeFilter === 'VIDEO');
   }
 
-  btnFilterToggle?.addEventListener('click', (e) => {
+  btnCarousel?.addEventListener('click', (e) => {
     e.stopPropagation();
-    cycleFilter();
+    setFilter('CAROUSEL_ALBUM');
+  });
+
+  btnVideo?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setFilter('VIDEO');
   });
 
   // ⚜️ LOGICA DRAWERS MENU
@@ -479,74 +499,6 @@ import brandProducts from '../brand_products.json';
       }
     });
   });
-
-  // 🗺️ HIGH-DPI 2048x2048 VECTOR TOPOGRAPHIC ENGINE
-  function createTopographicTexture(layerIndex: number) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 2048; canvas.height = 2048;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return new THREE.CanvasTexture(canvas);
-
-    ctx.clearRect(0, 0, 2048, 2048);
-
-    ctx.strokeStyle = 'rgba(13, 13, 13, 0.04)';
-    ctx.lineWidth = 1.0;
-    const gridSize = 256;
-    for (let x = 0; x <= 2048; x += gridSize) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 2048); ctx.stroke();
-    }
-    for (let y = 0; y <= 2048; y += gridSize) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2048, y); ctx.stroke();
-    }
-
-    const centers = [
-      { x: 1024 + Math.sin(layerIndex) * 150, y: 1024 + Math.cos(layerIndex) * 150, scale: 1.1 },
-      { x: 450 + layerIndex * 120, y: 1550 - layerIndex * 80, scale: 0.75 },
-      { x: 1600 - layerIndex * 100, y: 550 + layerIndex * 110, scale: 0.85 }
-    ];
-
-    centers.forEach((center, cIdx) => {
-      const rings = 20;
-      for (let r = 1; r <= rings; r++) {
-        const isMajor = (r % 4 === 0);
-        ctx.strokeStyle = isMajor ? 'rgba(192, 158, 90, 0.60)' : 'rgba(30, 30, 30, 0.28)';
-        ctx.lineWidth = isMajor ? 2.2 : 0.9;
-
-        ctx.beginPath();
-        const baseR = r * 48.0 * center.scale;
-        const points = 72;
-
-        for (let p = 0; p <= points; p++) {
-          const angle = (p / points) * Math.PI * 2;
-          const n1 = Math.sin(angle * 3.0 + r * 0.4 + layerIndex) * 28.0;
-          const n2 = Math.cos(angle * 6.0 - cIdx) * 16.0;
-          const finalR = baseR + n1 + n2;
-
-          const x = center.x + Math.cos(angle) * finalR;
-          const y = center.y + Math.sin(angle) * finalR;
-
-          if (p === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-
-        if (isMajor && r > 2) {
-          ctx.fillStyle = '#C09E5A';
-          ctx.font = '700 15px "Space Mono", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${1200 + r * 160 + layerIndex * 250}m`, center.x + baseR * 0.75, center.y - baseR * 0.75);
-        }
-      }
-    });
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.generateMipmaps = true;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.needsUpdate = true;
-    return texture;
-  }
 
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
@@ -595,9 +547,7 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-
-    // 🗺️ CREAZIONE PRIMITIVE VETTORIALI 3D NATIVE (THREE.LineLoop)
+    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE (THREE.LineLoop)
     const topoGroup = new THREE.Group();
     scene.add(topoGroup);
 
@@ -951,10 +901,9 @@ import brandProducts from '../brand_products.json';
     function navigateWork(direction: number) {
       if (meshes.length === 0 || activeMeshIndex === -1) return;
       
-      // Se c'è un filtro attivo, naviga solo tra le opere filtrate!
       let filteredMeshes = meshes;
-      if (currentFilter !== 'ALL') {
-        filteredMeshes = meshes.filter(m => m.userData.media_type === currentFilter);
+      if (activeFilter !== 'ALL') {
+        filteredMeshes = meshes.filter(m => m.userData.media_type === activeFilter);
       }
       if (filteredMeshes.length === 0) return;
 
@@ -1008,11 +957,11 @@ import brandProducts from '../brand_products.json';
         camera.updateMatrixWorld(true);
         raycaster.setFromCamera(clickMouse, camera);
 
-        // 🎯 ESCLUDIAMO DALLA INTERSEZIONE LE OPERE FILTRATE VIA
+        // 🎯 INTERSEZIONE SOLO SUI MEDIA CHE RISPETTANO IL FILTRO
         const visibleCandidates = meshes.filter(m => {
           if (!m.userData.isLoaded) return false;
-          if (currentFilter === 'ALL') return true;
-          return m.userData.media_type === currentFilter;
+          if (activeFilter === 'ALL') return true;
+          return m.userData.media_type === activeFilter;
         });
 
         const intersects = raycaster.intersectObjects(visibleCandidates, false);
@@ -1053,8 +1002,8 @@ import brandProducts from '../brand_products.json';
 
       const visibleCandidates = meshes.filter(m => {
         if (!m.userData.isLoaded) return false;
-        if (currentFilter === 'ALL') return true;
-        return m.userData.media_type === currentFilter;
+        if (activeFilter === 'ALL') return true;
+        return m.userData.media_type === activeFilter;
       });
 
       const intersects = raycaster.intersectObjects(visibleCandidates, false);
@@ -1084,7 +1033,7 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ PARALLASSE VETTORIALE SULLE ISOIPSE TOPOGRAFICHE CONCENTRICHE
+      // 🗺️ PARALLASSE VETTORIALE SULLE ISOIPSE
       topoLoops.forEach((loopObj) => {
         let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
         if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
@@ -1172,8 +1121,8 @@ import brandProducts from '../brand_products.json';
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
 
-        // 🎯 DISSOLVENZA GLSL SHADER: Se l'opera non passa il filtro, sfuma a 0.0!
-        const matchesFilter = (currentFilter === 'ALL') || (data.media_type === currentFilter);
+        // 🎯 FILTRAGGIO CHIRURGICO: se l'opera non appartiene al filtro attivo, sfuma a 0.0!
+        const matchesFilter = (activeFilter === 'ALL') || (data.media_type === activeFilter);
         const loadedOpacity = (data.isLoaded && matchesFilter) ? 1.0 : 0.0;
 
         const targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? 1.0 * loadedOpacity : 1.0 * loadedOpacity);
