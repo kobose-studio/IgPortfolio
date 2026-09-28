@@ -18,14 +18,14 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[HYPER_DIMENSIONAL_VORTEX]</span>
+    <span class="hud-badge hidden md:inline">[3D_PARALLAX_STATE_LOCKED]</span>
   </div>
   
-  <!-- HUD Bottom Left Spaziato -->
+  <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
-    <span class="hidden md:inline">SCROLL TO FLY THROUGH 450+ WORKS</span>
+    <span class="hidden md:inline">MOVE MOUSE FOR 3D PARALLAX</span>
     <span class="hud-divider hidden md:inline">//</span>
-    <span class="hud-sepia hidden md:inline">[▲/▼] 3D SNOW</span>
+    <span class="hud-sepia hidden md:inline">SCROLL TO FLY</span>
     <span class="hud-divider">//</span>
     <span>CLICK / TAP TO CENTER & ISOLATE</span>
   </div>
@@ -172,12 +172,10 @@ import portfolioData from '../portfolio_cache.json';
   const container = document.getElementById('canvas-container');
   if (container) {
     const scene = new THREE.Scene();
-    
-    // 🌫️ VOLUMETRIC FOG DENSE: Dissolvenza delle foto distanti nell'abisso minerale
     scene.fog = new THREE.FogExp2(0xf2f2f0, 0.022);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 0, 0); // L'osservatore vola attraverso l'asse (0,0,Z)
+    camera.position.set(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -188,7 +186,7 @@ import portfolioData from '../portfolio_cache.json';
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
-    // ❄️ NEVE TRICROMA 3D ANCORATA ALLA CAMERA (Sempre visibile in primo piano!)
+    // ❄️ NEVE TRICROMA 3D ANCORATA ALLA SCENA
     const particleCount = 240;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.38, depthTest: false, side: THREE.DoubleSide });
@@ -208,7 +206,7 @@ import portfolioData from '../portfolio_cache.json';
       });
     }
     if (pixelSnowSystem.instanceColor) pixelSnowSystem.instanceColor.needsUpdate = true;
-    scene.add(pixelSnowSystem); // Ancorata alla scena principale!
+    scene.add(pixelSnowSystem);
 
     const laserGeometry = new THREE.BufferGeometry();
     const laserPositions = new Float32Array(48);
@@ -262,12 +260,10 @@ import portfolioData from '../portfolio_cache.json';
     const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
     const badgeGeometry = new THREE.PlaneGeometry(0.22, 0.25);
 
-    // 🌌 MATEMATICA DEL VORTICE HYPER-DIMENSIONALE AUREO
-    const SPACING_Z = 2.8; // Distanza passo z tra foto successive
+    // 🌌 MATEMATICA DEL VORTICE AUREO A MULTI-RAGGIO
+    const SPACING_Z = 2.8;
     const TOTAL_DEPTH = mediaItems.length * SPACING_Z;
-    const GOLDEN_ANGLE = 2.399963; // Un angolo aureo per una spirale armonica in 3D
-
-    const baseDataList: { x: number; y: number; zBase: number; rotY: number; rotX: number }[] = [];
+    const GOLDEN_ANGLE = 2.399963;
 
     mediaItems.forEach((item: any, index: number) => {
       let imageUrl = item.media_url || item.thumbnail_url;
@@ -286,15 +282,13 @@ import portfolioData from '../portfolio_cache.json';
 
       const mesh = new THREE.Mesh(geometry, material);
       
-      // 📐 DIVERSI LIVELLI DI PROFONDITÀ E RAGGIO PER EVITARE LA PIATTEZZA!
       const theta = index * GOLDEN_ANGLE;
-      const radiusLayer = 5.5 + (index % 4) * 3.2; // Raggio variabile da 5.5 a 15.1 per multi-livelli
+      const radiusLayer = 5.5 + (index % 4) * 3.2; // Raggio tridimensionale variabile per spezzare la piattezza!
       
       const baseX = radiusLayer * Math.cos(theta);
       const baseY = radiusLayer * Math.sin(theta);
       const zBase = -index * SPACING_Z;
 
-      // Inclinazione tridimensionale naturale verso l'asse del volo
       const rotY = -Math.atan2(baseX, -zBase) * 0.4;
       const rotX = Math.atan2(baseY, -zBase) * 0.4;
 
@@ -310,8 +304,6 @@ import portfolioData from '../portfolio_cache.json';
         badgeMesh.position.set(2.2 / 2 - 0.22, -2.8 / 2 + 0.22, 0.15);
         mesh.add(badgeMesh);
       }
-
-      baseDataList.push({ x: baseX, y: baseY, zBase: zBase, rotY: rotY, rotX: rotX });
 
       mesh.userData = { 
         id: item.id, title: parseBilingualTitle(item.caption), media_type: item.media_type, media_url: item.media_url, 
@@ -329,9 +321,11 @@ import portfolioData from '../portfolio_cache.json';
     let activeMesh: THREE.Mesh | null = null;
     let activeMeshIndex = -1;
 
-    // 🚀 SCROLL ENGINE AD ALTA VELOCITÀ SUL PROFONDO Z
+    // 🔒 STATE-LOCK MEMORY: Salva la posizione esatta prima di aprire una foto!
+    let savedScrollZ: number | null = null;
     let scrollZ = 0, targetScrollZ = 0, isDragging = false, dragStartY = 0;
     const DRAG_MULTIPLIER = 0.08;
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
 
     const editorialStage = document.getElementById('editorial-stage');
     const brandLogo = document.getElementById('global-brand-logo'); 
@@ -340,25 +334,27 @@ import portfolioData from '../portfolio_cache.json';
     function closeModal() {
       if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
       activeMesh = null; activeMeshIndex = -1;
+      
+      // 🎯 RIPRISTINO PERFETTO DELLA POSIZIONE DI SCROLL ORIGINALE
+      if (savedScrollZ !== null) {
+        targetScrollZ = savedScrollZ;
+        savedScrollZ = null;
+      }
+
       editorialStage?.classList.remove('is-active'); brandLogo?.classList.remove('is-focused'); 
       if (videoStage) videoStage.innerHTML = '';
     }
 
     function openModalForMesh(mesh: THREE.Mesh) {
       if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      
+      // 🔒 MEMORIZZA LO SCROLL PRIMA DELL'INSPEZIONE
+      if (!activeMesh) {
+        savedScrollZ = targetScrollZ;
+      }
+
       activeMesh = mesh; activeMeshIndex = meshes.indexOf(mesh);
       const data = activeMesh.userData;
-
-      // 🎯 SPOSTIAMO LO SCROLL Z AFFINCHÉ QUESTA OPERA VENGA IN PRIMO PIANO
-      const focusTargetZ = 4.5;
-      let targetZOffset = focusTargetZ - data.zBase;
-      
-      // Calcolo toroidale per trovare la via più breve nel tempo
-      let currentZWrap = (data.zBase + scrollZ) % TOTAL_DEPTH;
-      if (currentZWrap > 10) currentZWrap -= TOTAL_DEPTH;
-      if (currentZWrap < -TOTAL_DEPTH + 10) currentZWrap += TOTAL_DEPTH;
-
-      targetScrollZ += (focusTargetZ - currentZWrap);
 
       const workCounter = document.getElementById('work-counter');
       if (workCounter) workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
@@ -424,7 +420,6 @@ import portfolioData from '../portfolio_cache.json';
       if (e.key === 'ArrowDown') snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
     });
 
-    // 🌊 SCROLL CONTINUO PER SPINGERE O TIRARE L'UNIVERSO Z
     window.addEventListener('wheel', (e) => { 
       if(!activeMesh) {
         targetScrollZ += e.deltaY * 0.035;
@@ -432,7 +427,12 @@ import portfolioData from '../portfolio_cache.json';
     }, { passive: true });
 
     window.addEventListener('pointerdown', (e) => { isDragging = true; dragStartY = e.clientY; });
+    
     window.addEventListener('pointermove', (e) => {
+      // 👁️ TRACCIAMENTO MOUSE PER PARALLASSE DENSITÀ 3D
+      mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
+
       if (isDragging && !activeMesh) {
         const deltaY = e.clientY - dragStartY;
         targetScrollZ += deltaY * DRAG_MULTIPLIER;
@@ -465,10 +465,28 @@ import portfolioData from '../portfolio_cache.json';
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
+      // Smooth Lerp per mouse X/Y
+      mouse.x += (mouse.targetX - mouse.x) * 0.05;
+      mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+      // 👁️ DUAL PARALLASSE STEREO IN NORMALE SCROLLING
+      if (!activeMesh) {
+        worldGroup.rotation.y += (mouse.x * 0.28 - worldGroup.rotation.y) * 0.05;
+        worldGroup.rotation.x += (-mouse.y * 0.28 - worldGroup.rotation.x) * 0.05;
+        camera.position.x += (mouse.x * 1.8 - camera.position.x) * 0.05;
+        camera.position.y += (-mouse.y * 1.8 - camera.position.y) * 0.05;
+      } else {
+        // Annulla il parallasse in ispezione per bloccare l'inquadratura perfetta
+        worldGroup.rotation.y += (0 - worldGroup.rotation.y) * 0.08;
+        worldGroup.rotation.x += (0 - worldGroup.rotation.x) * 0.08;
+        camera.position.x += (0 - camera.position.x) * 0.08;
+        camera.position.y += (0 - camera.position.y) * 0.08;
+      }
+
       scrollZ += (targetScrollZ - scrollZ) * 0.08;
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // 💫 SIMULAZIONE FISICA NEVE TRICROMA
+      // 💫 SIMULAZIONE FISICA NEVE TRICROMA IN PRIMO PIANO
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
         pData.y -= pData.vy;
@@ -490,7 +508,6 @@ import portfolioData from '../portfolio_cache.json';
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
 
-        // Loop Infinito Toroidale Z: le foto volano continuamente verso di noi ed entrano di nuovo sul fondo
         let currentZ = (data.zBase + scrollZ) % TOTAL_DEPTH;
         if (currentZ > 10) currentZ -= TOTAL_DEPTH;
         if (currentZ < -TOTAL_DEPTH + 10) currentZ += TOTAL_DEPTH;
@@ -507,7 +524,7 @@ import portfolioData from '../portfolio_cache.json';
              mesh.position.y += (targetY - mesh.position.y) * 0.1;
              mesh.position.z += (targetZ - mesh.position.z) * 0.1;
 
-             // Annullamento completo delle rotazioni storte: l'immagine diventa piana e parallela allo schermo!
+             // Annulla ogni rotazione obliqua
              mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
              mesh.rotation.y += (0 - mesh.rotation.y) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
@@ -516,7 +533,7 @@ import portfolioData from '../portfolio_cache.json';
              mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // ⚜️ LASER FRAMEWORK PERFETTO ED ALLINEATO
+             // ⚜️ CORNICE LASER D'ORO
              laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
              const arr = posAttr.array as Float32Array;
@@ -546,7 +563,6 @@ import portfolioData from '../portfolio_cache.json';
              posAttr.needsUpdate = true;
 
            } else {
-             // Dissolvenza delle altre immagini per far risaltare l'opera isolata
              mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
              mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
              mesh.position.z = currentZ;
@@ -559,7 +575,6 @@ import portfolioData from '../portfolio_cache.json';
              if (badgeMat) badgeMat.opacity = 0.0;
            }
         } else {
-           // 🏞️ VOLO NORMALE NEL VORTICE HYPER-DIMENSIONALE
            mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
            mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
            mesh.position.z = currentZ;
