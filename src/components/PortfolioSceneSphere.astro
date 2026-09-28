@@ -617,7 +617,7 @@ import brandProducts from '../brand_products.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
-    // 🌊 VERTEX SHADER SOTTILE CON AZZERAMENTO COMPLETO DELL'ONDEGIAMENTO IN FOCUS MODE!
+    // 🌊 VERTEX SHADER CON ONDEGGIAMENTO FLUIDO MANTENUTOIN FOCUS MODE
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -632,14 +632,13 @@ import brandProducts from '../brand_products.json';
         float dist = distance(uv, uMouse);
         float wave = sin(dist * 7.0 - uTime * 2.5) * (0.03 + abs(uVelocity) * 0.12);
         
-        // 🎯 DISATTIVAZIONE ONDA SHADER SUL MESH FOTOGRAFICO IN ISPEZIONE
-        pos.z += wave * (1.0 - uFocus);
+        pos.z += wave;
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `;
 
-    // 🎯 FRAGMENT SHADER: AZZERAMENTO RIGOROSO DELLA DISTORSIONE UV LIQUIDA SUI BORDI FOTO
+    // 🎯 FRAGMENT SHADER CON BORDI RETTANGOLARI DRITTI SENZA DISTORSIONE LIQUIDA
     const fragmentShader = `
       varying vec2 vUv;
       uniform sampler2D uTexture;
@@ -662,8 +661,7 @@ import brandProducts from '../brand_products.json';
 
         float distFromCenter = length(vUv - vec2(0.5));
 
-        // 🎯 AZZERAMENTO DISTORSIONE BORDISSIMO UV (1.0 - uFocus): 
-        // Quando uFocus = 1.0 la distorsione liquida si azzera del tutto, rendendo i bordi della foto perfettamente dritti come il frame!
+        // 🎯 ONDEGGIAMENTO UV DISATTIVATO QUANDO FOCALIZZATO (1.0 - uFocus) PER MANTENERE I BORDI ADIACENTI AL FRAME
         float distortion = sin(uv.y * 12.0 + uTime * 3.0) * (0.003 + abs(uVelocity) * 0.015) * (1.0 - uFocus);
         uv.x += distortion;
 
@@ -1002,13 +1000,23 @@ import brandProducts from '../brand_products.json';
       }
     });
 
+    // 🎯 PROTEZIONE BINDING CLICK: I BOTTONI HUD (SOUND & FILTRI) NON CHIUDONO LA MODALE!
     window.addEventListener('pointerup', (e) => {
       isDragging = false;
       if (activeDrawer) return;
 
       if (activeMesh) {
-        const card = document.getElementById('editorial-card'); const stageControls = document.getElementById('video-stage');
-        if (card && !card.contains(e.target as Node) && stageControls && !stageControls.contains(e.target as Node)) closeModal();
+        const card = document.getElementById('editorial-card');
+        const stageControls = document.getElementById('video-stage');
+        const mainHud = document.getElementById('hud-main-menu');
+        const rightHud = document.getElementById('hud-right-vertical');
+
+        if (mainHud && mainHud.contains(e.target as Node)) return;
+        if (rightHud && rightHud.contains(e.target as Node)) return;
+
+        if (card && !card.contains(e.target as Node) && stageControls && !stageControls.contains(e.target as Node)) {
+          closeModal();
+        }
         return;
       }
 
@@ -1147,8 +1155,10 @@ import brandProducts from '../brand_products.json';
 
         let targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? (data.media_type === 'VIDEO' ? 0.0 : 1.0 * loadedOpacity) : 1.0 * loadedOpacity);
 
+        // 🏔️ OPACITÀ ANELLI TOPOGRAFICI DI NODO:
+        // Mantengono la presenza vivace (0.85) attorno alla foto in Focus Mode, ruotando e ondeggiando a 1:1 con essa!
         if (topoRingMat) {
-          const targetRingOp = (mesh === activeMesh || activeDrawer || !matchesFilter) ? 0.0 : (data.isLoaded ? 0.60 : 0.0);
+          const targetRingOp = (activeDrawer || !matchesFilter) ? 0.0 : (mesh === activeMesh ? 0.85 : (data.isLoaded ? 0.60 : 0.0));
           topoRingMat.opacity += (targetRingOp - topoRingMat.opacity) * 0.1;
         }
 
@@ -1164,7 +1174,7 @@ import brandProducts from '../brand_products.json';
            if (mesh === activeMesh) {
              const isMobile = window.innerWidth < 640;
 
-             // 🎯 PARALLASSE E TILT SINCRONIZZATO IN FOCUS MODE (FOTO + CORNICE)
+             // 🎯 PARALLASSE E TILT SINCRONIZZATO IN FOCUS MODE
              const isolationX = mouse.x * 0.35;
              const isolationY = (isMobile ? -0.45 : 0.0) + mouse.y * 0.25;
              const isolationZ = -4.5;
@@ -1173,7 +1183,7 @@ import brandProducts from '../brand_products.json';
              mesh.position.y += (isolationY - mesh.position.y) * 0.08;
              mesh.position.z += (isolationZ - mesh.position.z) * 0.08;
 
-             // TILT PROSPETTICO SINCRONO GUIDATO DAL MOUSE
+             // TILT PROSPETTICO SINCRONO
              const targetRotY = mouse.x * 0.08;
              const targetRotX = -mouse.y * 0.08;
              mesh.rotation.y += (targetRotY - mesh.rotation.y) * 0.08;
@@ -1185,33 +1195,8 @@ import brandProducts from '../brand_products.json';
              mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // AGGIORNAMENTO MATRICE WORLD PER LA CORNICE LASER
-             mesh.updateMatrixWorld(true);
-             laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
-             const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
-             const arr = posAttr.array as Float32Array;
-             
-             // 🎯 CORNICE LASER PERFETTAMENTE RETTANGOLARE ADIACENTE AI BORDI DRITTI DELLA FOTO
-             const w = 1.12; const h = 1.42; const zOff = 0.05; const len = 0.25;
-             let ptr = 0;
-
-             function addSeg(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
-               tempVec.set(x1, y1, z1).applyMatrix4(mesh.matrixWorld);
-               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
-               tempVec.set(x2, y2, z2).applyMatrix4(mesh.matrixWorld);
-               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
-             }
-
-             addSeg(-w, h, zOff, -w + len, h, zOff);
-             addSeg(-w, h, zOff, -w, h - len, zOff);
-             addSeg(w, h, zOff, w - len, h, zOff);
-             addSeg(w, h, zOff, w, h - len, zOff);
-             addSeg(w, -h, zOff, w - len, -h, zOff);
-             addSeg(w, -h, zOff, w, -h + len, zOff);
-             addSeg(-w, -h, zOff, -w + len, -h, zOff);
-             addSeg(-w, -h, zOff, -w, -h + len, zOff);
-
-             posAttr.needsUpdate = true;
+             // 🎯 DISATTIVAZIONE CORNICE LASER RIGIDA: lasciamo spazio all'anello topografico fluido!
+             laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.1;
 
            } else {
              mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
