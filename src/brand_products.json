@@ -1,0 +1,35 @@
+[
+  {
+    "id": "gear-01",
+    "title": "IMLAND / MONTE ROSA ALPINIST HOODIE",
+    "subtitle": "HEAVYWEIGHT ORGANIC COTTON // 480 GSM",
+    "category": "OUTDOOR OUTFIT",
+    "price": "€ 130,00",
+    "status": "PRE-ORDER / LIMITED EDITION",
+    "description": "Progettata tra le pareti rigide di Alagna. Tessuto ad alta densità per resistere ai venti alpini. Ricamo Sepia Gold sul petto e coordinate geografiche sul cappuccio.",
+    "tag": "ALAGNA APPROVED",
+    "image": "/brand/gear-hoodie.jpg"
+  },
+  {
+    "id": "gear-02",
+    "title": "IMLAND / ANTRACITE TECHNICAL SHELL",
+    "subtitle": "3-LAYER WATERPROOF & BREATHABLE MEMBRANE",
+    "category": "TECHNICAL GEAR",
+    "price": "€ 290,00",
+    "status": "COMING SOON 2026",
+    "description": "Guscio tecnico impermeabile con cuciture nastrate a caldo. Taglio ergonomico studiato per lo sci alpinismo ed esplorazioni ad alta quota.",
+    "tag": "HARDCORE OUTDOOR",
+    "image": "/brand/gear-shell.jpg"
+  },
+  {
+    "id": "gear-03",
+    "title": "IMLAND / ALPINE MINERAL BEANIE",
+    "subtitle": "MERINO WOOL & RECYCLED FIBERS",
+    "category": "HEADWEAR",
+    "price": "€ 45,00",
+    "status": "AVAILABLE IN ATELIER",
+    "description": "Berretto in pura lana Merino e fibre minerali rigenerate. Risvolto tattico con patch gommata IMLAND Monte Rosa.",
+    "tag": "ESSENTIAL",
+    "image": "/brand/gear-beanie.jpg"
+  }
+]
