@@ -527,7 +527,7 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE - ALTO CONTRASTO CROMATICO (ARCHITECTURAL PASS)
+    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE - GERARCHIA DI SPESSORE (ARCHITECTURAL PASS)
     const topoGroup = new THREE.Group();
     scene.add(topoGroup);
 
@@ -565,7 +565,7 @@ import brandProducts from '../brand_products.json';
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-      // 🎯 INCISIONE VETTORIALE AD ALTO CONTRASTO (Sepia 0.75 | Antracite 0.42)
+      // 🎯 INCISIONE VETTORIALE AD ALTO CONTRASTO (Sepia Gold 0.75 | Antracite 0.42)
       const isSepia = k % 2 === 0;
       const lineMat = new THREE.LineBasicMaterial({
         color: isSepia ? 0xC09E5A : 0x282828,
@@ -744,21 +744,38 @@ import brandProducts from '../brand_products.json';
       mesh.position.set(baseX, baseY, zBase);
       mesh.rotation.set(rotX, rotY, 0);
 
-      // 🏔️ ANELLO TOPOGRAFICO DI NODO CON DENSITÀ ELEVATA (0.60 OPACITY)
-      const ringPointsCount = 48;
+      // 🏔️ ANELLO TOPOGRAFICO PROCEDURALE ALTAMENTE DIVERSIFICATO PER OGNI NODO FOTO (FIBO-HARMONIC ENGINE)
+      const ringPointsCount = 56;
       const ringPositions = new Float32Array((ringPointsCount + 1) * 3);
-      const ringRX = 2.10;
-      const ringRY = 2.60;
+      
+      // Parametri procedurali unici calcolati sull'indice dell'immagine
+      const baseRX = 1.95 + (index % 5) * 0.15 + Math.sin(index * 1.7) * 0.20;
+      const baseRY = 2.45 + (index % 4) * 0.18 + Math.cos(index * 2.3) * 0.25;
+      const hFreq1 = 2 + (index % 4);
+      const hFreq2 = 3 + (index % 3);
+      const hAmp1 = 0.08 + (index % 3) * 0.04;
+      const hAmp2 = 0.05 + (index % 2) * 0.03;
+
       for (let rIdx = 0; rIdx <= ringPointsCount; rIdx++) {
         const rTheta = (rIdx / ringPointsCount) * Math.PI * 2;
-        const rNoise = Math.sin(rTheta * 4.0 + index * 1.5) * 0.08;
-        ringPositions[rIdx * 3] = Math.cos(rTheta) * (ringRX + rNoise);
-        ringPositions[rIdx * 3 + 1] = Math.sin(rTheta) * (ringRY + rNoise);
+        const rNoise = Math.sin(rTheta * hFreq1 + index * 1.3) * hAmp1 + Math.cos(rTheta * hFreq2 - index * 0.9) * hAmp2;
+        
+        ringPositions[rIdx * 3] = Math.cos(rTheta) * (baseRX + rNoise);
+        ringPositions[rIdx * 3 + 1] = Math.sin(rTheta) * (baseRY + rNoise);
         ringPositions[rIdx * 3 + 2] = 0.01;
       }
+
       const ringGeo = new THREE.BufferGeometry();
       ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPositions, 3));
-      const ringMat = new THREE.LineBasicMaterial({ color: 0xC09E5A, transparent: true, opacity: 0.0, linewidth: 1 });
+      
+      // Alternanza di tono dorato/antracite per gli anelli dei nodi
+      const isRingSepia = (index % 3 !== 0);
+      const ringMat = new THREE.LineBasicMaterial({ 
+        color: isRingSepia ? 0xC09E5A : 0x282828, 
+        transparent: true, 
+        opacity: 0.0, 
+        linewidth: 1 
+      });
       const topoRingMesh = new THREE.LineLoop(ringGeo, ringMat);
       topoRingMesh.frustumCulled = false;
       mesh.add(topoRingMesh);
