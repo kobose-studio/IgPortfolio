@@ -5,6 +5,9 @@ import brandProducts from '../brand_products.json';
 
 <div id="canvas-container">
   
+  <!-- 🎵 TRACCIA AUDIO COLONNA SONORA IMLAND (.M4A OFFICIAL) -->
+  <audio id="bg-soundtrack" src="/brand/soundtrack.m4a" loop preload="auto"></audio>
+
   <div class="bg-grain-overlay"></div>
   <div class="top-vapour-mask"></div>
 
@@ -13,19 +16,21 @@ import brandProducts from '../brand_products.json';
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
 
-  <!-- ⚜️ MAIN HUD NAVIGATION BAR (CENTRO ALTO) -->
+  <!-- ⚜️ MAIN HUD NAVIGATION BAR CON AUDIO TOGGLE -->
   <nav id="hud-main-menu" class="font-mono-tech">
     <button class="hud-menu-btn" data-target="drawer-manifesto">[ MANIFESTO ]</button>
     <span class="hud-sep">//</span>
     <button class="hud-menu-btn" data-target="drawer-gear">[ OUTDOOR GEAR ]</button>
     <span class="hud-sep">//</span>
     <button class="hud-menu-btn" data-target="drawer-contacts">[ CONTACTS ]</button>
+    <span class="hud-sep">//</span>
+    <button id="btn-audio-toggle" class="hud-menu-btn text-sepia">[ 🔊 SOUND: OFF ]</button>
   </nav>
 
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[WIREFRAME_STREAM_ACTIVE]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[AUDIO_REACTIVE_SNOWSTREAM]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -34,9 +39,9 @@ import brandProducts from '../brand_products.json';
     <span id="fixed-hover-title">ESPLORA L'ARCHIVIO</span>
   </div>
 
-  <!-- HUD Bottom Left Dinamico -->
+  <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
-    <span id="hud-loading-counter" class="hud-sepia">SYNCHRONIZING ARCHIVE NODES...</span>
+    <span id="hud-loading-counter" class="hud-sepia">SYNCHRONIZING ARCHIVE...</span>
     <span class="hud-divider hidden md:inline">//</span>
     <span class="hidden md:inline">MOVE MOUSE TO STEER // SCROLL FOR PIXEL STORM</span>
   </div>
@@ -205,6 +210,7 @@ import brandProducts from '../brand_products.json';
   .hud-menu-btn { background: transparent; border: none; color: #0d0d0d; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; cursor: pointer; transition: all 0.25s ease; padding: 4px 6px; }
   @media (min-width: 768px) { .hud-menu-btn { font-size: 10px; letter-spacing: 0.15em; } }
   .hud-menu-btn:hover { color: #C09E5A; }
+  .hud-menu-btn.text-sepia { color: #C09E5A; }
   .hud-sep { color: #8c8c8c; font-size: 10px; }
 
   #global-brand-logo { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 356px; height: 160px; z-index: 105; pointer-events: none; mix-blend-mode: multiply; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -329,48 +335,91 @@ import brandProducts from '../brand_products.json';
   import * as THREE from 'three';
   import rawData from '../portfolio_cache.json';
 
-  // ⚜️ UNICA TEXTURE CONDIVISA PER TELAIO WIREFRAME TRASPARENTE A 0ms (MOMENTUM VELOCE)
-  function createSharedWireframeTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 128; canvas.height = 160;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return new THREE.CanvasTexture(canvas);
-    
-    // Fondo completamente TRASPARENTE (zero mattoni opachi)
-    ctx.clearRect(0, 0, 128, 160);
-    
-    // Cornice sottile Sepia Gold
-    ctx.strokeStyle = '#C09E5A';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(6, 6, 116, 148);
-    
-    // Mirini tattici a croce "+" ai 4 angoli
-    ctx.strokeStyle = '#C09E5A';
-    ctx.lineWidth = 1;
-    const len = 6;
-    // Top-Left
-    ctx.beginPath(); ctx.moveTo(2, 6); ctx.lineTo(10, 6); ctx.moveTo(6, 2); ctx.lineTo(6, 10); ctx.stroke();
-    // Top-Right
-    ctx.beginPath(); ctx.moveTo(118, 6); ctx.lineTo(126, 6); ctx.moveTo(122, 2); ctx.lineTo(122, 10); ctx.stroke();
-    // Bottom-Left
-    ctx.beginPath(); ctx.moveTo(2, 154); ctx.lineTo(10, 154); ctx.moveTo(6, 150); ctx.lineTo(6, 158); ctx.stroke();
-    // Bottom-Right
-    ctx.beginPath(); ctx.moveTo(118, 154); ctx.lineTo(126, 154); ctx.moveTo(122, 150); ctx.lineTo(122, 158); ctx.stroke();
+  // 🎵 WEB AUDIO API
+  let audioCtx: AudioContext | null = null;
+  let analyser: AnalyserNode | null = null;
+  let audioDataArray: Uint8Array | null = null;
+  let isAudioPlaying = false;
 
-    // Dicitura minimalista
-    ctx.fillStyle = '#C09E5A';
-    ctx.font = '700 8px "Space Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('IMLAND // MONTEROSA', 64, 76);
+  const bgAudio = document.getElementById('bg-soundtrack') as HTMLAudioElement;
+  const btnAudioToggle = document.getElementById('btn-audio-toggle');
 
-    ctx.fillStyle = '#8c8c8c';
-    ctx.font = '700 7px "Space Mono", monospace';
-    ctx.fillText('[ SYNCHRONIZING ]', 64, 90);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-    return texture;
+  function initAudioContext() {
+    if (audioCtx) return;
+    try {
+      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (bgAudio) {
+        const source = audioCtx.createMediaElementSource(bgAudio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        audioDataArray = new Uint8Array(analyser.frequencyBinCount);
+      }
+    } catch (e) {
+      console.warn("Audio Context init fallback:", e);
+    }
   }
+
+  function toggleAudio() {
+    initAudioContext();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    if (bgAudio) {
+      if (isAudioPlaying) {
+        bgAudio.pause();
+        isAudioPlaying = false;
+        if (btnAudioToggle) btnAudioToggle.innerText = '[ 🔊 SOUND: OFF ]';
+      } else {
+        bgAudio.play().then(() => {
+          isAudioPlaying = true;
+          if (btnAudioToggle) btnAudioToggle.innerText = '[ 🔊 SOUND: ON ]';
+        }).catch(err => console.log("Audio gesture required:", err));
+      }
+    }
+  }
+
+  btnAudioToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleAudio();
+  });
+
+  // ⚜️ LOGICA DRAWERS MENU
+  let activeDrawer: HTMLElement | null = null;
+
+  function closeAllDrawers() {
+    document.querySelectorAll('.editorial-drawer').forEach(el => el.classList.remove('is-active'));
+    activeDrawer = null;
+  }
+
+  document.querySelectorAll('.hud-menu-btn').forEach(btn => {
+    if (btn.id === 'btn-audio-toggle') return;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetId = (btn as HTMLElement).dataset.target;
+      if (!targetId) return;
+      const targetDrawer = document.getElementById(targetId);
+      
+      if (targetDrawer === activeDrawer) {
+        closeAllDrawers();
+      } else {
+        closeAllDrawers();
+        if (targetDrawer) {
+          targetDrawer.classList.add('is-active');
+          activeDrawer = targetDrawer;
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.btn-close-drawer').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAllDrawers();
+    });
+  });
 
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
@@ -405,40 +454,6 @@ import brandProducts from '../brand_products.json';
     const texture = new THREE.CanvasTexture(canvas); texture.premultiplyAlpha = true; texture.needsUpdate = true; return texture;
   }
 
-  // ⚜️ LOGICA DRAWERS MENU
-  let activeDrawer: HTMLElement | null = null;
-
-  function closeAllDrawers() {
-    document.querySelectorAll('.editorial-drawer').forEach(el => el.classList.remove('is-active'));
-    activeDrawer = null;
-  }
-
-  document.querySelectorAll('.hud-menu-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const targetId = (btn as HTMLElement).dataset.target;
-      if (!targetId) return;
-      const targetDrawer = document.getElementById(targetId);
-      
-      if (targetDrawer === activeDrawer) {
-        closeAllDrawers();
-      } else {
-        closeAllDrawers();
-        if (targetDrawer) {
-          targetDrawer.classList.add('is-active');
-          activeDrawer = targetDrawer;
-        }
-      }
-    });
-  });
-
-  document.querySelectorAll('.btn-close-drawer').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeAllDrawers();
-    });
-  });
-
   const container = document.getElementById('canvas-container');
   if (container) {
     const scene = new THREE.Scene();
@@ -456,7 +471,7 @@ import brandProducts from '../brand_products.json';
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
-    // ❄️ NEVE TRICROMA 3D
+    // ❄️ NEVE TRICROMA 3D AUDIO-REATTIVA
     const particleCount = 240;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, depthTest: false, side: THREE.DoubleSide });
@@ -561,9 +576,6 @@ import brandProducts from '../brand_products.json';
     const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
     const badgeGeometry = new THREE.PlaneGeometry(0.22, 0.25);
 
-    // ⚡ CREAZIONE DELL'UNICA TEXTURE CONDIVISA PER TUTTI I MESH (0ms RAM & ZERO CPU LAG!)
-    const sharedWireframeTex = createSharedWireframeTexture();
-
     const SPACING_Z = 2.8;
     const TOTAL_DEPTH = mediaItems.length * SPACING_Z;
     const GOLDEN_ANGLE = 2.399963;
@@ -576,10 +588,10 @@ import brandProducts from '../brand_products.json';
       const material = new THREE.ShaderMaterial({
         vertexShader, fragmentShader,
         uniforms: { 
-          uTexture: { value: sharedWireframeTex }, // Usiamo il wireframe trasparente istantaneo
+          uTexture: { value: null },
           uTexAspect: { value: 1.0 }, 
           uFocus: { value: 0.0 }, 
-          uOpacity: { value: 1.0 },
+          uOpacity: { value: 0.0 }, // 🌫️ ZERO OPACITÀ INIZIALE: NIENTE RETTANGOLI OPACHI!
           uTime: { value: 0 },
           uVelocity: { value: 0 },
           uMouse: { value: new THREE.Vector2(0.5, 0.5) }
@@ -587,7 +599,7 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
-      // Caricamento in streaming dell'immagine reale
+      // Caricamento in streaming pulito ed affioramento dalla nebbia
       const texture = textureLoader.load(initialUrl, (tex) => {
         if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
         material.uniforms.uTexture.value = tex;
@@ -597,7 +609,7 @@ import brandProducts from '../brand_products.json';
         
         const hudCounter = document.getElementById('hud-loading-counter');
         if (hudCounter && loadedCount < mediaItems.length) {
-          hudCounter.innerText = `CRYSTALLIZING ARCHIVE // ${loadedCount} OF ${mediaItems.length} NODES`;
+          hudCounter.innerText = `MATERIALIZING ARCHIVE // ${loadedCount} OF ${mediaItems.length} NODES`;
         } else if (hudCounter) {
           hudCounter.innerText = `STEER TUNNEL // SCROLL FOR PIXEL STORM`;
           const statusBadge = document.getElementById('hud-stream-status');
@@ -623,7 +635,7 @@ import brandProducts from '../brand_products.json';
       let badgeMat: THREE.MeshBasicMaterial | null = null;
       if (item.media_type === 'VIDEO' || item.media_type === 'CAROUSEL_ALBUM') {
         const badgeTex = item.media_type === 'VIDEO' ? videoBadgeTexture : carouselBadgeTexture;
-        badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false });
+        badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.0, depthTest: false, depthWrite: false });
         const badgeMesh = new THREE.Mesh(badgeGeometry, badgeMat);
         badgeMesh.frustumCulled = false; badgeMesh.renderOrder = 9999; 
         badgeMesh.position.set(2.2 / 2 - 0.22, -2.8 / 2 + 0.22, 0.15);
@@ -635,7 +647,7 @@ import brandProducts from '../brand_products.json';
         thumbnail_url: item.thumbnail_url, caption: item.caption, timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
         permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
         baseX: baseX, baseY: baseY, zBase: zBase, rotY: rotY, rotX: rotX,
-        coverTexture: sharedWireframeTex, badgeMat: badgeMat, isLoaded: false 
+        coverTexture: texture, badgeMat: badgeMat, isLoaded: false 
       };
 
       worldGroup.add(mesh); meshes.push(mesh); materials.push(material);
@@ -838,11 +850,19 @@ import brandProducts from '../brand_products.json';
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
+      // 🎵 ESTRAZIONE BASSI DALL'ANALIZZATORE AUDIO WEB AUDIO API
+      let bassIntensity = 0.0;
+      if (analyser && audioDataArray && isAudioPlaying) {
+        analyser.getByteFrequencyData(audioDataArray);
+        let bassSum = 0;
+        for (let i = 0; i < 4; i++) bassSum += audioDataArray[i];
+        bassIntensity = (bassSum / 4) / 255.0;
+      }
+
       const targetFOV = 60 + Math.min(Math.abs(scrollVelocity) * 3.5, 20);
       camera.fov += (targetFOV - camera.fov) * 0.1;
       camera.updateProjectionMatrix();
 
-      // 🏎️ IL MOVIMENTO STERZANTE PARTE DA ZERO MILLISECONDI!
       if (!activeMesh && !activeDrawer) {
         worldGroup.position.x += (-mouse.x * 6.5 - worldGroup.position.x) * 0.06;
         worldGroup.position.y += (mouse.y * 5.5 - worldGroup.position.y) * 0.06;
@@ -866,12 +886,16 @@ import brandProducts from '../brand_products.json';
 
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // 💫 FISICA NEVE TRICROMA
+      // 💫 FISICA NEVE TRICROMA REATTIVA AL RITMO DELLA MUSICA!
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
-        pData.y -= pData.vy;
+        
+        const audioSpeedBoost = 1.0 + bassIntensity * 2.5;
+        pData.y -= pData.vy * audioSpeedBoost;
         pData.x += Math.sin(elapsedTime * 1.2 + p * 0.1) * 0.01;
-        pData.rx += pData.vrx; pData.ry += pData.vry; pData.rz += pData.vrz;
+        pData.rx += pData.vrx * audioSpeedBoost; 
+        pData.ry += pData.vry * audioSpeedBoost; 
+        pData.rz += pData.vrz * audioSpeedBoost;
         
         pData.z += scrollVelocity * 2.2;
 
@@ -879,17 +903,18 @@ import brandProducts from '../brand_products.json';
         if (pData.z > 5) pData.z -= 40;
         if (pData.z < -35) pData.z += 40;
         
+        const audioScalePulse = snowScaleFactor * (1.0 + bassIntensity * 0.8);
         const zStretch = 1.0 + Math.abs(scrollVelocity) * 2.8;
 
         dummyMatrix.position.set(pData.x, pData.y, pData.z);
         dummyMatrix.rotation.set(pData.rx, pData.ry, pData.rz);
-        dummyMatrix.scale.set(snowScaleFactor, snowScaleFactor, snowScaleFactor * zStretch);
+        dummyMatrix.scale.set(audioScalePulse, audioScalePulse, audioScalePulse * zStretch);
         dummyMatrix.updateMatrix();
         pixelSnowSystem.setMatrixAt(p, dummyMatrix.matrix);
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA VORTICE E WIREFRAME FLUIDO
+      // 🌌 MATEMATICA VORTICE & DISSOLVENZA PULITA DALLA NEBBIA
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
@@ -901,7 +926,8 @@ import brandProducts from '../brand_products.json';
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
 
-        const targetOpacity = activeDrawer ? 0.15 : (mesh === activeMesh ? 1.0 : 1.0);
+        const loadedOpacity = data.isLoaded ? 1.0 : 0.0;
+        const targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? 1.0 * loadedOpacity : 1.0 * loadedOpacity);
 
         if (activeDrawer) {
           mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
@@ -981,7 +1007,7 @@ import brandProducts from '../brand_products.json';
 
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.08;
-           if (badgeMat) badgeMat.opacity = pulseOpacity;
+           if (badgeMat) badgeMat.opacity = data.isLoaded ? pulseOpacity : 0.0;
 
            laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
         }
