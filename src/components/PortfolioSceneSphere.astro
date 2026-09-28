@@ -1,0 +1,588 @@
+---
+import portfolioData from '../portfolio_cache.json';
+---
+
+<div id="canvas-container">
+  
+  <!-- FILIGRANA ANALOGICA DI GRANA -->
+  <div class="bg-grain-overlay"></div>
+
+  <!-- LA NEBBIA MINERALE -->
+  <div class="top-vapour-mask"></div>
+
+  <!-- BRAND HEADER GLOBALE -->
+  <div id="global-brand-logo">
+    <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
+  </div>
+
+  <!-- HUD Ambientale -->
+  <div id="hud-right-vertical" class="hud-element font-mono-tech">
+    ARCHIVE 2026 <span class="hud-divider">//</span> 
+    <span class="hud-badge hidden md:inline">[HYPER_DIMENSIONAL_VORTEX]</span>
+  </div>
+  
+  <!-- HUD Bottom Left Spaziato -->
+  <div id="hud-bottom-left" class="hud-element font-mono-tech">
+    <span class="hidden md:inline">SCROLL TO FLY THROUGH 450+ WORKS</span>
+    <span class="hud-divider hidden md:inline">//</span>
+    <span class="hud-sepia hidden md:inline">[▲/▼] 3D SNOW</span>
+    <span class="hud-divider">//</span>
+    <span>CLICK / TAP TO CENTER & ISOLATE</span>
+  </div>
+
+  <!-- Stage Modale Editoriale -->
+  <div id="editorial-stage">
+    <div id="editorial-card">
+       <div class="card-meta-bar">
+         <div class="status-box">
+           <span class="status-dot"></span>
+           <span id="modal-date" class="font-mono-tech">DATE // 00.00.0000</span>
+         </div>
+         <span id="modal-type" class="badge-type font-mono-tech">IMAGE</span>
+       </div>
+
+       <!-- GLOBAL WORK NAVIGATOR -->
+       <div class="work-nav-bar">
+         <button id="btn-prev-work" class="btn-nav font-mono-tech">[ ◄ FLY PREV ]</button>
+         <span id="work-counter" class="work-counter-text font-mono-tech">001 / 000</span>
+         <button id="btn-next-work" class="btn-nav font-mono-tech">[ FLY NEXT ► ]</button>
+       </div>
+
+       <!-- TITOLO BILINGUE ITALIANO / INGLESE -->
+       <h1 id="modal-title" class="font-syne">TITOLO_ITALIANO / ENGLISH_TITLE</h1>
+
+       <!-- DIDASCALIA COMPLETA -->
+       <p id="modal-caption" class="font-sans">
+         Caricamento didascalia dall'archivio...
+       </p>
+
+       <div class="card-action-bar">
+         <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary font-mono-tech text-center">
+           INSTAGRAM ↗
+         </a>
+         <button id="btn-close" class="btn-secondary font-mono-tech">
+           [ RESUME VORTEX / ESC ]
+         </button>
+       </div>
+    </div>
+    <div id="video-stage"></div>
+  </div>
+</div>
+
+<style>
+  :global(body, html) { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #f2f2f0; color: #0d0d0d; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; touch-action: none; }
+  .bg-grain-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 1; opacity: 0.055; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+  .top-vapour-mask { position: absolute; top: 0; left: 0; width: 100vw; height: 180px; background: linear-gradient(to bottom, #f2f2f0 10%, transparent 100%); z-index: 50; pointer-events: none; }
+  @media (min-width: 768px) { .top-vapour-mask { height: 260px; } }
+  #canvas-container { width: 100vw; height: 100vh; position: relative; background-color: #f2f2f0; overflow: hidden; cursor: grab; }
+  #canvas-container:active { cursor: grabbing; }
+
+  .font-syne { font-family: 'Syne', sans-serif; font-weight: 800; }
+  .font-mono-tech { font-family: 'Space Mono', monospace; }
+  .font-sans { font-family: 'Inter', sans-serif; }
+
+  #global-brand-logo { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 356px; height: 160px; z-index: 110; pointer-events: none; mix-blend-mode: multiply; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  #global-brand-logo img { width: 100%; height: 100%; object-fit: contain; object-position: center top; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.05)); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  #global-brand-logo.is-focused img { transform: scale(0.9); }
+  @media (min-width: 768px) { #global-brand-logo { top: 15px; left: 36px; transform: none; width: 618px; height: 260px; } #global-brand-logo img { object-position: left top; } #global-brand-logo.is-focused { left: 36px; top: 15px; } #global-brand-logo.is-focused img { transform: scale(1); } }
+
+  .hud-element { position: absolute; z-index: 10; font-size: 10px; letter-spacing: 0.15em; color: #1a1a1a; text-transform: uppercase; pointer-events: none; transition: opacity 0.4s ease; }
+  @media (min-width: 768px) { .hud-element { font-size: 11px; letter-spacing: 0.22em; } }
+  #hud-bottom-left { bottom: 20px; left: 20px; color: #8c8c8c; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+  @media (min-width: 768px) { #hud-bottom-left { bottom: 36px; left: 36px; gap: 6px; } }
+  #hud-right-vertical { top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg); white-space: nowrap; text-align: center; display: flex; align-items: center; }
+  @media (min-width: 768px) { #hud-right-vertical { right: 16px; transform: translate(25%, -50%) rotate(90deg); } }
+  .hud-divider { color: #8c8c8c; margin: 0 4px; }
+  .hud-badge { color: #C09E5A; margin-left: 8px; font-size: 10px; font-weight: bold; }
+  .hud-sepia { color: #C09E5A; }
+
+  #editorial-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; display: none; opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  #editorial-stage.is-active { display: block; opacity: 1; pointer-events: auto; }
+  #editorial-card { position: absolute; bottom: 12px; right: 12px; left: 12px; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid #0d0d0d; padding: 14px 16px; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14); transform: translateY(20px); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; z-index: 101; }
+  @media (min-width: 768px) { #editorial-card { bottom: 36px; right: 36px; left: auto; padding: 24px 28px; max-width: 420px; width: calc(100vw - 72px); } }
+  #editorial-stage.is-active #editorial-card { transform: translateY(0); }
+  .card-meta-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(13, 13, 13, 0.1); padding-bottom: 6px; }
+  @media (min-width: 768px) { .card-meta-bar { margin-bottom: 12px; padding-bottom: 10px; } }
+  .status-box { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #666666; letter-spacing: 0.15em; }
+  @media (min-width: 768px) { .status-box { font-size: 10px; gap: 8px; letter-spacing: 0.2em; } }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background-color: #C09E5A; box-shadow: 0 0 8px #C09E5A; }
+  .badge-type { font-size: 8px; font-weight: 700; letter-spacing: 0.15em; background: #0d0d0d; color: #ffffff; padding: 2px 6px; text-transform: uppercase; }
+  @media (min-width: 768px) { .badge-type { font-size: 9px; padding: 3px 8px; letter-spacing: 0.2em; } }
+  
+  .work-nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; margin: 6px 0 10px 0; border-top: 1px solid rgba(13, 13, 13, 0.1); border-bottom: 1px solid rgba(13, 13, 13, 0.1); box-sizing: border-box; width: 100%; }
+  .btn-nav { background: transparent; border: 1px solid #0d0d0d; color: #0d0d0d; font-size: 8px; font-weight: 700; cursor: pointer; letter-spacing: 0.10em; padding: 4px 8px; white-space: nowrap; flex-shrink: 0; transition: all 0.2s ease; text-transform: uppercase; }
+  @media (min-width: 768px) { .btn-nav { font-size: 9px; padding: 5px 10px; } }
+  .btn-nav:hover { background: #C09E5A; border-color: #C09E5A; color: #ffffff; }
+  .work-counter-text { font-size: 9px; color: #0d0d0d; letter-spacing: 0.15em; font-weight: 700; white-space: nowrap; text-align: center; }
+  @media (min-width: 768px) { .work-counter-text { font-size: 10px; } }
+
+  #modal-title { font-size: 15px; letter-spacing: -0.02em; color: #0d0d0d; text-transform: uppercase; margin: 6px 0; line-height: 1.25; }
+  @media (min-width: 768px) { #modal-title { font-size: 18px; margin: 8px 0; } }
+  #modal-caption { font-size: 11px; color: #404040; line-height: 1.45; max-height: 54px; overflow-y: auto; margin: 8px 0; padding-left: 8px; border-left: 2px solid #0d0d0d; }
+  @media (min-width: 768px) { #modal-caption { font-size: 12px; max-height: 110px; line-height: 1.6; margin: 12px 0; padding-left: 12px; } }
+  .card-action-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(13, 13, 13, 0.08); }
+  @media (min-width: 768px) { .card-action-bar { margin-top: 16px; padding-top: 12px; } }
+  .btn-primary { background: #0d0d0d; color: #ffffff; padding: 8px 14px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-decoration: none; text-transform: uppercase; transition: all 0.25s ease; border: 1px solid #0d0d0d; }
+  @media (min-width: 768px) { .btn-primary { padding: 10px 18px; font-size: 10px; letter-spacing: 0.15em; } }
+  .btn-primary:hover { background: #C09E5A; color: #ffffff; border-color: #C09E5A; }
+  .btn-secondary { background: transparent; border: none; color: #737373; font-size: 9px; letter-spacing: 0.12em; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease; padding: 6px 0; }
+  @media (min-width: 768px) { .btn-secondary { font-size: 10px; letter-spacing: 0.15em; padding: 8px 0; } }
+  .btn-secondary:hover { color: #0d0d0d; }
+
+  #video-stage { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 90; display: flex; justify-content: center; align-items: center; }
+</style>
+
+<script>
+  import * as THREE from 'three';
+  import rawData from '../portfolio_cache.json';
+
+  function parseBilingualTitle(caption: string) {
+    if (!caption) return "OPERA D'ARCHIVIO";
+    let cleanText = caption.replace(/#\w+/g, '').replace(/@\w+/g, '').trim();
+    let rawLines = cleanText.split(/[\r\n]+/).map(l => l.trim()).filter(l => l.length > 0);
+    let contentLines = rawLines.filter(line => !/IMLAND/i.test(line));
+    if (contentLines.length === 0) return "MATERIA ISOLATA";
+    let targetLine = contentLines[0];
+
+    if (targetLine.includes('/')) {
+      let parts = targetLine.split('/').map(p => p.trim().replace(/^['"•\s]+|['"•\s]+$/g, '')).filter(p => p.length > 0);
+      parts = parts.filter(p => !/IMLAND/i.test(p));
+      if (parts.length >= 2) return `${parts[0].toUpperCase()} / ${parts[1].toUpperCase()}`;
+      else if (parts.length === 1) return parts[0].toUpperCase();
+    }
+    if (contentLines.length >= 2) {
+      let itTitle = targetLine.toUpperCase();
+      let enTitle = contentLines[1].toUpperCase();
+      if (enTitle.length > 2 && !enTitle.startsWith('HTTP') && !/IMLAND/i.test(enTitle)) {
+        if ((itTitle.length + enTitle.length) < 60) return `${itTitle} / ${enTitle}`;
+      }
+    }
+    return targetLine.substring(0, 48).toUpperCase();
+  }
+
+  function createBadgeTexture(type: string) {
+    const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128; const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.CanvasTexture(canvas);
+    ctx.clearRect(0, 0, 128, 128); ctx.fillStyle = '#C09E5A'; ctx.strokeStyle = '#C09E5A';
+    if (type === 'VIDEO') { ctx.beginPath(); ctx.moveTo(42, 32); ctx.lineTo(92, 64); ctx.lineTo(42, 96); ctx.closePath(); ctx.fill(); } 
+    else if (type === 'CAROUSEL_ALBUM') { ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.strokeRect(28, 48, 48, 48); ctx.fillRect(48, 24, 48, 48); ctx.strokeStyle = '#0d0d0d'; ctx.lineWidth = 2; ctx.strokeRect(48, 24, 48, 48); }
+    const texture = new THREE.CanvasTexture(canvas); texture.premultiplyAlpha = true; texture.needsUpdate = true; return texture;
+  }
+
+  const container = document.getElementById('canvas-container');
+  if (container) {
+    const scene = new THREE.Scene();
+    
+    // 🌫️ VOLUMETRIC FOG DENSE: Dissolvenza delle foto distanti nell'abisso minerale
+    scene.fog = new THREE.FogExp2(0xf2f2f0, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 0); // L'osservatore vola attraverso l'asse (0,0,Z)
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0xf2f2f0, 1); 
+    container.appendChild(renderer.domElement);
+
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    // ❄️ NEVE TRICROMA 3D ANCORATA ALLA CAMERA (Sempre visibile in primo piano!)
+    const particleCount = 240;
+    const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
+    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.38, depthTest: false, side: THREE.DoubleSide });
+    const pixelSnowSystem = new THREE.InstancedMesh(particleTriangleGeo, particleMaterial, particleCount);
+    pixelSnowSystem.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    const snowPalette = [ new THREE.Color('#282828'), new THREE.Color('#C09E5A'), new THREE.Color('#2C5260') ];
+    const dummyMatrix = new THREE.Object3D();
+    let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
+
+    const particleData: any[] = [];
+    for (let p = 0; p < particleCount; p++) {
+      pixelSnowSystem.setColorAt(p, snowPalette[Math.floor(Math.random() * snowPalette.length)]);
+      particleData.push({
+        x: (Math.random() - 0.5) * 28, y: (Math.random() - 0.5) * 28, z: (Math.random() - 0.5) * 35 - 10,
+        vy: 0.003 + Math.random() * 0.006, rx: Math.random() * Math.PI * 2, ry: Math.random() * Math.PI * 2, rz: Math.random() * Math.PI * 2,
+        vrx: (Math.random() - 0.5) * 0.035, vry: (Math.random() - 0.5) * 0.045, vrz: (Math.random() - 0.5) * 0.025
+      });
+    }
+    if (pixelSnowSystem.instanceColor) pixelSnowSystem.instanceColor.needsUpdate = true;
+    scene.add(pixelSnowSystem); // Ancorata alla scena principale!
+
+    const laserGeometry = new THREE.BufferGeometry();
+    const laserPositions = new Float32Array(48);
+    laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
+    const laserMaterial = new THREE.LineBasicMaterial({ color: 0xc09e5a, transparent: true, opacity: 0, linewidth: 2, depthTest: false });
+    const laserMesh = new THREE.LineSegments(laserGeometry, laserMaterial);
+    laserMesh.frustumCulled = false;
+    scene.add(laserMesh);
+
+    const vertexShader = `
+      varying vec2 vUv; uniform float uFocus;
+      void main() {
+        vUv = uv; vec3 pos = position;
+        float dx = uv.x - 0.5; float dy = uv.y - 0.5;
+        float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.35 * uFocus;
+        pos.z += focusCurvature;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      varying vec2 vUv; uniform sampler2D uTexture; uniform float uFocus; uniform float uOpacity; uniform float uTexAspect;
+      void main() {
+        vec2 uv = vUv;
+        float planeAspect = 2.2 / 2.8; 
+        vec2 st = uv - 0.5;
+        if (uTexAspect > 0.0) {
+          if (uTexAspect > planeAspect) st.x *= planeAspect / uTexAspect;
+          else st.y *= uTexAspect / planeAspect;
+        }
+        uv = st + 0.5;
+        vec4 texColor = texture2D(uTexture, uv);
+        
+        if (uFocus > 0.01) {
+          float distFromCenter = length(vUv - vec2(0.5));
+          float vignette = smoothstep(0.75, 0.20, distFromCenter);
+          vec3 warmGalleryLight = vec3(1.02, 0.99, 0.95);
+          texColor.rgb = mix(texColor.rgb, texColor.rgb * warmGalleryLight * (0.88 + 0.12 * vignette), uFocus);
+        }
+        gl_FragColor = vec4(texColor.rgb, uOpacity * texColor.a);
+      }
+    `;
+
+    const textureLoader = new THREE.TextureLoader();
+    const mediaItems = rawData.data || []; 
+
+    const materials: THREE.ShaderMaterial[] = [];
+    const meshes: THREE.Mesh[] = [];
+    const geometry = new THREE.PlaneGeometry(2.2, 2.8, 32, 32);
+    const videoBadgeTexture = createBadgeTexture('VIDEO');
+    const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
+    const badgeGeometry = new THREE.PlaneGeometry(0.22, 0.25);
+
+    // 🌌 MATEMATICA DEL VORTICE HYPER-DIMENSIONALE AUREO
+    const SPACING_Z = 2.8; // Distanza passo z tra foto successive
+    const TOTAL_DEPTH = mediaItems.length * SPACING_Z;
+    const GOLDEN_ANGLE = 2.399963; // Un angolo aureo per una spirale armonica in 3D
+
+    const baseDataList: { x: number; y: number; zBase: number; rotY: number; rotX: number }[] = [];
+
+    mediaItems.forEach((item: any, index: number) => {
+      let imageUrl = item.media_url || item.thumbnail_url;
+      if (!imageUrl) return;
+
+      const material = new THREE.ShaderMaterial({
+        vertexShader, fragmentShader,
+        uniforms: { uTexture: { value: null }, uTexAspect: { value: 1.0 }, uFocus: { value: 0.0 }, uOpacity: { value: 1.0 } },
+        side: THREE.DoubleSide, transparent: true
+      });
+
+      const texture = textureLoader.load(imageUrl, (tex) => {
+        if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+      });
+      material.uniforms.uTexture.value = texture;
+
+      const mesh = new THREE.Mesh(geometry, material);
+      
+      // 📐 DIVERSI LIVELLI DI PROFONDITÀ E RAGGIO PER EVITARE LA PIATTEZZA!
+      const theta = index * GOLDEN_ANGLE;
+      const radiusLayer = 5.5 + (index % 4) * 3.2; // Raggio variabile da 5.5 a 15.1 per multi-livelli
+      
+      const baseX = radiusLayer * Math.cos(theta);
+      const baseY = radiusLayer * Math.sin(theta);
+      const zBase = -index * SPACING_Z;
+
+      // Inclinazione tridimensionale naturale verso l'asse del volo
+      const rotY = -Math.atan2(baseX, -zBase) * 0.4;
+      const rotX = Math.atan2(baseY, -zBase) * 0.4;
+
+      mesh.position.set(baseX, baseY, zBase);
+      mesh.rotation.set(rotX, rotY, 0);
+
+      let badgeMat: THREE.MeshBasicMaterial | null = null;
+      if (item.media_type === 'VIDEO' || item.media_type === 'CAROUSEL_ALBUM') {
+        const badgeTex = item.media_type === 'VIDEO' ? videoBadgeTexture : carouselBadgeTexture;
+        badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false });
+        const badgeMesh = new THREE.Mesh(badgeGeometry, badgeMat);
+        badgeMesh.frustumCulled = false; badgeMesh.renderOrder = 9999; 
+        badgeMesh.position.set(2.2 / 2 - 0.22, -2.8 / 2 + 0.22, 0.15);
+        mesh.add(badgeMesh);
+      }
+
+      baseDataList.push({ x: baseX, y: baseY, zBase: zBase, rotY: rotY, rotX: rotX });
+
+      mesh.userData = { 
+        id: item.id, title: parseBilingualTitle(item.caption), media_type: item.media_type, media_url: item.media_url, 
+        thumbnail_url: item.thumbnail_url, caption: item.caption, timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
+        permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
+        baseX: baseX, baseY: baseY, zBase: zBase, rotY: rotY, rotX: rotX,
+        coverTexture: texture, badgeMat: badgeMat 
+      };
+
+      worldGroup.add(mesh); meshes.push(mesh); materials.push(material);
+    });
+
+    const raycaster = new THREE.Raycaster();
+    const clickMouse = new THREE.Vector2();
+    let activeMesh: THREE.Mesh | null = null;
+    let activeMeshIndex = -1;
+
+    // 🚀 SCROLL ENGINE AD ALTA VELOCITÀ SUL PROFONDO Z
+    let scrollZ = 0, targetScrollZ = 0, isDragging = false, dragStartY = 0;
+    const DRAG_MULTIPLIER = 0.08;
+
+    const editorialStage = document.getElementById('editorial-stage');
+    const brandLogo = document.getElementById('global-brand-logo'); 
+    const videoStage = document.getElementById('video-stage');
+
+    function closeModal() {
+      if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      activeMesh = null; activeMeshIndex = -1;
+      editorialStage?.classList.remove('is-active'); brandLogo?.classList.remove('is-focused'); 
+      if (videoStage) videoStage.innerHTML = '';
+    }
+
+    function openModalForMesh(mesh: THREE.Mesh) {
+      if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      activeMesh = mesh; activeMeshIndex = meshes.indexOf(mesh);
+      const data = activeMesh.userData;
+
+      // 🎯 SPOSTIAMO LO SCROLL Z AFFINCHÉ QUESTA OPERA VENGA IN PRIMO PIANO
+      const focusTargetZ = 4.5;
+      let targetZOffset = focusTargetZ - data.zBase;
+      
+      // Calcolo toroidale per trovare la via più breve nel tempo
+      let currentZWrap = (data.zBase + scrollZ) % TOTAL_DEPTH;
+      if (currentZWrap > 10) currentZWrap -= TOTAL_DEPTH;
+      if (currentZWrap < -TOTAL_DEPTH + 10) currentZWrap += TOTAL_DEPTH;
+
+      targetScrollZ += (focusTargetZ - currentZWrap);
+
+      const workCounter = document.getElementById('work-counter');
+      if (workCounter) workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
+
+      const mDate = document.getElementById('modal-date'); if (mDate) mDate.innerText = `DATE // ${data.timestamp}`;
+      const mType = document.getElementById('modal-type'); if (mType) mType.innerText = data.media_type || 'IMAGE';
+      const mTitle = document.getElementById('modal-title'); if (mTitle) mTitle.innerText = data.title;
+      const mCap = document.getElementById('modal-caption'); if (mCap) mCap.innerText = data.caption || "";
+      const mLink = document.getElementById('modal-link') as HTMLAnchorElement; if (mLink) mLink.href = data.permalink;
+
+      if (videoStage) {
+        videoStage.innerHTML = '';
+        if (data.media_type === 'VIDEO') {
+          const video = document.createElement('video'); video.src = data.media_url; video.autoplay = true; video.loop = true; video.controls = true; video.playsInline = true;
+          video.style.cssText = 'width:90%; max-width:800px; max-height:55vh; object-fit:contain; border-radius:4px; box-shadow:0 30px 60px rgba(0,0,0,0.12); pointer-events:auto;';
+          videoStage.appendChild(video);
+        } else if (data.media_type === 'CAROUSEL_ALBUM') {
+          const children = data.children || []; let slideIndex = 0;
+          const slides = children.length > 0 ? children.map((c: any) => c.media_url || c.thumbnail_url) : [data.media_url];
+          const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
+            if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+          }));
+
+          const controlsBox = document.createElement('div'); controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
+          const controls = document.createElement('div'); controls.style.cssText = 'display:flex; align-items:center; gap:16px; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border:1px solid #C09E5A; padding:8px 22px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px; box-shadow:0 12px 32px rgba(0,0,0,0.25);';
+          const btnPrev = document.createElement('button'); btnPrev.innerText = '[ PREV SLIDE ]'; btnPrev.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
+          const counter = document.createElement('span'); counter.innerText = `01 / ${String(slides.length).padStart(2, '0')}`;
+          const btnNext = document.createElement('button'); btnNext.innerText = '[ NEXT SLIDE ]'; btnNext.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
+
+          function updateSlide(newIdx: number) {
+            slideIndex = (newIdx + slides.length) % slides.length;
+            if (activeMesh) {
+              const currentTex = slideTextures[slideIndex]; activeMesh.material.uniforms.uTexture.value = currentTex;
+              if (currentTex.image) activeMesh.material.uniforms.uTexAspect.value = currentTex.image.width / currentTex.image.height;
+            }
+            counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+          }
+
+          btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
+          btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
+          controls.appendChild(btnPrev); controls.appendChild(counter); controls.appendChild(btnNext); controlsBox.appendChild(controls);
+          if (slides.length > 1) videoStage.appendChild(controlsBox);
+        }
+      }
+
+      editorialStage?.classList.add('is-active'); brandLogo?.classList.add('is-focused'); 
+    }
+
+    function navigateWork(direction: number) {
+      if (meshes.length === 0 || activeMeshIndex === -1) return;
+      const nextIdx = (activeMeshIndex + direction + meshes.length) % meshes.length;
+      openModalForMesh(meshes[nextIdx]);
+    }
+
+    document.getElementById('btn-prev-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(-1); });
+    document.getElementById('btn-next-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(1); });
+    document.getElementById('btn-close')?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
+    
+    window.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape') closeModal(); 
+      if (activeMesh) { if (e.key === 'ArrowRight') navigateWork(1); if (e.key === 'ArrowLeft') navigateWork(-1); }
+      if (e.key === 'ArrowUp') snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
+      if (e.key === 'ArrowDown') snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
+    });
+
+    // 🌊 SCROLL CONTINUO PER SPINGERE O TIRARE L'UNIVERSO Z
+    window.addEventListener('wheel', (e) => { 
+      if(!activeMesh) {
+        targetScrollZ += e.deltaY * 0.035;
+      }
+    }, { passive: true });
+
+    window.addEventListener('pointerdown', (e) => { isDragging = true; dragStartY = e.clientY; });
+    window.addEventListener('pointermove', (e) => {
+      if (isDragging && !activeMesh) {
+        const deltaY = e.clientY - dragStartY;
+        targetScrollZ += deltaY * DRAG_MULTIPLIER;
+        dragStartY = e.clientY;
+      }
+    });
+
+    window.addEventListener('pointerup', (e) => {
+      isDragging = false;
+      if (activeMesh) {
+        const card = document.getElementById('editorial-card'); const stageControls = document.getElementById('video-stage');
+        if (card && !card.contains(e.target as Node) && stageControls && !stageControls.contains(e.target as Node)) closeModal();
+        return;
+      }
+
+      const rectDom = renderer.domElement.getBoundingClientRect();
+      clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1; 
+      clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
+      
+      camera.updateMatrixWorld(true); raycaster.setFromCamera(clickMouse, camera);
+      const intersects = raycaster.intersectObjects(meshes, false);
+      if (intersects.length > 0) {
+        openModalForMesh(intersects[0].object as THREE.Mesh);
+      }
+    });
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      scrollZ += (targetScrollZ - scrollZ) * 0.08;
+      const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
+
+      // 💫 SIMULAZIONE FISICA NEVE TRICROMA
+      for (let p = 0; p < particleCount; p++) {
+        const pData = particleData[p];
+        pData.y -= pData.vy;
+        pData.x += Math.sin(elapsedTime * 1.2 + p * 0.1) * 0.01;
+        pData.rx += pData.vrx; pData.ry += pData.vry; pData.rz += pData.vrz;
+        
+        if (pData.y < -14) { pData.y = 14; pData.x = (Math.random() - 0.5) * 28; }
+        
+        dummyMatrix.position.set(pData.x, pData.y, pData.z);
+        dummyMatrix.rotation.set(pData.rx, pData.ry, pData.rz);
+        dummyMatrix.scale.set(snowScaleFactor, snowScaleFactor, snowScaleFactor);
+        dummyMatrix.updateMatrix();
+        pixelSnowSystem.setMatrixAt(p, dummyMatrix.matrix);
+      }
+      pixelSnowSystem.instanceMatrix.needsUpdate = true;
+
+      // 🌌 MATEMATICA DI SCORRIMENTO TOROIDALE E CENTRATURA ASSOLUTA
+      meshes.forEach((mesh, idx) => {
+        const mat = materials[idx]; const data = mesh.userData;
+        const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
+
+        // Loop Infinito Toroidale Z: le foto volano continuamente verso di noi ed entrano di nuovo sul fondo
+        let currentZ = (data.zBase + scrollZ) % TOTAL_DEPTH;
+        if (currentZ > 10) currentZ -= TOTAL_DEPTH;
+        if (currentZ < -TOTAL_DEPTH + 10) currentZ += TOTAL_DEPTH;
+
+        if (activeMesh) {
+           if (mesh === activeMesh) {
+             // 🎯 CENTRATURA PERFETTA E DIRITTA DAVANTI AGLI OCCHI (0, 0, -4.5)
+             const isMobile = window.innerWidth < 640;
+             const targetX = 0;
+             const targetY = isMobile ? -0.45 : 0.0;
+             const targetZ = -4.5;
+
+             mesh.position.x += (targetX - mesh.position.x) * 0.1;
+             mesh.position.y += (targetY - mesh.position.y) * 0.1;
+             mesh.position.z += (targetZ - mesh.position.z) * 0.1;
+
+             // Annullamento completo delle rotazioni storte: l'immagine diventa piana e parallela allo schermo!
+             mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
+             mesh.rotation.y += (0 - mesh.rotation.y) * 0.1;
+             mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
+
+             mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
+             mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
+             if (badgeMat) badgeMat.opacity = pulseOpacity;
+
+             // ⚜️ LASER FRAMEWORK PERFETTO ED ALLINEATO
+             laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
+             const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
+             const arr = posAttr.array as Float32Array;
+             const twX = mesh.position.x; const twY = mesh.position.y; const twZ = mesh.position.z + 0.08;
+             const w = 1.1 + 0.25; const h = 1.4 + 0.25; const len = 0.25;
+
+             let i = 0;
+             arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
+             arr[i++] = twX - w + len; arr[i++] = twY + h;       arr[i++] = twZ;
+             arr[i++] = twX - w;       arr[i++] = twY + h;       arr[i++] = twZ;
+             arr[i++] = twX - w;       arr[i++] = twY + h - len; arr[i++] = twZ;
+
+             arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
+             arr[i++] = twX + w - len; arr[i++] = twY + h;       arr[i++] = twZ;
+             arr[i++] = twX + w;       arr[i++] = twY + h;       arr[i++] = twZ;
+             arr[i++] = twX + w;       arr[i++] = twY + h - len; arr[i++] = twZ;
+
+             arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
+             arr[i++] = twX + w - len; arr[i++] = twY - h;       arr[i++] = twZ;
+             arr[i++] = twX + w;       arr[i++] = twY - h;       arr[i++] = twZ;
+             arr[i++] = twX + w;       arr[i++] = twY - h + len; arr[i++] = twZ;
+
+             arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
+             arr[i++] = twX - w + len; arr[i++] = twY - h;       arr[i++] = twZ;
+             arr[i++] = twX - w;       arr[i++] = twY - h;       arr[i++] = twZ;
+             arr[i++] = twX - w;       arr[i++] = twY - h + len; arr[i++] = twZ;
+             posAttr.needsUpdate = true;
+
+           } else {
+             // Dissolvenza delle altre immagini per far risaltare l'opera isolata
+             mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
+             mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
+             mesh.position.z = currentZ;
+
+             mesh.rotation.x += (data.rotX - mesh.rotation.x) * 0.1;
+             mesh.rotation.y += (data.rotY - mesh.rotation.y) * 0.1;
+
+             mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
+             mat.uniforms.uOpacity.value += (0.00 - mat.uniforms.uOpacity.value) * 0.1;
+             if (badgeMat) badgeMat.opacity = 0.0;
+           }
+        } else {
+           // 🏞️ VOLO NORMALE NEL VORTICE HYPER-DIMENSIONALE
+           mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
+           mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
+           mesh.position.z = currentZ;
+
+           mesh.rotation.x += (data.rotX - mesh.rotation.x) * 0.1;
+           mesh.rotation.y += (data.rotY - mesh.rotation.y) * 0.1;
+
+           mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
+           mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
+           if (badgeMat) badgeMat.opacity = pulseOpacity;
+
+           laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>
