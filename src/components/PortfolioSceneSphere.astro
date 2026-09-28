@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[Z_DEFLECTION_SHIELD_ACTIVE]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[DUAL_SNOW_VECTOR_ACTIVE]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -39,11 +39,13 @@ import brandProducts from '../brand_products.json';
     <span id="fixed-hover-title">ESPLORA L'ARCHIVIO</span>
   </div>
 
-  <!-- HUD Bottom Left -->
+  <!-- HUD Bottom Left (Scorciatoie Tastiera) -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
     <span id="hud-loading-counter" class="hud-sepia">SYNCHRONIZING ARCHIVE...</span>
     <span class="hud-divider hidden md:inline">//</span>
-    <span class="hidden md:inline">MOVE MOUSE TO STEER // SCROLL FOR PIXEL STORM</span>
+    <span class="hud-sepia hidden md:inline">[▲/▼] SIZE  [◄/►] SPEED</span>
+    <span class="hud-divider hidden md:inline">//</span>
+    <span>MOVE MOUSE TO STEER</span>
   </div>
 
   <!-- ==================== DRAWER 1: MANIFESTO ==================== -->
@@ -474,14 +476,16 @@ import brandProducts from '../brand_products.json';
     // ❄️ NEVE TRICROMA 3D AUDIO-REATTIVA
     const particleCount = 240;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
-    // depthTest = true per rispetta la profondità visiva
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, depthTest: true, depthWrite: false, side: THREE.DoubleSide });
     const pixelSnowSystem = new THREE.InstancedMesh(particleTriangleGeo, particleMaterial, particleCount);
     pixelSnowSystem.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     
     const snowPalette = [ new THREE.Color('#282828'), new THREE.Color('#C09E5A'), new THREE.Color('#2C5260') ];
     const dummyMatrix = new THREE.Object3D();
+    
+    // ❄️ PARAMETRI DINAMICI INTERATTIVI PER LA NEVE!
     let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
+    let snowSpeedFactor = 0.55; // Default più calmo e lento di base!
 
     const particleData: any[] = [];
     for (let p = 0; p < particleCount; p++) {
@@ -672,7 +676,7 @@ import brandProducts from '../brand_products.json';
 
     function closeModal() {
       if (activeMesh) {
-        activeMesh.renderOrder = 0; // Ripristina l'ordine normale alla chiusura
+        activeMesh.renderOrder = 0;
         if (activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
       }
       activeMesh = null; activeMeshIndex = -1;
@@ -697,7 +701,6 @@ import brandProducts from '../brand_products.json';
       }
 
       activeMesh = mesh; activeMeshIndex = meshes.indexOf(mesh);
-      // 🛡️ ELEVA IL RENDER ORDER PER GARANTIRE CHE L'OPERA ISOLATA SIA IN PRIMO PIANO
       activeMesh.renderOrder = 500;
       
       const data = activeMesh.userData;
@@ -776,14 +779,26 @@ import brandProducts from '../brand_products.json';
     document.getElementById('btn-next-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(1); });
     document.getElementById('btn-close')?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
     
+    // 🎹 TASTIERA DUAL-CONTEXT: FRECCE DINAMICHE PER SCALA E VELOCITÀ NEVE!
     window.addEventListener('keydown', (e) => { 
       if (e.key === 'Escape') {
         closeModal();
         closeAllDrawers();
       }
-      if (activeMesh) { if (e.key === 'ArrowRight') navigateWork(1); if (e.key === 'ArrowLeft') navigateWork(-1); }
-      if (e.key === 'ArrowUp') snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
-      if (e.key === 'ArrowDown') snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
+      
+      if (activeMesh) { 
+        // Stato Ispezione Single Work: Le frecce orizzontali cambiano opera
+        if (e.key === 'ArrowRight') navigateWork(1); 
+        if (e.key === 'ArrowLeft') navigateWork(-1); 
+      } else {
+        // Stato Volo Libero (Gallery View): Frecce Tattiche per la Neve!
+        if (e.key === 'ArrowUp') snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
+        if (e.key === 'ArrowDown') snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
+        
+        // ❄️ FRECCE SINISTRA / DESTRA MODULANO LA VELOCITÀ INERZIALE DELLA NEVE!
+        if (e.key === 'ArrowLeft') snowSpeedFactor = Math.max(snowSpeedFactor - 0.10, 0.05);
+        if (e.key === 'ArrowRight') snowSpeedFactor = Math.min(snowSpeedFactor + 0.15, 3.5);
+      }
     });
 
     window.addEventListener('wheel', (e) => { 
@@ -840,6 +855,7 @@ import brandProducts from '../brand_products.json';
       clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
       
       camera.updateMatrixWorld(true); raycaster.setFromCamera(clickMouse, camera);
+      const intersects.length > 0;
       const intersects = raycaster.intersectObjects(meshes, false);
       if (intersects.length > 0) {
         openModalForMesh(intersects[0].object as THREE.Mesh);
@@ -894,20 +910,20 @@ import brandProducts from '../brand_products.json';
 
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // 💫 FISICA NEVE TRICROMA + DEVIAZIONE MAGNETICA Z QUANDO L'OPERA È ISOLATA!
+      // 💫 FISICA NEVE TRICROMA CON VELOCITÀ DINAMICA (snowSpeedFactor)
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
         
         const audioSpeedBoost = 1.0 + bassIntensity * 2.5;
-        pData.y -= pData.vy * audioSpeedBoost;
+        // ❄️ MODULAZIONE DELLA CADUTA E ROTAZIONE TRAMITE snowSpeedFactor!
+        pData.y -= pData.vy * snowSpeedFactor * audioSpeedBoost;
         pData.x += Math.sin(elapsedTime * 1.2 + p * 0.1) * 0.01;
-        pData.rx += pData.vrx * audioSpeedBoost; 
-        pData.ry += pData.vry * audioSpeedBoost; 
-        pData.rz += pData.vrz * audioSpeedBoost;
+        pData.rx += pData.vrx * snowSpeedFactor * audioSpeedBoost; 
+        pData.ry += pData.vry * snowSpeedFactor * audioSpeedBoost; 
+        pData.rz += pData.vrz * snowSpeedFactor * audioSpeedBoost;
         
         pData.z += scrollVelocity * 2.2;
 
-        // 🛡️ BARRIERA DI DEVIAZIONE Z: Se l'opera è isolata al centro (Z=-4.5), scacciamo la neve dietro Z=-5.0
         if (activeMesh && pData.z > -4.8) {
           pData.z = -5.2 - Math.random() * 8.0;
         }
