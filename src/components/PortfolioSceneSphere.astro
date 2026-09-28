@@ -25,7 +25,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[MATERIALIZING_MINERAL_FOG]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[INSTANT_CRYSTAL_CONSTELLATION]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -41,7 +41,7 @@ import brandProducts from '../brand_products.json';
     <span class="hidden md:inline">MOVE MOUSE TO STEER // SCROLL FOR PIXEL STORM</span>
   </div>
 
-  <!-- ==================== DRAWER 1: MANIFESTO ==================== -->
+  <!-- ==================== DRAWER 1: MANIFESTO (TITOLO AGGIORNATO) ==================== -->
   <div id="drawer-manifesto" class="editorial-drawer">
     <div class="drawer-content-box">
       <div class="drawer-header font-mono-tech">
@@ -51,7 +51,7 @@ import brandProducts from '../brand_products.json';
       
       <div class="drawer-body">
         <span class="editorial-tag font-mono-tech">EST. ALAGNA MONTE ROSA // 45° 51' N, 7° 56' E</span>
-        <h2 class="editorial-heading font-syne">LA NATURA È L'UNICA RISPOSTA.</h2>
+        <h2 class="editorial-heading font-syne">IMLAND, DOVE L'UNICA RISPOSTA È NATURA.</h2>
         
         <p class="editorial-prose font-sans">
           IMLAND MONTEROSA nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina. 
@@ -82,7 +82,6 @@ import brandProducts from '../brand_products.json';
         <div class="products-grid">
           {brandProducts.map((prod) => (
             <div class="product-card">
-              <!-- 🖼️ PLACEHOLDER BOX IMMAGINE OUTFIT -->
               <div class="product-img-container">
                 <img src={prod.image} alt={prod.title} class="product-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                 <div class="product-placeholder-box font-mono-tech">
@@ -260,7 +259,6 @@ import brandProducts from '../brand_products.json';
 
   .manifesto-quote-box { border-left: 3px solid #C09E5A; background: rgba(192, 158, 90, 0.08); padding: 16px 20px; font-size: 11px; color: #0d0d0d; letter-spacing: 0.12em; margin-top: 28px; line-height: 1.6; }
 
-  /* 🖼️ DESIGN PLACEHOLDER BOX PRODOTTI GEAR */
   .products-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 24px; }
   @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
 
@@ -330,6 +328,49 @@ import brandProducts from '../brand_products.json';
 <script>
   import * as THREE from 'three';
   import rawData from '../portfolio_cache.json';
+
+  // ⚜️ GENERAZIONE ISTANTANEA TESSERA MINERALE PROCEDURALE (0ms FRAME-ZERO PORTAL)
+  function createPlaceholderTexture(index: number) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256; canvas.height = 320;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.CanvasTexture(canvas);
+    
+    // Fondo minerale caldo
+    ctx.fillStyle = '#f4f4f0';
+    ctx.fillRect(0, 0, 256, 320);
+    
+    // Cornice sottile Sepia Gold
+    ctx.strokeStyle = '#C09E5A';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, 236, 300);
+    
+    // Reticolo di allineamento tattico
+    ctx.strokeStyle = 'rgba(192, 158, 90, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(128, 20); ctx.lineTo(128, 300);
+    ctx.moveTo(20, 160); ctx.lineTo(236, 160);
+    ctx.stroke();
+
+    // Dicitura di marca
+    ctx.fillStyle = '#C09E5A';
+    ctx.font = '700 11px "Space Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('IMLAND MONTEROSA', 128, 145);
+
+    ctx.fillStyle = '#0d0d0d';
+    ctx.font = '700 10px "Space Mono", monospace';
+    ctx.fillText(`NODE // ${String(index + 1).padStart(3, '0')}`, 128, 168);
+
+    ctx.fillStyle = '#8c8c8c';
+    ctx.font = '9px "Space Mono", monospace';
+    ctx.fillText('MATERIALIZING...', 128, 185);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }
 
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
@@ -529,13 +570,16 @@ import brandProducts from '../brand_products.json';
       let initialUrl = item.thumbnail_url || item.media_url;
       if (!initialUrl) return;
 
+      // ⚡ FRAME-ZERO ISTANTANEO: La tessera ha subito una texture procedurale ad altissima eleganza a 0ms!
+      const placeholderTex = createPlaceholderTexture(index);
+
       const material = new THREE.ShaderMaterial({
         vertexShader, fragmentShader,
         uniforms: { 
-          uTexture: { value: null }, 
+          uTexture: { value: placeholderTex }, // Sostituto istantaneo
           uTexAspect: { value: 1.0 }, 
           uFocus: { value: 0.0 }, 
-          uOpacity: { value: 0.0 }, // 🌫️ ZERO OPACITÀ INIZIALE: NIENTE RETTANGOLI NERI!
+          uOpacity: { value: 1.0 }, // SUBITO VISIBILE DAL PRIMO FRAME!
           uTime: { value: 0 },
           uVelocity: { value: 0 },
           uMouse: { value: new THREE.Vector2(0.5, 0.5) }
@@ -543,11 +587,15 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
+      // Caricamento asincrono foto Instagram reale
       const texture = textureLoader.load(initialUrl, (tex) => {
         if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
-        // Mark as loaded to trigger smooth fog materialization!
+        // Cross-fade alla foto reale
+        material.uniforms.uTexture.value = tex;
         mesh.userData.isLoaded = true;
+        mesh.userData.coverTexture = tex;
         loadedCount++;
+        
         const hudCounter = document.getElementById('hud-loading-counter');
         if (hudCounter && loadedCount < mediaItems.length) {
           hudCounter.innerText = `MATERIALIZING ARCHIVE // ${loadedCount} OF ${mediaItems.length} NODES`;
@@ -557,7 +605,6 @@ import brandProducts from '../brand_products.json';
           if (statusBadge) statusBadge.innerText = `[STREAM_SYNCHRONIZED]`;
         }
       });
-      material.uniforms.uTexture.value = texture;
 
       const mesh = new THREE.Mesh(geometry, material);
       
@@ -577,7 +624,7 @@ import brandProducts from '../brand_products.json';
       let badgeMat: THREE.MeshBasicMaterial | null = null;
       if (item.media_type === 'VIDEO' || item.media_type === 'CAROUSEL_ALBUM') {
         const badgeTex = item.media_type === 'VIDEO' ? videoBadgeTexture : carouselBadgeTexture;
-        badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.0, depthTest: false, depthWrite: false });
+        badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false });
         const badgeMesh = new THREE.Mesh(badgeGeometry, badgeMat);
         badgeMesh.frustumCulled = false; badgeMesh.renderOrder = 9999; 
         badgeMesh.position.set(2.2 / 2 - 0.22, -2.8 / 2 + 0.22, 0.15);
@@ -589,7 +636,7 @@ import brandProducts from '../brand_products.json';
         thumbnail_url: item.thumbnail_url, caption: item.caption, timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
         permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
         baseX: baseX, baseY: baseY, zBase: zBase, rotY: rotY, rotX: rotX,
-        coverTexture: texture, badgeMat: badgeMat, isLoaded: false 
+        coverTexture: placeholderTex, badgeMat: badgeMat, isLoaded: false 
       };
 
       worldGroup.add(mesh); meshes.push(mesh); materials.push(material);
@@ -635,7 +682,7 @@ import brandProducts from '../brand_products.json';
       activeMesh = mesh; activeMeshIndex = meshes.indexOf(mesh);
       const data = activeMesh.userData;
 
-      if (data.media_url && data.media_url !== data.thumbnail_url) {
+      if (data.media_url) {
         textureLoader.load(data.media_url, (highResTex) => {
           if (activeMesh === mesh) {
             activeMesh.material.uniforms.uTexture.value = highResTex;
@@ -842,7 +889,7 @@ import brandProducts from '../brand_products.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA VORTICE & MATERIALIZZAZIONE DALLA NEBBIA (ZERO RETTANGOLI NERI!)
+      // 🌌 MATEMATICA VORTICE & ZERO LAG VISIVO (FRAME-ZERO CRYSTAL PORTALS)
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
@@ -854,8 +901,7 @@ import brandProducts from '../brand_products.json';
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
 
-        // 🌫️ MATERIALIZZAZIONE FLUIDA SE CARICATA, ALTRIMENTI COMPLETAMENTE INVISIBILE
-        const targetOpacity = data.isLoaded ? (activeDrawer ? 0.15 : (mesh === activeMesh ? 1.0 : 1.0)) : 0.0;
+        const targetOpacity = activeDrawer ? 0.15 : (mesh === activeMesh ? 1.0 : 1.0);
 
         if (activeDrawer) {
           mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
@@ -935,7 +981,7 @@ import brandProducts from '../brand_products.json';
 
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.08;
-           if (badgeMat) badgeMat.opacity = data.isLoaded ? pulseOpacity : 0.0;
+           if (badgeMat) badgeMat.opacity = pulseOpacity;
 
            laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
         }
