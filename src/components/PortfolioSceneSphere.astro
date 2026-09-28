@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[DUAL_SNOW_VECTOR_ACTIVE]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[SYNTAX_SHIELD_RESTORED]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -483,9 +483,8 @@ import brandProducts from '../brand_products.json';
     const snowPalette = [ new THREE.Color('#282828'), new THREE.Color('#C09E5A'), new THREE.Color('#2C5260') ];
     const dummyMatrix = new THREE.Object3D();
     
-    // ❄️ PARAMETRI DINAMICI INTERATTIVI PER LA NEVE!
     let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
-    let snowSpeedFactor = 0.55; // Default più calmo e lento di base!
+    let snowSpeedFactor = 0.55;
 
     const particleData: any[] = [];
     for (let p = 0; p < particleCount; p++) {
@@ -779,7 +778,7 @@ import brandProducts from '../brand_products.json';
     document.getElementById('btn-next-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(1); });
     document.getElementById('btn-close')?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
     
-    // 🎹 TASTIERA DUAL-CONTEXT: FRECCE DINAMICHE PER SCALA E VELOCITÀ NEVE!
+    // 🎹 TASTIERA DUAL-CONTEXT
     window.addEventListener('keydown', (e) => { 
       if (e.key === 'Escape') {
         closeModal();
@@ -787,15 +786,12 @@ import brandProducts from '../brand_products.json';
       }
       
       if (activeMesh) { 
-        // Stato Ispezione Single Work: Le frecce orizzontali cambiano opera
         if (e.key === 'ArrowRight') navigateWork(1); 
         if (e.key === 'ArrowLeft') navigateWork(-1); 
       } else {
-        // Stato Volo Libero (Gallery View): Frecce Tattiche per la Neve!
         if (e.key === 'ArrowUp') snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
         if (e.key === 'ArrowDown') snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
         
-        // ❄️ FRECCE SINISTRA / DESTRA MODULANO LA VELOCITÀ INERZIALE DELLA NEVE!
         if (e.key === 'ArrowLeft') snowSpeedFactor = Math.max(snowSpeedFactor - 0.10, 0.05);
         if (e.key === 'ArrowRight') snowSpeedFactor = Math.min(snowSpeedFactor + 0.15, 3.5);
       }
@@ -854,8 +850,7 @@ import brandProducts from '../brand_products.json';
       clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1; 
       clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
       
-      camera.updateMatrixWorld(true); raycaster.setFromCamera(clickMouse, camera);
-      const intersects.length > 0;
+      camera.updateMatrixWorld(true);
       const intersects = raycaster.intersectObjects(meshes, false);
       if (intersects.length > 0) {
         openModalForMesh(intersects[0].object as THREE.Mesh);
@@ -915,7 +910,6 @@ import brandProducts from '../brand_products.json';
         const pData = particleData[p];
         
         const audioSpeedBoost = 1.0 + bassIntensity * 2.5;
-        // ❄️ MODULAZIONE DELLA CADUTA E ROTAZIONE TRAMITE snowSpeedFactor!
         pData.y -= pData.vy * snowSpeedFactor * audioSpeedBoost;
         pData.x += Math.sin(elapsedTime * 1.2 + p * 0.1) * 0.01;
         pData.rx += pData.vrx * snowSpeedFactor * audioSpeedBoost; 
