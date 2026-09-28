@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[AUDIO_REACTIVE_SNOWSTREAM]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[Z_DEFLECTION_SHIELD_ACTIVE]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -474,10 +474,11 @@ import brandProducts from '../brand_products.json';
     // ❄️ NEVE TRICROMA 3D AUDIO-REATTIVA
     const particleCount = 240;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
-    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, depthTest: false, side: THREE.DoubleSide });
+    // depthTest = true per rispetta la profondità visiva
+    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, depthTest: true, depthWrite: false, side: THREE.DoubleSide });
     const pixelSnowSystem = new THREE.InstancedMesh(particleTriangleGeo, particleMaterial, particleCount);
     pixelSnowSystem.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    pixelSnowSystem.renderOrder = 999;
+    
     const snowPalette = [ new THREE.Color('#282828'), new THREE.Color('#C09E5A'), new THREE.Color('#2C5260') ];
     const dummyMatrix = new THREE.Object3D();
     let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
@@ -591,7 +592,7 @@ import brandProducts from '../brand_products.json';
           uTexture: { value: null },
           uTexAspect: { value: 1.0 }, 
           uFocus: { value: 0.0 }, 
-          uOpacity: { value: 0.0 }, // 🌫️ ZERO OPACITÀ INIZIALE: NIENTE RETTANGOLI OPACHI!
+          uOpacity: { value: 0.0 },
           uTime: { value: 0 },
           uVelocity: { value: 0 },
           uMouse: { value: new THREE.Vector2(0.5, 0.5) }
@@ -599,7 +600,6 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
-      // Caricamento in streaming pulito ed affioramento dalla nebbia
       const texture = textureLoader.load(initialUrl, (tex) => {
         if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
         material.uniforms.uTexture.value = tex;
@@ -671,7 +671,10 @@ import brandProducts from '../brand_products.json';
     const fixedHoverTitle = document.getElementById('fixed-hover-title');
 
     function closeModal() {
-      if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      if (activeMesh) {
+        activeMesh.renderOrder = 0; // Ripristina l'ordine normale alla chiusura
+        if (activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      }
       activeMesh = null; activeMeshIndex = -1;
       
       if (savedScrollZ !== null) {
@@ -684,13 +687,19 @@ import brandProducts from '../brand_products.json';
     }
 
     function openModalForMesh(mesh: THREE.Mesh) {
-      if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      if (activeMesh && activeMesh.userData.coverTexture) {
+        activeMesh.renderOrder = 0;
+        activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      }
       
       if (!activeMesh) {
         savedScrollZ = targetScrollZ;
       }
 
       activeMesh = mesh; activeMeshIndex = meshes.indexOf(mesh);
+      // 🛡️ ELEVA IL RENDER ORDER PER GARANTIRE CHE L'OPERA ISOLATA SIA IN PRIMO PIANO
+      activeMesh.renderOrder = 500;
+      
       const data = activeMesh.userData;
 
       if (data.media_url) {
@@ -850,7 +859,6 @@ import brandProducts from '../brand_products.json';
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      // 🎵 ESTRAZIONE BASSI DALL'ANALIZZATORE AUDIO WEB AUDIO API
       let bassIntensity = 0.0;
       if (analyser && audioDataArray && isAudioPlaying) {
         analyser.getByteFrequencyData(audioDataArray);
@@ -886,7 +894,7 @@ import brandProducts from '../brand_products.json';
 
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // 💫 FISICA NEVE TRICROMA REATTIVA AL RITMO DELLA MUSICA!
+      // 💫 FISICA NEVE TRICROMA + DEVIAZIONE MAGNETICA Z QUANDO L'OPERA È ISOLATA!
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
         
@@ -898,6 +906,11 @@ import brandProducts from '../brand_products.json';
         pData.rz += pData.vrz * audioSpeedBoost;
         
         pData.z += scrollVelocity * 2.2;
+
+        // 🛡️ BARRIERA DI DEVIAZIONE Z: Se l'opera è isolata al centro (Z=-4.5), scacciamo la neve dietro Z=-5.0
+        if (activeMesh && pData.z > -4.8) {
+          pData.z = -5.2 - Math.random() * 8.0;
+        }
 
         if (pData.y < -14) { pData.y = 14; pData.x = (Math.random() - 0.5) * 28; }
         if (pData.z > 5) pData.z -= 40;
