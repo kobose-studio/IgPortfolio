@@ -4,10 +4,13 @@ import portfolioData from '../portfolio_cache.json';
 
 <div id="canvas-container">
   
+  <!-- FILIGRANA ANALOGICA DI GRANA -->
   <div class="bg-grain-overlay"></div>
+
+  <!-- LA NEBBIA MINERALE -->
   <div class="top-vapour-mask"></div>
 
-  <!-- BRAND HEADER GLOBALE (+25% BOOST) -->
+  <!-- BRAND HEADER GLOBALE -->
   <div id="global-brand-logo">
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
@@ -15,15 +18,16 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[VARIANT_B: THE_ALPINE_Z_TRAIL]</span>
+    <span class="hud-badge hidden md:inline">[GLSL_ASPECT_COVER_UNCAPPED]</span>
   </div>
   
+  <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
-    <span class="hidden md:inline">FLY FORWARD TO EXPLORE</span>
+    <span class="hidden md:inline">SCROLL / DRAG / CLICK TO ISOLATE</span>
     <span class="hud-divider hidden md:inline">//</span>
     <span class="hud-sepia hidden md:inline">[▲/▼] 3D TRIANGLE SCALE</span>
     <span class="hud-divider">//</span>
-    <span>CLICK / TAP TO ISOLATE</span>
+    <span>SWIPE / TAP TO ISOLATE</span>
   </div>
 
   <!-- Stage Modale Editoriale -->
@@ -39,13 +43,15 @@ import portfolioData from '../portfolio_cache.json';
 
        <!-- GLOBAL WORK NAVIGATOR -->
        <div class="work-nav-bar">
-         <button id="btn-prev-work" class="btn-nav font-mono-tech">[ ◄ FLY PREV ]</button>
+         <button id="btn-prev-work" class="btn-nav font-mono-tech">[ ◄ PREV ]</button>
          <span id="work-counter" class="work-counter-text font-mono-tech">001 / 000</span>
-         <button id="btn-next-work" class="btn-nav font-mono-tech">[ FLY NEXT ► ]</button>
+         <button id="btn-next-work" class="btn-nav font-mono-tech">[ NEXT ► ]</button>
        </div>
 
+       <!-- TITOLO BILINGUE ITALIANO / INGLESE -->
        <h1 id="modal-title" class="font-syne">TITOLO_ITALIANO / ENGLISH_TITLE</h1>
 
+       <!-- DIDASCALIA COMPLETA -->
        <p id="modal-caption" class="font-sans">
          Caricamento didascalia dall'archivio...
        </p>
@@ -55,10 +61,12 @@ import portfolioData from '../portfolio_cache.json';
            INSTAGRAM ↗
          </a>
          <button id="btn-close" class="btn-secondary font-mono-tech">
-           [ RESUME TRAIL / ESC ]
+           [ CLOSE / ESC ]
          </button>
        </div>
     </div>
+
+    <!-- Contenitore Comandi Slider per Carosello / Video Embed -->
     <div id="video-stage"></div>
   </div>
 </div>
@@ -69,17 +77,20 @@ import portfolioData from '../portfolio_cache.json';
     background-color: #f2f2f0; color: #0d0d0d; font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased; touch-action: none;
   }
+
   .bg-grain-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     pointer-events: none; z-index: 1; opacity: 0.055;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
+
   .top-vapour-mask {
     position: absolute; top: 0; left: 0; width: 100vw; height: 180px; 
     background: linear-gradient(to bottom, #f2f2f0 10%, transparent 100%);
     z-index: 50; pointer-events: none;
   }
   @media (min-width: 768px) { .top-vapour-mask { height: 260px; } }
+
   #canvas-container { width: 100vw; height: 100vh; position: relative; background-color: #f2f2f0; overflow: hidden; cursor: grab; }
   #canvas-container:active { cursor: grabbing; }
 
@@ -87,15 +98,29 @@ import portfolioData from '../portfolio_cache.json';
   .font-mono-tech { font-family: 'Space Mono', monospace; }
   .font-sans { font-family: 'Inter', sans-serif; }
 
-  #global-brand-logo { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 356px; height: 160px; z-index: 110; pointer-events: none; mix-blend-mode: multiply; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-  #global-brand-logo img { width: 100%; height: 100%; object-fit: contain; object-position: center top; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.05)); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  #global-brand-logo {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 356px; height: 160px; z-index: 110; pointer-events: none; mix-blend-mode: multiply;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #global-brand-logo img {
+    width: 100%; height: 100%; object-fit: contain; object-position: center top; 
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.05)); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
   #global-brand-logo.is-focused img { transform: scale(0.9); }
-  @media (min-width: 768px) { #global-brand-logo { top: 15px; left: 36px; transform: none; width: 618px; height: 260px; } #global-brand-logo img { object-position: left top; } #global-brand-logo.is-focused { left: 36px; top: 15px; } #global-brand-logo.is-focused img { transform: scale(1); } }
+
+  @media (min-width: 768px) {
+    #global-brand-logo { top: 15px; left: 36px; transform: none; width: 618px; height: 260px; }
+    #global-brand-logo img { object-position: left top; }
+    #global-brand-logo.is-focused { left: 36px; top: 15px; }
+    #global-brand-logo.is-focused img { transform: scale(1); }
+  }
 
   .hud-element { position: absolute; z-index: 10; font-size: 10px; letter-spacing: 0.15em; color: #1a1a1a; text-transform: uppercase; pointer-events: none; transition: opacity 0.4s ease; }
   @media (min-width: 768px) { .hud-element { font-size: 11px; letter-spacing: 0.22em; } }
   #hud-bottom-left { bottom: 20px; left: 20px; color: #8c8c8c; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
   @media (min-width: 768px) { #hud-bottom-left { bottom: 36px; left: 36px; gap: 6px; } }
+
   #hud-right-vertical { top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg); white-space: nowrap; text-align: center; display: flex; align-items: center; }
   @media (min-width: 768px) { #hud-right-vertical { right: 16px; transform: translate(25%, -50%) rotate(90deg); } }
   .hud-divider { color: #8c8c8c; margin: 0 4px; }
@@ -115,11 +140,51 @@ import portfolioData from '../portfolio_cache.json';
   .badge-type { font-size: 8px; font-weight: 700; letter-spacing: 0.15em; background: #0d0d0d; color: #ffffff; padding: 2px 6px; text-transform: uppercase; }
   @media (min-width: 768px) { .badge-type { font-size: 9px; padding: 3px 8px; letter-spacing: 0.2em; } }
   
-  .work-nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; margin: 6px 0 10px 0; border-top: 1px solid rgba(13, 13, 13, 0.1); border-bottom: 1px solid rgba(13, 13, 13, 0.1); box-sizing: border-box; width: 100%; }
-  .btn-nav { background: transparent; border: 1px solid #0d0d0d; color: #0d0d0d; font-size: 8px; font-weight: 700; cursor: pointer; letter-spacing: 0.10em; padding: 4px 8px; white-space: nowrap; flex-shrink: 0; transition: all 0.2s ease; text-transform: uppercase; }
-  @media (min-width: 768px) { .btn-nav { font-size: 9px; padding: 5px 10px; } }
-  .btn-nav:hover { background: #C09E5A; border-color: #C09E5A; color: #ffffff; }
-  .work-counter-text { font-size: 9px; color: #0d0d0d; letter-spacing: 0.15em; font-weight: 700; white-space: nowrap; text-align: center; }
+  .work-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    margin: 6px 0 10px 0;
+    border-top: 1px solid rgba(13, 13, 13, 0.1);
+    border-bottom: 1px solid rgba(13, 13, 13, 0.1);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .btn-nav {
+    background: transparent;
+    border: 1px solid #0d0d0d;
+    color: #0d0d0d;
+    font-size: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.10em;
+    padding: 4px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+  @media (min-width: 768px) { 
+    .btn-nav { font-size: 9px; padding: 5px 10px; } 
+  }
+
+  .btn-nav:hover {
+    background: #C09E5A;
+    border-color: #C09E5A;
+    color: #ffffff;
+  }
+
+  .work-counter-text {
+    font-size: 9px;
+    color: #0d0d0d;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: center;
+  }
   @media (min-width: 768px) { .work-counter-text { font-size: 10px; } }
 
   #modal-title { font-size: 15px; letter-spacing: -0.02em; color: #0d0d0d; text-transform: uppercase; margin: 6px 0; line-height: 1.25; }
@@ -135,7 +200,10 @@ import portfolioData from '../portfolio_cache.json';
   @media (min-width: 768px) { .btn-secondary { font-size: 10px; letter-spacing: 0.15em; padding: 8px 0; } }
   .btn-secondary:hover { color: #0d0d0d; }
 
-  #video-stage { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 90; display: flex; justify-content: center; align-items: center; }
+  #video-stage { 
+    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; 
+    pointer-events: none; z-index: 90; display: flex; justify-content: center; align-items: center;
+  }
 </style>
 
 <script>
@@ -144,50 +212,77 @@ import portfolioData from '../portfolio_cache.json';
 
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
+
     let cleanText = caption.replace(/#\w+/g, '').replace(/@\w+/g, '').trim();
+    if (!cleanText) return "MATERIA ISOLATA";
+
     let rawLines = cleanText.split(/[\r\n]+/).map(l => l.trim()).filter(l => l.length > 0);
     let contentLines = rawLines.filter(line => !/IMLAND/i.test(line));
+
     if (contentLines.length === 0) return "MATERIA ISOLATA";
+
     let targetLine = contentLines[0];
 
     if (targetLine.includes('/')) {
       let parts = targetLine.split('/').map(p => p.trim().replace(/^['"•\s]+|['"•\s]+$/g, '')).filter(p => p.length > 0);
       parts = parts.filter(p => !/IMLAND/i.test(p));
-      if (parts.length >= 2) return `${parts[0].toUpperCase()} / ${parts[1].toUpperCase()}`;
-      else if (parts.length === 1) return parts[0].toUpperCase();
+      
+      if (parts.length >= 2) {
+        return `${parts[0].toUpperCase()} / ${parts[1].toUpperCase()}`;
+      } else if (parts.length === 1) {
+        return parts[0].toUpperCase();
+      }
     }
+
     if (contentLines.length >= 2) {
       let itTitle = targetLine.toUpperCase();
       let enTitle = contentLines[1].toUpperCase();
       if (enTitle.length > 2 && !enTitle.startsWith('HTTP') && !/IMLAND/i.test(enTitle)) {
-        if ((itTitle.length + enTitle.length) < 60) return `${itTitle} / ${enTitle}`;
+        if ((itTitle.length + enTitle.length) < 60) {
+          return `${itTitle} / ${enTitle}`;
+        }
       }
     }
+
     return targetLine.substring(0, 48).toUpperCase();
   }
 
   function createBadgeTexture(type: string) {
     const canvas = document.createElement('canvas');
-    canvas.width = 128; canvas.height = 128; const ctx = canvas.getContext('2d');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
     if (!ctx) return new THREE.CanvasTexture(canvas);
-    ctx.clearRect(0, 0, 128, 128); ctx.fillStyle = '#C09E5A'; ctx.strokeStyle = '#C09E5A';
+
+    ctx.clearRect(0, 0, 128, 128); 
+    ctx.fillStyle = '#C09E5A';
+    ctx.strokeStyle = '#C09E5A';
+
     if (type === 'VIDEO') {
-      ctx.beginPath(); ctx.moveTo(42, 32); ctx.lineTo(92, 64); ctx.lineTo(42, 96); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); 
+      ctx.moveTo(42, 32); 
+      ctx.lineTo(92, 64); 
+      ctx.lineTo(42, 96); 
+      ctx.closePath(); 
+      ctx.fill();
     } else if (type === 'CAROUSEL_ALBUM') {
-      ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.strokeRect(28, 48, 48, 48); ctx.fillRect(48, 24, 48, 48);
-      ctx.strokeStyle = '#0d0d0d'; ctx.lineWidth = 2; ctx.strokeRect(48, 24, 48, 48);
+      ctx.lineWidth = 10;
+      ctx.lineJoin = 'round';
+      ctx.strokeRect(28, 48, 48, 48);
+      ctx.fillRect(48, 24, 48, 48);
+      ctx.strokeStyle = '#0d0d0d'; 
+      ctx.lineWidth = 2;
+      ctx.strokeRect(48, 24, 48, 48);
     }
-    const texture = new THREE.CanvasTexture(canvas); texture.premultiplyAlpha = true; texture.needsUpdate = true;
+    
+    const texture = new THREE.CanvasTexture(canvas); 
+    texture.premultiplyAlpha = true; 
+    texture.needsUpdate = true;
     return texture;
   }
 
   const container = document.getElementById('canvas-container');
   if (container) {
     const scene = new THREE.Scene();
-    
-    // 🌫️ VOLUMETRIC MINERAL FOG: Il respiro del sentiero!
-    scene.fog = new THREE.Fog(0xf2f2f0, 2, 28);
-
     const gridGroup = new THREE.Group();
     scene.add(gridGroup);
 
@@ -200,31 +295,65 @@ import portfolioData from '../portfolio_cache.json';
 
     const particleCount = 220;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
-    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.38, depthTest: false, side: THREE.DoubleSide });
+    
+    const particleMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.38,
+      depthTest: false,
+      side: THREE.DoubleSide
+    });
+
     const pixelSnowSystem = new THREE.InstancedMesh(particleTriangleGeo, particleMaterial, particleCount);
     pixelSnowSystem.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-    const snowPalette = [ new THREE.Color('#282828'), new THREE.Color('#C09E5A'), new THREE.Color('#2C5260') ];
+    const snowPalette = [
+      new THREE.Color('#282828'),
+      new THREE.Color('#C09E5A'),
+      new THREE.Color('#2C5260')
+    ];
+
     const dummyMatrix = new THREE.Object3D();
     let snowScaleFactor = window.innerWidth < 640 ? 0.7 : 1.0;
 
-    const particleData: { x: number; y: number; z: number; vy: number; xFactor: number; rx: number; ry: number; rz: number; vrx: number; vry: number; vrz: number; }[] = [];
+    const particleData: {
+      x: number; y: number; z: number;
+      vy: number; xFactor: number;
+      rx: number; ry: number; rz: number;
+      vrx: number; vry: number; vrz: number;
+    }[] = [];
+
     for (let p = 0; p < particleCount; p++) {
-      pixelSnowSystem.setColorAt(p, snowPalette[Math.floor(Math.random() * snowPalette.length)]);
+      const assignedColor = snowPalette[Math.floor(Math.random() * snowPalette.length)];
+      pixelSnowSystem.setColorAt(p, assignedColor);
+
       particleData.push({
-        x: (Math.random() - 0.5) * 26, y: (Math.random() - 0.5) * 26, z: (Math.random() - 0.5) * 35,
-        vy: 0.003 + Math.random() * 0.006, xFactor: Math.random() * 10,
-        rx: Math.random() * Math.PI * 2, ry: Math.random() * Math.PI * 2, rz: Math.random() * Math.PI * 2,
-        vrx: (Math.random() - 0.5) * 0.035, vry: (Math.random() - 0.5) * 0.045, vrz: (Math.random() - 0.5) * 0.025
+        x: (Math.random() - 0.5) * 26,
+        y: (Math.random() - 0.5) * 32,
+        z: (Math.random() - 0.5) * 8 - 1,
+        vy: 0.003 + Math.random() * 0.006,
+        xFactor: Math.random() * 10,
+        rx: Math.random() * Math.PI * 2,
+        ry: Math.random() * Math.PI * 2,
+        rz: Math.random() * Math.PI * 2,
+        vrx: (Math.random() - 0.5) * 0.035,
+        vry: (Math.random() - 0.5) * 0.045,
+        vrz: (Math.random() - 0.5) * 0.025
       });
     }
-    if (pixelSnowSystem.instanceColor) pixelSnowSystem.instanceColor.needsUpdate = true;
+
+    if (pixelSnowSystem.instanceColor) {
+      pixelSnowSystem.instanceColor.needsUpdate = true;
+    }
     scene.add(pixelSnowSystem);
 
     const laserGeometry = new THREE.BufferGeometry();
     const laserPositions = new Float32Array(48);
     laserGeometry.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
-    const laserMaterial = new THREE.LineBasicMaterial({ color: 0xc09e5a, transparent: true, opacity: 0, linewidth: 2, depthTest: false });
+    
+    const laserMaterial = new THREE.LineBasicMaterial({
+      color: 0xc09e5a, transparent: true, opacity: 0, linewidth: 2, depthTest: false
+    });
     const laserMesh = new THREE.LineSegments(laserGeometry, laserMaterial);
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
@@ -235,28 +364,35 @@ import portfolioData from '../portfolio_cache.json';
         vUv = uv; vec3 pos = position; float dist = distance(uv, uMouse);
         
         float wave = sin(dist * 6.5 - uTime * 2.0) * 0.048;
-        float speedWarp = sin(pos.y * 2.0) * uVelocity * 0.08;
+        float scrollZBend = sin(pos.y * 1.2) * uVelocity * 0.35;
+        float depthConveyor = (pos.y * pos.y - 1.5) * abs(uVelocity) * 0.15;
         
         float dx = uv.x - 0.5; float dy = uv.y - 0.5;
         float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.22 * uFocus;
         
         pos.z += wave * (1.0 - uFocus);
-        pos.x += speedWarp * (1.0 - uFocus);
+        pos.z += (scrollZBend + depthConveyor) * (1.0 - uFocus);
         pos.z += focusCurvature;
         
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `;
 
+    // 🖼️ GLSL ASPECT CORRECTION: object-fit cover integrato nello Shader
     const fragmentShader = `
       varying vec2 vUv; uniform sampler2D uTexture; uniform float uTime; uniform float uVelocity; uniform float uFocus; uniform float uOpacity; uniform float uTexAspect;
       void main() {
         vec2 uv = vUv;
-        float planeAspect = 2.2 / 2.8; 
+        
+        // 🚀 OBJECT-FIT COVER MATEMATICO SUL 3D PLANE:
+        float planeAspect = 2.2 / 2.8; // 0.785714
         vec2 st = uv - 0.5;
         if (uTexAspect > 0.0) {
-          if (uTexAspect > planeAspect) st.x *= planeAspect / uTexAspect;
-          else st.y *= uTexAspect / planeAspect;
+          if (uTexAspect > planeAspect) {
+            st.x *= planeAspect / uTexAspect;
+          } else {
+            st.y *= uTexAspect / planeAspect;
+          }
         }
         uv = st + 0.5;
 
@@ -280,21 +416,20 @@ import portfolioData from '../portfolio_cache.json';
     `;
 
     const textureLoader = new THREE.TextureLoader();
+    
+    // 🔓 SBLOCCO INTEGRALE ARCHIVIO: Carica l'INTERO array senza alcuna limitazione!
     const mediaItems = rawData.data || []; 
 
     const materials: THREE.ShaderMaterial[] = [];
     const meshes: THREE.Mesh[] = [];
-    const basePositions: { x: number; y: number; z: number; rotY: number }[] = [];
+    const basePositions: { x: number; y: number }[] = [];
     const geometry = new THREE.PlaneGeometry(2.2, 2.8, 32, 32);
     
     const videoBadgeTexture = createBadgeTexture('VIDEO');
     const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
     const badgeGeometry = new THREE.PlaneGeometry(0.20, 0.20);
 
-    // 🗺️ MATEMATICA DEL SENTIERO Z
-    const SPACING_Z = 4.0;
-    const TOTAL_Z = mediaItems.length * SPACING_Z;
-    const PATH_WIDTH = window.innerWidth < 640 ? 1.0 : 1.8;
+    let COLS = 5; let SPACING_X = 2.8; let SPACING_Y = 3.6; let DRAG_MULTIPLIER = 0.008; let FOCUS_Z = 4.0; let TOTAL_HEIGHT = 0; let planeW = 2.2; let planeH = 2.8;
 
     mediaItems.forEach((item: any, index: number) => {
       let imageUrl = item.media_url;
@@ -304,12 +439,23 @@ import portfolioData from '../portfolio_cache.json';
 
       const material = new THREE.ShaderMaterial({
         vertexShader, fragmentShader,
-        uniforms: { uTexture: { value: null }, uTexAspect: { value: 1.0 }, uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(0.5, 0.5) }, uVelocity: { value: 0 }, uFocus: { value: 0.0 }, uOpacity: { value: 1.0 } },
+        uniforms: { 
+          uTexture: { value: null }, 
+          uTexAspect: { value: 1.0 }, 
+          uTime: { value: 0 }, 
+          uMouse: { value: new THREE.Vector2(0.5, 0.5) }, 
+          uVelocity: { value: 0 }, 
+          uFocus: { value: 0.0 }, 
+          uOpacity: { value: 1.0 } 
+        },
         side: THREE.DoubleSide, transparent: true
       });
 
+      // 🔍 CARICAMENTO TEXTURE CON MISURAZIONE ASPETTO REALE (Zero Proporzioni Schiacciate)
       const texture = textureLoader.load(imageUrl, (tex) => {
-        if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+        if (tex.image) {
+          material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+        }
       });
       material.uniforms.uTexture.value = texture;
 
@@ -318,145 +464,238 @@ import portfolioData from '../portfolio_cache.json';
       let cleanTitle = parseBilingualTitle(rawCaption);
       
       let badgeMat: THREE.MeshBasicMaterial | null = null;
+
       if (item.media_type === 'VIDEO' || item.media_type === 'CAROUSEL_ALBUM') {
         const badgeTex = item.media_type === 'VIDEO' ? videoBadgeTexture : carouselBadgeTexture;
-        badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false });
+        badgeMat = new THREE.MeshBasicMaterial({ 
+            map: badgeTex, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false
+        });
         const badgeMesh = new THREE.Mesh(badgeGeometry, badgeMat);
-        badgeMesh.frustumCulled = false; badgeMesh.renderOrder = 9999; 
+        badgeMesh.frustumCulled = false; 
+        badgeMesh.renderOrder = 9999; 
         badgeMesh.position.set(2.2 / 2 - 0.22, -2.8 / 2 + 0.22, 0.15);
         mesh.add(badgeMesh);
       }
 
-      // Costruzione dell'Architettura del Canyon: alternate sinistra/destra e rivolte verso l'interno
-      const side = index % 2 === 0 ? -1 : 1;
-      const baseX = side * (PATH_WIDTH + Math.random() * 0.4);
-      const baseY = (Math.random() - 0.5) * 1.5;
-      const baseZ = -index * SPACING_Z;
-      const rotY = side * 0.20;
-
       mesh.userData = { 
         id: item.id, title: cleanTitle, media_type: item.media_type, media_url: item.media_url, 
-        thumbnail_url: item.thumbnail_url, caption: rawCaption, timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
+        thumbnail_url: item.thumbnail_url, caption: rawCaption, 
+        timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
         permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
         originalZ: 0, coverTexture: texture, badgeMat: badgeMat 
       };
 
-      basePositions.push({ x: baseX, y: baseY, z: baseZ, rotY: rotY });
+      basePositions.push({ x: 0, y: 0 });
       gridGroup.add(mesh); meshes.push(mesh); materials.push(material);
     });
+
+    function recalculateGrid() {
+      const width = window.innerWidth;
+      if (width < 640) {
+        COLS = 2; SPACING_X = 2.4; SPACING_Y = 3.2; DRAG_MULTIPLIER = 0.016; FOCUS_Z = 4.8; planeW = 2.0; planeH = 2.5;
+      } else if (width < 1024) {
+        COLS = 3; SPACING_X = 2.6; SPACING_Y = 3.4; DRAG_MULTIPLIER = 0.011; FOCUS_Z = 4.2; planeW = 2.1; planeH = 2.6;
+      } else {
+        COLS = 5; SPACING_X = 2.8; SPACING_Y = 3.6; DRAG_MULTIPLIER = 0.008; FOCUS_Z = 4.0; planeW = 2.2; planeH = 2.8;
+      }
+      const ROWS = Math.ceil(meshes.length / COLS);
+      TOTAL_HEIGHT = ROWS * SPACING_Y;
+
+      meshes.forEach((mesh, index) => {
+        const col = index % COLS; const row = Math.floor(index / COLS);
+        const initialX = (col - (COLS - 1) / 2) * SPACING_X;
+        const initialY = -(row - (ROWS - 1) / 2) * SPACING_Y;
+        basePositions[index] = { x: initialX, y: initialY };
+        mesh.scale.set(planeW / 2.2, planeH / 2.8, 1);
+      });
+      camera.position.z = width < 640 ? 11 : 10;
+    }
+    recalculateGrid();
 
     const raycaster = new THREE.Raycaster();
     const clickMouse = new THREE.Vector2();
     let activeMesh: THREE.Mesh | null = null;
     let activeMeshIndex = -1;
 
-    let scrollZ = 0, targetScrollZ = 0, scrollVelocity = 0, isDragging = false, startY = 0, dragDistance = 0;
-    const DRAG_MULTIPLIER = 0.025;
+    let scrollY = 0, targetScrollY = 0, scrollVelocity = 0, isDragging = false, startY = 0, dragDistance = 0;
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     
     const editorialStage = document.getElementById('editorial-stage');
+    const hudRightVertical = document.getElementById('hud-right-vertical'); 
+    const hudBottomLeft = document.getElementById('hud-bottom-left');
     const brandLogo = document.getElementById('global-brand-logo'); 
+    const btnClose = document.getElementById('btn-close');
     const videoStage = document.getElementById('video-stage');
     
+    const btnPrevWork = document.getElementById('btn-prev-work');
+    const btnNextWork = document.getElementById('btn-next-work');
+    const workCounter = document.getElementById('work-counter');
+
+    const modalDate = document.getElementById('modal-date');
+    const modalType = document.getElementById('modal-type');
+    const modalTitle = document.getElementById('modal-title');
+    const modalCaption = document.getElementById('modal-caption');
+    const modalLink = document.getElementById('modal-link') as HTMLAnchorElement;
+
     function closeModal() {
-      if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
-      activeMesh = null; activeMeshIndex = -1;
-      editorialStage?.classList.remove('is-active'); brandLogo?.classList.remove('is-focused'); 
+      if (activeMesh && activeMesh.userData.coverTexture) {
+        activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      }
+      activeMesh = null;
+      activeMeshIndex = -1;
+      editorialStage?.classList.remove('is-active');
+      brandLogo?.classList.remove('is-focused'); 
+      
+      if (hudRightVertical) hudRightVertical.style.opacity = '1';
+      if (hudBottomLeft) hudBottomLeft.style.opacity = '1';
       if (videoStage) videoStage.innerHTML = '';
     }
 
     function openModalForMesh(mesh: THREE.Mesh) {
-      if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      if (activeMesh && activeMesh.userData.coverTexture) {
+        activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
+      }
 
       activeMesh = mesh;
       activeMeshIndex = meshes.indexOf(mesh);
       const data = activeMesh.userData;
 
-      const workCounter = document.getElementById('work-counter');
-      if (workCounter) workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
+      if (workCounter) {
+        workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
+      }
 
-      const mDate = document.getElementById('modal-date'); if (mDate) mDate.innerText = `DATE // ${data.timestamp}`;
-      const mType = document.getElementById('modal-type'); if (mType) mType.innerText = data.media_type || 'IMAGE';
-      const mTitle = document.getElementById('modal-title'); if (mTitle) mTitle.innerText = data.title;
-      const mCap = document.getElementById('modal-caption'); if (mCap) mCap.innerText = data.caption;
-      const mLink = document.getElementById('modal-link') as HTMLAnchorElement; if (mLink) mLink.href = data.permalink;
+      if (modalDate) modalDate.innerText = `DATE // ${data.timestamp}`;
+      if (modalType) modalType.innerText = data.media_type || 'IMAGE';
+      if (modalTitle) modalTitle.innerText = data.title;
+      if (modalCaption) modalCaption.innerText = data.caption;
+      if (modalLink) modalLink.href = data.permalink;
 
       if (videoStage) {
         videoStage.innerHTML = '';
+        
         if (data.media_type === 'VIDEO') {
-          const video = document.createElement('video'); video.src = data.media_url; video.autoplay = true; video.loop = true; video.controls = true; video.playsInline = true;
+          const video = document.createElement('video');
+          video.src = data.media_url;
+          video.autoplay = true; video.loop = true; video.controls = true; video.playsInline = true;
           video.style.cssText = 'width:90%; max-width:800px; max-height:55vh; object-fit:contain; border-radius:4px; box-shadow:0 30px 60px rgba(0,0,0,0.12); pointer-events:auto;';
           videoStage.appendChild(video);
+        
         } else if (data.media_type === 'CAROUSEL_ALBUM') {
-          const children = data.children || []; let slideIndex = 0;
-          const slides = children.length > 0 ? children.map((c: any) => c.media_url || c.thumbnail_url) : [data.media_url];
+          const children = data.children || [];
+          let slideIndex = 0;
+          
+          const slides = children.length > 0 
+            ? children.map((c: any) => c.media_url || c.thumbnail_url)
+            : [data.media_url];
+
           const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
-            if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+            if (tex.image && activeMesh) {
+              activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+            }
           }));
 
-          const controlsBox = document.createElement('div'); controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
-          const controls = document.createElement('div'); controls.style.cssText = 'display:flex; align-items:center; gap:16px; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border:1px solid #C09E5A; padding:8px 22px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px; box-shadow:0 12px 32px rgba(0,0,0,0.25);';
-          const btnPrev = document.createElement('button'); btnPrev.innerText = '[ PREV SLIDE ]'; btnPrev.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
-          const counter = document.createElement('span'); counter.innerText = `01 / ${String(slides.length).padStart(2, '0')}`;
-          const btnNext = document.createElement('button'); btnNext.innerText = '[ NEXT SLIDE ]'; btnNext.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
+          const controlsBox = document.createElement('div');
+          controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
+
+          const controls = document.createElement('div');
+          controls.style.cssText = 'display:flex; align-items:center; gap:16px; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border:1px solid #C09E5A; padding:8px 22px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px; box-shadow:0 12px 32px rgba(0,0,0,0.25);';
+
+          const btnPrev = document.createElement('button');
+          btnPrev.innerText = '[ PREV SLIDE ]';
+          btnPrev.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
+
+          const counter = document.createElement('span');
+          counter.innerText = `01 / ${String(slides.length).padStart(2, '0')}`;
+
+          const btnNext = document.createElement('button');
+          btnNext.innerText = '[ NEXT SLIDE ]';
+          btnNext.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
 
           function updateSlide(newIdx: number) {
             slideIndex = (newIdx + slides.length) % slides.length;
             if (activeMesh) {
               const currentTex = slideTextures[slideIndex];
               activeMesh.material.uniforms.uTexture.value = currentTex;
-              if (currentTex.image) activeMesh.material.uniforms.uTexAspect.value = currentTex.image.width / currentTex.image.height;
+              if (currentTex.image) {
+                activeMesh.material.uniforms.uTexAspect.value = currentTex.image.width / currentTex.image.height;
+              }
             }
             counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
           }
 
           btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
           btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
-          controls.appendChild(btnPrev); controls.appendChild(counter); controls.appendChild(btnNext); controlsBox.appendChild(controls);
+
+          controls.appendChild(btnPrev);
+          controls.appendChild(counter);
+          controls.appendChild(btnNext);
+          controlsBox.appendChild(controls);
+
           if (slides.length > 1) videoStage.appendChild(controlsBox);
         }
       }
 
-      editorialStage?.classList.add('is-active'); brandLogo?.classList.add('is-focused'); 
+      editorialStage?.classList.add('is-active');
+      brandLogo?.classList.add('is-focused'); 
+      
+      if (hudRightVertical) hudRightVertical.style.opacity = '0'; 
+      if (hudBottomLeft) hudBottomLeft.style.opacity = '0';
     }
 
-    // 🚀 TOROIDAL SWIPER: Volo lungo l'Asse Z!
     function navigateWork(direction: number) {
       if (meshes.length === 0 || activeMeshIndex === -1) return;
       
       const currentIdx = activeMeshIndex;
       const nextIdx = (currentIdx + direction + meshes.length) % meshes.length;
       
-      const focusZ = -2.0; 
-      let dz = (focusZ - basePositions[nextIdx].z) - targetScrollZ;
+      const currentY = basePositions[currentIdx].y;
+      const nextY = basePositions[nextIdx].y;
+      let dy = nextY - currentY;
 
-      if (Math.abs(dz) > TOTAL_Z / 2) {
-        if (dz > 0) dz -= TOTAL_Z;
-        else dz += TOTAL_Z;
+      if (Math.abs(dy) > TOTAL_HEIGHT / 2) {
+        if (dy > 0) {
+          dy -= TOTAL_HEIGHT;
+        } else {
+          dy += TOTAL_HEIGHT;
+        }
       }
-      targetScrollZ += dz;
+      
+      targetScrollY -= dy;
       openModalForMesh(meshes[nextIdx]);
     }
 
-    document.getElementById('btn-prev-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(-1); });
-    document.getElementById('btn-next-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(1); });
-    document.getElementById('btn-close')?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
+    btnPrevWork?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(-1); });
+    btnNextWork?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(1); });
+
+    btnClose?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
     
     window.addEventListener('keydown', (e) => { 
       if (e.key === 'Escape') closeModal(); 
-      if (activeMesh) { if (e.key === 'ArrowRight') navigateWork(1); if (e.key === 'ArrowLeft') navigateWork(-1); }
-      if (e.key === 'ArrowUp') snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
-      if (e.key === 'ArrowDown') snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
+      
+      if (activeMesh) {
+        if (e.key === 'ArrowRight') navigateWork(1);
+        if (e.key === 'ArrowLeft') navigateWork(-1);
+      }
+
+      if (e.key === 'ArrowUp') {
+        snowScaleFactor = Math.min(snowScaleFactor + 0.15, 3.5);
+      }
+      if (e.key === 'ArrowDown') {
+        snowScaleFactor = Math.max(snowScaleFactor - 0.10, 0.2);
+      }
     });
 
-    window.addEventListener('wheel', (e) => { if(!activeMesh) targetScrollZ += e.deltaY * 0.015; }, { passive: true });
+    window.addEventListener('wheel', (e) => { if(!activeMesh) targetScrollY += e.deltaY * 0.004; }, { passive: true });
     window.addEventListener('pointerdown', (e) => { isDragging = true; startY = e.clientY; dragDistance = 0; });
     window.addEventListener('pointermove', (e) => {
       if (isDragging && !activeMesh) {
-        const deltaY = e.clientY - startY; dragDistance += Math.abs(deltaY);
-        targetScrollZ -= deltaY * DRAG_MULTIPLIER; startY = e.clientY;
+        const deltaY = e.clientY - startY;
+        dragDistance += Math.abs(deltaY);
+        targetScrollY -= deltaY * DRAG_MULTIPLIER;
+        startY = e.clientY;
       }
-      mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2; mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
+      mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
     });
 
     window.addEventListener('pointerup', (e) => {
@@ -464,25 +703,30 @@ import portfolioData from '../portfolio_cache.json';
       if (dragDistance > 6) return;
 
       if (activeMesh) {
-        const card = document.getElementById('editorial-card'); const stageControls = document.getElementById('video-stage');
-        const isClickOnCard = card && card.contains(e.target as Node); const isClickOnControls = stageControls && stageControls.contains(e.target as Node);
-        if (!isClickOnCard && !isClickOnControls) closeModal();
+        const card = document.getElementById('editorial-card');
+        const stageControls = document.getElementById('video-stage');
+
+        const isClickOnCard = card && card.contains(e.target as Node);
+        const isClickOnControls = stageControls && stageControls.contains(e.target as Node);
+
+        if (!isClickOnCard && !isClickOnControls) {
+          closeModal();
+        }
         return;
       }
 
       const rectDom = renderer.domElement.getBoundingClientRect();
-      clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1; clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
+      clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1;
+      clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
       
-      camera.updateMatrixWorld(true); raycaster.setFromCamera(clickMouse, camera);
+      gridGroup.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+      
+      raycaster.setFromCamera(clickMouse, camera);
       const intersects = raycaster.intersectObjects(meshes, false);
+      
       if (intersects.length > 0) {
         const selectedMesh = intersects[0].object as THREE.Mesh;
-        // Allineamento fluido lungo il sentiero per mettere a fuoco la foto cliccata
-        const idx = meshes.indexOf(selectedMesh);
-        const focusZ = -2.0; 
-        let dz = (focusZ - basePositions[idx].z) - targetScrollZ;
-        if (Math.abs(dz) > TOTAL_Z / 2) { if (dz > 0) dz -= TOTAL_Z; else dz += TOTAL_Z; }
-        targetScrollZ += dz;
         openModalForMesh(selectedMesh);
       }
     });
@@ -493,109 +737,98 @@ import portfolioData from '../portfolio_cache.json';
     function animate() {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
-      const prevScrollZ = scrollZ;
-      scrollZ += (targetScrollZ - scrollZ) * 0.08;
-      scrollVelocity = scrollZ - prevScrollZ;
+      const prevScrollY = scrollY;
+      scrollY += (targetScrollY - scrollY) * 0.07;
+      scrollVelocity = scrollY - prevScrollY;
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // 💫 FLUTTUAZIONE NEVE (Senza salti bruschi, scivola nel sentiero Z)
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
         pData.y -= pData.vy;
         pData.x += Math.sin(elapsedTime * 1.2 + pData.xFactor) * 0.002;
-        pData.z += scrollVelocity * 0.5; // La neve ci avvolge mentre "voliamo" nel tunnel
         
-        pData.rx += pData.vrx; pData.ry += pData.vry; pData.rz += pData.vrz;
+        pData.rx += pData.vrx;
+        pData.ry += pData.vry;
+        pData.rz += pData.vrz;
 
-        if (pData.y < -16) { pData.y = 16; pData.x = (Math.random() - 0.5) * 26; }
-        if (pData.z > 5) pData.z -= 35;
-        if (pData.z < -30) pData.z += 35;
+        const dx = pData.x - (mouse.x * 6);
+        const dy = pData.y - (mouse.y * 4);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 2.2) {
+          pData.x += (dx / dist) * 0.012;
+          pData.y += (dy / dist) * 0.012;
+        }
+
+        if (pData.y < -16) {
+          pData.y = 16;
+          pData.x = (Math.random() - 0.5) * 26;
+        }
 
         dummyMatrix.position.set(pData.x, pData.y, pData.z);
         dummyMatrix.rotation.set(pData.rx, pData.ry, pData.rz);
         dummyMatrix.scale.set(snowScaleFactor, snowScaleFactor, snowScaleFactor);
         dummyMatrix.updateMatrix();
+
         pixelSnowSystem.setMatrixAt(p, dummyMatrix.matrix);
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🗻 GEOMETRIA DEL SENTIERO Z
+      const halfHeight = TOTAL_HEIGHT / 2;
+      
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const basePos = basePositions[idx];
         const badgeMat = mesh.userData.badgeMat as THREE.MeshBasicMaterial | null;
 
-        // Loop Infinito Toroidale Z: mantiene le foto sempre in un anello visibile davanti e dietro di noi
-        let currentZ = basePos.z + scrollZ;
-        currentZ = ((currentZ - 4.0) % TOTAL_Z + TOTAL_Z) % TOTAL_Z;
-        currentZ = -currentZ + 4.0;
-
-        // Curve Sinuose del Canyon: le foto fluttuano e serpeggiano
-        const pathCurveX = Math.sin(currentZ * 0.15) * 2.8;
-        const pathCurveY = Math.cos(currentZ * 0.1) * 0.8;
+        let currentY = basePos.y + scrollY;
+        currentY = ((currentY + halfHeight) % TOTAL_HEIGHT + TOTAL_HEIGHT) % TOTAL_HEIGHT - halfHeight;
+        mesh.position.y = currentY; mesh.position.x = basePos.x;
         
         if (activeMesh) {
            if (mesh === activeMesh) {
-             // 🎯 CINEMATIC DETACHMENT: La foto si stacca dal canyon e vola in centro schermo
-             const isMobileView = window.innerWidth < 640;
-             const targetX = camera.position.x + mouse.x * 0.5;
-             const targetY = camera.position.y - mouse.y * 0.5 + (isMobileView ? -0.45 : 0.0);
-             const targetFocusZ = camera.position.z - 3.8;
-
-             mesh.position.x += (targetX - mesh.position.x) * 0.08;
-             mesh.position.y += (targetY - mesh.position.y) * 0.08;
-             mesh.position.z += (targetFocusZ - mesh.position.z) * 0.08;
-
              mesh.rotation.y += (mouse.x * 0.10 - mesh.rotation.y) * 0.1;
              mesh.rotation.x += (-mouse.y * 0.10 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
-             
+             mesh.position.z = mesh.userData.originalZ + Math.sin(elapsedTime * 1.5) * 0.03;
              mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
+             
              if (badgeMat) badgeMat.opacity = pulseOpacity;
            } else {
-             // Le altre foto si appiattiscono sulla nebbia
-             mesh.position.x = basePos.x + pathCurveX;
-             mesh.position.y = basePos.y + pathCurveY;
-             mesh.position.z = currentZ;
-             mesh.rotation.y = basePos.rotY + Math.cos(currentZ * 0.15) * 0.3;
-
              mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (0.00 - mat.uniforms.uOpacity.value) * 0.1;
+             
              if (badgeMat) badgeMat.opacity = 0.0;
            }
         } else {
-           // 🏞️ NAVIGAZIONE NORMALE NEL CANYON
-           mesh.position.x += ((basePos.x + pathCurveX) - mesh.position.x) * 0.1;
-           mesh.position.y += ((basePos.y + pathCurveY) - mesh.position.y) * 0.1;
-           mesh.position.z = currentZ; 
-           
-           mesh.rotation.y += ((basePos.rotY + Math.cos(currentZ * 0.15) * 0.3) - mesh.rotation.y) * 0.1;
-           mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
            mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
-           
+           mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
+           mesh.rotation.y += (0 - mesh.rotation.y) * 0.1;
+           mesh.position.z = mesh.userData.originalZ;
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
+           
            if (badgeMat) badgeMat.opacity = pulseOpacity;
         }
         mat.uniforms.uTime.value = elapsedTime;
-        mat.uniforms.uVelocity.value = scrollVelocity * 0.5; // Distorsione della velocità adattata
+        mat.uniforms.uVelocity.value = scrollVelocity;
         mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
       });
 
-      // CAMERA MOVEMENT (Leggera deriva sul mouse mentre vola in Z)
-      camera.position.x += (mouse.x * 1.5 - camera.position.x) * 0.05;
-      camera.position.y += (-mouse.y * 1.5 - camera.position.y) * 0.05;
-      camera.position.z = 0; // La camera è fissa, è l'universo Z che le vola incontro!
-
       if (activeMesh) {
-        // LASER TRACKING SU ACTIVE MESH STACCATA
+        activeMesh.getWorldPosition(targetWorldPos);
+        const isMobileView = window.innerWidth < 640;
+        const offsetY = isMobileView ? -0.45 : 0.0;
+
+        camera.position.x += (targetWorldPos.x - camera.position.x) * 0.08;
+        camera.position.y += ((targetWorldPos.y + offsetY) - camera.position.y) * 0.08;
+        camera.position.z += (FOCUS_Z - camera.position.z) * 0.05;
+
         laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
         const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
         const arr = posAttr.array as Float32Array;
-        activeMesh.getWorldPosition(targetWorldPos);
         const twX = targetWorldPos.x; const twY = targetWorldPos.y; const twZ = targetWorldPos.z + 0.08;
         const w = (planeW * activeMesh.scale.x) / 2 + 0.25;
         const h = (planeH * activeMesh.scale.y) / 2 + 0.25;
@@ -623,6 +856,12 @@ import portfolioData from '../portfolio_cache.json';
         arr[i++] = twX - w;       arr[i++] = twY - h + len; arr[i++] = twZ;
         posAttr.needsUpdate = true;
       } else {
+        camera.position.x += (0 - camera.position.x) * 0.05;
+        camera.position.y += (0 - camera.position.y) * 0.05;
+        const baseZ = window.innerWidth < 640 ? 11 : 10;
+        camera.position.z += (baseZ - camera.position.z) * 0.05;
+        gridGroup.rotation.y = mouse.x * 0.12;
+        gridGroup.rotation.x = -mouse.y * 0.12 + scrollVelocity * 0.5;
         laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
         if (laserMaterial.opacity < 0.01) laserMaterial.opacity = 0;
       }
@@ -634,6 +873,7 @@ import portfolioData from '../portfolio_cache.json';
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      recalculateGrid();
     });
   }
 </script>
