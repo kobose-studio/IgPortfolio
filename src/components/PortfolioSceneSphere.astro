@@ -16,7 +16,7 @@ import brandProducts from '../brand_products.json';
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
 
-  <!-- ⚜️ MAIN HUD NAVIGATION BAR (RESPONSIVE DOCK) -->
+  <!-- ⚜️ MAIN HUD NAVIGATION BAR (DUAL-AXIS OPTICAL DOCK) -->
   <nav id="hud-main-menu" class="font-mono-tech">
     <button class="hud-menu-btn" data-target="drawer-manifesto">MANIFESTO</button>
     <span class="hud-sep">//</span>
@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[RESPONSIVE_MOBILE_LOCKED]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[DUAL_AXIS_VISOR_LOCKED]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -202,27 +202,40 @@ import brandProducts from '../brand_products.json';
   .font-mono-tech { font-family: 'Space Mono', monospace; }
   .font-sans { font-family: 'Inter', sans-serif; }
 
-  /* ⚜️ RESPONSIVE HUD MAIN MENU (LATERAL DOCK SU MOBILE) */
+  /* ⚜️ RESPONSIVE HUD MAIN MENU */
   #hud-main-menu {
     position: fixed; z-index: 250;
-    display: flex; background: rgba(255, 255, 255, 0.90);
+    display: flex; background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border: 1px solid #0d0d0d; box-shadow: 0 10px 28px rgba(0,0,0,0.08);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* 📱 MOBILE (0px -> 767px): DOCK VERTICALE SUL LATO SINISTRO */
+  /* 📱 MOBILE (0px -> 767px): RUOTATO A -90° SUL LATO SINISTRO (SPECCHIO DEL LATO DESTRO) */
   @media (max-width: 767px) {
     #hud-main-menu {
-      top: 48%; left: 12px; transform: translateY(-50%);
-      flex-direction: column; align-items: flex-start;
-      gap: 6px; padding: 12px 14px; border-left: 3px solid #C09E5A;
-      max-width: 150px;
+      top: 50%; left: 0px;
+      transform-origin: center;
+      transform: translate(-38%, -50%) rotate(-90deg);
+      white-space: nowrap;
+      flex-direction: row; align-items: center;
+      gap: 10px; padding: 4px 14px;
     }
-    #hud-main-menu .hud-sep { display: none; }
+    #hud-main-menu .hud-sep { display: inline; color: #C09E5A; font-size: 9px; }
     .hud-menu-btn {
-      font-size: 8px; font-weight: 700; letter-spacing: 0.12em;
-      padding: 3px 0; text-align: left; width: 100%;
+      font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
+      padding: 2px 4px;
+    }
+
+    /* 🎯 MOBILE FIX: SPOSTIAMO LA TARGHETTA HOVER TARGET IN BASSO A DESTRA PER PERMETTERE AL LOGO DI RESPIRARE */
+    #fixed-hover-hud {
+      top: auto !important;
+      bottom: 55px !important;
+      right: 12px !important;
+      left: auto !important;
+      padding: 6px 12px !important;
+      font-size: 10px !important;
+      max-width: 85vw !important;
     }
   }
 
@@ -413,7 +426,7 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
-  // ⚜️ LOGICA DRAWERS MENU & BACKDROP DISMISSAL (CLICK ESTERNO PER CHIUDERE)
+  // gluten/drawer logic
   let activeDrawer: HTMLElement | null = null;
 
   function closeAllDrawers() {
