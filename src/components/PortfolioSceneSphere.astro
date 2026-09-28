@@ -16,7 +16,7 @@ import brandProducts from '../brand_products.json';
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
 
-  <!-- ⚜️ MAIN HUD NAVIGATION BAR (DUAL-AXIS OPTICAL DOCK) -->
+  <!-- ⚜️ MAIN HUD NAVIGATION BAR (RESPONSIVE DOCK) -->
   <nav id="hud-main-menu" class="font-mono-tech">
     <button class="hud-menu-btn" data-target="drawer-manifesto">MANIFESTO</button>
     <span class="hud-sep">//</span>
@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[DUAL_AXIS_VISOR_LOCKED]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[GENERATIVE_BITMAPPED_BG]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -211,7 +211,7 @@ import brandProducts from '../brand_products.json';
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* 📱 MOBILE (0px -> 767px): RUOTATO A -90° SUL LATO SINISTRO (SPECCHIO DEL LATO DESTRO) */
+  /* 📱 MOBILE: DOCK RUOTATO -90° SUL LATO SINISTRO */
   @media (max-width: 767px) {
     #hud-main-menu {
       top: 50%; left: 0px;
@@ -227,7 +227,6 @@ import brandProducts from '../brand_products.json';
       padding: 2px 4px;
     }
 
-    /* 🎯 MOBILE FIX: SPOSTIAMO LA TARGHETTA HOVER TARGET IN BASSO A DESTRA PER PERMETTERE AL LOGO DI RESPIRARE */
     #fixed-hover-hud {
       top: auto !important;
       bottom: 55px !important;
@@ -239,7 +238,7 @@ import brandProducts from '../brand_products.json';
     }
   }
 
-  /* 🖥️ DESKTOP (768px+): ORIZZONTALE AL CENTRO IN ALTO */
+  /* 🖥️ DESKTOP: ORIZZONTALE AL CENTRO IN ALTO */
   @media (min-width: 768px) {
     #hud-main-menu {
       top: 28px; left: 50%; transform: translateX(-50%);
@@ -426,7 +425,7 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
-  // gluten/drawer logic
+  // ⚜️ LOGICA DRAWERS MENU & BACKDROP DISMISSAL
   let activeDrawer: HTMLElement | null = null;
 
   function closeAllDrawers() {
@@ -516,6 +515,67 @@ import brandProducts from '../brand_products.json';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
+
+    // 🎨 GENERATIVE 3-COLOR BITMAP DITHER SHADER BACKGROUND PLANE ($Z = -42$)
+    const bgShaderMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uBass: { value: 0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform float uBass;
+
+        const vec3 colSepia = vec3(0.753, 0.620, 0.353); // #C09E5A
+        const vec3 colBlue  = vec3(0.173, 0.322, 0.376); // #2C5260
+        const vec3 colDark  = vec3(0.157, 0.157, 0.157); // #282828
+
+        float rand(vec2 co) {
+          return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+        }
+
+        void main() {
+          vec2 st = vUv * vec2(100.0, 75.0);
+          vec2 ipos = floor(st);
+          
+          float noise = rand(ipos + floor(uTime * 1.5));
+          float wave = sin(vUv.x * 5.0 + uTime * 0.4) * cos(vUv.y * 5.0 - uTime * 0.2);
+          float pattern = wave + (noise - 0.5) * (0.2 + uBass * 0.9);
+
+          vec3 finalCol = colSepia;
+          float alpha = 0.0;
+
+          if (pattern > 0.45) {
+            finalCol = colSepia;
+            alpha = 0.18 + uBass * 0.35;
+          } else if (pattern > 0.15) {
+            finalCol = colBlue;
+            alpha = 0.12 + uBass * 0.25;
+          } else if (pattern < -0.35) {
+            finalCol = colDark;
+            alpha = 0.08 + uBass * 0.20;
+          }
+
+          gl_FragColor = vec4(finalCol, alpha * 0.30);
+        }
+      `,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+
+    const bgPlaneGeo = new THREE.PlaneGeometry(120, 90);
+    const bgMesh = new THREE.Mesh(bgPlaneGeo, bgShaderMaterial);
+    bgMesh.position.set(0, 0, -42);
+    scene.add(bgMesh);
 
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -924,6 +984,10 @@ import brandProducts from '../brand_products.json';
         let rawBass = (bassSum / 4) / 255.0;
         bassIntensity = Math.pow(rawBass, 2.5);
       }
+
+      // 🎨 PASSIAMO I BASSI AUDIO AL BITMAP SHADER D DELLO SFONDO!
+      bgShaderMaterial.uniforms.uTime.value = elapsedTime;
+      bgShaderMaterial.uniforms.uBass.value = bassIntensity;
 
       const targetFOV = 60 + Math.min(Math.abs(scrollVelocity) * 3.5, 20);
       camera.fov += (targetFOV - camera.fov) * 0.1;
