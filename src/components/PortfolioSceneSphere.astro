@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[TOPOGRAPHIC_ISO_PARALLAX]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[VECTOR_CRISP_TOPOGRAPHY]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -202,7 +202,6 @@ import brandProducts from '../brand_products.json';
   .font-mono-tech { font-family: 'Space Mono', monospace; }
   .font-sans { font-family: 'Inter', sans-serif; }
 
-  /* ⚜️ RESPONSIVE HUD MAIN MENU */
   #hud-main-menu {
     position: fixed; z-index: 250;
     display: flex; background: rgba(255, 255, 255, 0.88);
@@ -211,7 +210,6 @@ import brandProducts from '../brand_products.json';
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* 📱 MOBILE: DOCK RUOTATO -90° SUL LATO SINISTRO */
   @media (max-width: 767px) {
     #hud-main-menu {
       top: 50%; left: 0px;
@@ -222,23 +220,14 @@ import brandProducts from '../brand_products.json';
       gap: 10px; padding: 4px 14px;
     }
     #hud-main-menu .hud-sep { display: inline; color: #C09E5A; font-size: 9px; }
-    .hud-menu-btn {
-      font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
-      padding: 2px 4px;
-    }
+    .hud-menu-btn { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; padding: 2px 4px; }
 
     #fixed-hover-hud {
-      top: auto !important;
-      bottom: 55px !important;
-      right: 12px !important;
-      left: auto !important;
-      padding: 6px 12px !important;
-      font-size: 10px !important;
-      max-width: 85vw !important;
+      top: auto !important; bottom: 55px !important; right: 12px !important;
+      left: auto !important; padding: 6px 12px !important; font-size: 10px !important; max-width: 85vw !important;
     }
   }
 
-  /* 🖥️ DESKTOP: ORIZZONTALE AL CENTRO IN ALTO */
   @media (min-width: 768px) {
     #hud-main-menu {
       top: 28px; left: 50%; transform: translateX(-50%);
@@ -425,7 +414,7 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
-  // ⚜️ LOGICA DRAWERS MENU & BACKDROP DISMISSAL
+  // ⚜️ LOGICA DRAWERS MENU
   let activeDrawer: HTMLElement | null = null;
 
   function closeAllDrawers() {
@@ -469,65 +458,76 @@ import brandProducts from '../brand_products.json';
     });
   });
 
-  // 🗺️ GENERAZIONE VETTORIALE DELLE ISOIPSE TOPOGRAFICHE (CURVE DI LIVELLO MONTE ROSA)
+  // 🗺️ HIGH-DPI 2048x2048 VECTOR TOPOGRAPHIC ENGINE (CONCENTRIC ALTITUDE contours)
   function createTopographicTexture(layerIndex: number) {
     const canvas = document.createElement('canvas');
-    canvas.width = 1024; canvas.height = 1024;
+    canvas.width = 2048; canvas.height = 2048; // HIGH DPI RESOLUTION
     const ctx = canvas.getContext('2d');
     if (!ctx) return new THREE.CanvasTexture(canvas);
 
-    ctx.clearRect(0, 0, 1024, 1024);
+    ctx.clearRect(0, 0, 2048, 2048);
 
-    // 1. Quadricola di posizionamento militare
-    ctx.strokeStyle = 'rgba(13, 13, 13, 0.05)';
-    ctx.lineWidth = 1;
-    const gridSize = 128;
-    for (let x = 0; x <= 1024; x += gridSize) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
+    // 1. UTM Military Grid (Tratto Vettoriale Nitido)
+    ctx.strokeStyle = 'rgba(13, 13, 13, 0.04)';
+    ctx.lineWidth = 1.0;
+    const gridSize = 256;
+    for (let x = 0; x <= 2048; x += gridSize) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 2048); ctx.stroke();
     }
-    for (let y = 0; y <= 1024; y += gridSize) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+    for (let y = 0; y <= 2048; y += gridSize) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2048, y); ctx.stroke();
     }
 
-    // 2. Disegno delle ISOIPSE (Curve di Livello Organiche Altitudine)
-    const baseOffset = layerIndex * 180.0;
-    const isohypseCount = 18;
+    // 2. Centri dei Massicci Alpini (Punta Gnifetti / Alagna Valley / Monterosa Massif)
+    const centers = [
+      { x: 1024 + Math.sin(layerIndex) * 150, y: 1024 + Math.cos(layerIndex) * 150, scale: 1.1 },
+      { x: 450 + layerIndex * 120, y: 1550 - layerIndex * 80, scale: 0.75 },
+      { x: 1600 - layerIndex * 100, y: 550 + layerIndex * 110, scale: 0.85 }
+    ];
 
-    for (let i = 0; i < isohypseCount; i++) {
-      const isMajor = (i % 4 === 0);
-      ctx.strokeStyle = isMajor ? 'rgba(192, 158, 90, 0.35)' : 'rgba(40, 40, 40, 0.18)';
-      ctx.lineWidth = isMajor ? 2.5 : 1.0;
+    // 3. Disegno delle Sagome Concentriche (Isoipse Altitudini)
+    centers.forEach((center, cIdx) => {
+      const rings = 20;
+      for (let r = 1; r <= rings; r++) {
+        const isMajor = (r % 4 === 0);
+        ctx.strokeStyle = isMajor ? 'rgba(192, 158, 90, 0.60)' : 'rgba(30, 30, 30, 0.28)';
+        ctx.lineWidth = isMajor ? 2.2 : 0.9;
 
-      ctx.beginPath();
-      const radius = 120 + i * 42 + (layerIndex * 25);
-      const centerX = 512 + Math.sin(i * 0.4 + baseOffset) * 180;
-      const centerY = 512 + Math.cos(i * 0.3 + baseOffset) * 150;
+        ctx.beginPath();
+        const baseR = r * 48.0 * center.scale;
+        const points = 72; // Vettori ad alta definizione curvale
 
-      const points = 36;
-      for (let p = 0; p <= points; p++) {
-        const angle = (p / points) * Math.PI * 2;
-        const wave1 = Math.sin(angle * 3.0 + i * 0.5) * 35.0;
-        const wave2 = Math.cos(angle * 5.0 - i * 0.2) * 20.0;
-        const r = radius + wave1 + wave2;
+        for (let p = 0; p <= points; p++) {
+          const angle = (p / points) * Math.PI * 2;
+          
+          // Perturbazione altimetrica naturale della montagna
+          const n1 = Math.sin(angle * 3.0 + r * 0.4 + layerIndex) * 28.0;
+          const n2 = Math.cos(angle * 6.0 - cIdx) * 16.0;
+          const finalR = baseR + n1 + n2;
 
-        const x = centerX + Math.cos(angle) * r;
-        const y = centerY + Math.sin(angle) * r;
+          const x = center.x + Math.cos(angle) * finalR;
+          const y = center.y + Math.sin(angle) * finalR;
 
-        if (p === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+          if (p === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        // 🎯 Nomenclatura di Quota Vettoriale Nitta (Space Mono)
+        if (isMajor && r > 2) {
+          ctx.fillStyle = '#C09E5A';
+          ctx.font = '700 15px "Space Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${1200 + r * 160 + layerIndex * 250}m`, center.x + baseR * 0.75, center.y - baseR * 0.75);
+        }
       }
-      ctx.closePath();
-      ctx.stroke();
-
-      // Nomenclatura di quota sulla curva principale (Isoippa)
-      if (isMajor && i > 0) {
-        ctx.fillStyle = '#C09E5A';
-        ctx.font = '700 10px "Space Mono", monospace';
-        ctx.fillText(`${1400 + i * 150 + layerIndex * 300}m`, centerX + radius + 10, centerY);
-      }
-    }
+    });
 
     const texture = new THREE.CanvasTexture(canvas);
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
     texture.needsUpdate = true;
     return texture;
   }
@@ -579,17 +579,22 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // 🗺️ CREAZIONE DEI 4 PIANI TOPOGRAFICI $3D$ A PARALLASSE DI PROFONDITÀ (ISOIPSE PARALLAX)
+    // ⚡ ATTIVAZIONE ANISOTROPIA x16 PER LINEE VETTORIALI SHARP IN PROSPETTIVA 3D
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    // 🗺️ CREAZIONE DEI PIANI TOPOGRAFICI CON ANISOTROPIA CRISTALLINA
     const topoPlanes: { mesh: THREE.Mesh; zBase: number; speedFactor: number }[] = [];
     const topoDepths = [-18, -42, -68, -95];
     const topoGeo = new THREE.PlaneGeometry(90, 70);
 
     topoDepths.forEach((zPos, idx) => {
       const topoTex = createTopographicTexture(idx);
+      topoTex.anisotropy = maxAnisotropy; // BLINDA LA NITIDEZZA DEI TRATTI!
+
       const topoMat = new THREE.MeshBasicMaterial({
         map: topoTex,
         transparent: true,
-        opacity: 0.28 + idx * 0.08,
+        opacity: 0.35 + idx * 0.08,
         depthTest: true,
         depthWrite: false,
         side: THREE.DoubleSide
@@ -601,7 +606,7 @@ import brandProducts from '../brand_products.json';
       topoPlanes.push({
         mesh: topoMesh,
         zBase: zPos,
-        speedFactor: 0.25 + idx * 0.20 // Inerzia differenziale a seconda della profondità!
+        speedFactor: 0.25 + idx * 0.20
       });
     });
 
@@ -1013,14 +1018,14 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ ANIMAZIONE PARALLASSE DIVERSO SULLE ISOIPSE TOPOGRAFICHE
+      // 🗺️ PARALLASSE INERZIALE PULITO SULLE ISOIPSE TOPOGRAFICHE CONCENTRICHE
       topoPlanes.forEach((planeObj) => {
         let currentTopoZ = (planeObj.zBase + scrollZ * planeObj.speedFactor) % 110;
         if (currentTopoZ > 10) currentTopoZ -= 110;
         if (currentTopoZ < -100) currentTopoZ += 110;
         
         planeObj.mesh.position.z = currentTopoZ;
-        planeObj.mesh.rotation.z = Math.sin(elapsedTime * 0.05 + planeObj.zBase) * 0.02;
+        planeObj.mesh.rotation.z = Math.sin(elapsedTime * 0.04 + planeObj.zBase) * 0.015;
       });
 
       const targetFOV = 60 + Math.min(Math.abs(scrollVelocity) * 3.5, 20);
