@@ -241,7 +241,6 @@ import brandProducts from '../brand_products.json';
   .hud-menu-btn:hover { color: #C09E5A; }
   .hud-menu-btn.text-sepia { color: #C09E5A; }
 
-  /* 🎯 STILI BOTTONE FILTRO UNIFICATO HUD DESTRO */
   #hud-right-vertical {
     top: 50%; right: 0px; transform-origin: center; transform: translate(35%, -50%) rotate(90deg);
     white-space: nowrap; text-align: center; display: flex; align-items: center; gap: 8px;
@@ -528,14 +527,14 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE (THREE.LineLoop)
+    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE - ALTO CONTRASTO CROMATICO (ARCHITECTURAL PASS)
     const topoGroup = new THREE.Group();
     scene.add(topoGroup);
 
     const ISO_COUNT = 16;
     const ISO_DEPTH_STEP = 5.0;
     const ISO_TOTAL_DEPTH = ISO_COUNT * ISO_DEPTH_STEP;
-    const topoLoops: { line: THREE.LineLoop; zBase: number }[] = [];
+    const topoLoops: { line: THREE.LineLoop; zBase: number; isSepia: boolean }[] = [];
 
     for (let k = 0; k < ISO_COUNT; k++) {
       const zPos = -k * ISO_DEPTH_STEP;
@@ -566,11 +565,12 @@ import brandProducts from '../brand_products.json';
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
+      // 🎯 INCISIONE VETTORIALE AD ALTO CONTRASTO (Sepia 0.75 | Antracite 0.42)
       const isSepia = k % 2 === 0;
       const lineMat = new THREE.LineBasicMaterial({
         color: isSepia ? 0xC09E5A : 0x282828,
         transparent: true,
-        opacity: isSepia ? 0.45 : 0.22,
+        opacity: isSepia ? 0.75 : 0.42,
         linewidth: 1
       });
 
@@ -578,7 +578,7 @@ import brandProducts from '../brand_products.json';
       lineLoop.position.set(0, 0, zPos);
       topoGroup.add(lineLoop);
 
-      topoLoops.push({ line: lineLoop, zBase: zPos });
+      topoLoops.push({ line: lineLoop, zBase: zPos, isSepia });
     }
 
     const worldGroup = new THREE.Group();
@@ -617,7 +617,6 @@ import brandProducts from '../brand_products.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
-    // 🌊 VERTEX SHADER CON DISATTIVAZIONE CURVATURA ED ONDE IN MODALITÀ FOCUS!
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -745,10 +744,10 @@ import brandProducts from '../brand_products.json';
       mesh.position.set(baseX, baseY, zBase);
       mesh.rotation.set(rotX, rotY, 0);
 
-      // 🏔️ ANELLO TOPOGRAFICO AMPIO D'AMPIEZZA DI SICUREZZA (ZERO COLLISIONI CON GLI ANGOLI)
+      // 🏔️ ANELLO TOPOGRAFICO DI NODO CON DENSITÀ ELEVATA (0.60 OPACITY)
       const ringPointsCount = 48;
       const ringPositions = new Float32Array((ringPointsCount + 1) * 3);
-      const ringRX = 2.10; // Ampio per non toccare mai l'immagine
+      const ringRX = 2.10;
       const ringRY = 2.60;
       for (let rIdx = 0; rIdx <= ringPointsCount; rIdx++) {
         const rTheta = (rIdx / ringPointsCount) * Math.PI * 2;
@@ -1032,7 +1031,7 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ PARALLASSE VETTORIALE SULLE ISOIPSE
+      // 🗺️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA (Sepia 0.75 | Antracite 0.42)
       topoLoops.forEach((loopObj) => {
         let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
         if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
@@ -1042,7 +1041,8 @@ import brandProducts from '../brand_products.json';
         loopObj.line.rotation.z = Math.sin(elapsedTime * 0.03 + loopObj.zBase) * 0.015;
 
         const lineMat = loopObj.line.material as THREE.LineBasicMaterial;
-        const targetOp = (activeMesh || activeDrawer) ? 0.08 : 0.35;
+        const defaultOp = loopObj.isSepia ? 0.75 : 0.42;
+        const targetOp = (activeMesh || activeDrawer) ? 0.12 : defaultOp;
         lineMat.opacity += (targetOp - lineMat.opacity) * 0.08;
       });
 
@@ -1126,8 +1126,9 @@ import brandProducts from '../brand_products.json';
 
         let targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? (data.media_type === 'VIDEO' ? 0.0 : 1.0 * loadedOpacity) : 1.0 * loadedOpacity);
 
+        // 🏔️ OPACITÀ ANELLI DEI NODI FOTO ELEVATA A 0.60
         if (topoRingMat) {
-          const targetRingOp = (mesh === activeMesh || activeDrawer || !matchesFilter) ? 0.0 : (data.isLoaded ? 0.35 : 0.0);
+          const targetRingOp = (mesh === activeMesh || activeDrawer || !matchesFilter) ? 0.0 : (data.isLoaded ? 0.60 : 0.0);
           topoRingMat.opacity += (targetRingOp - topoRingMat.opacity) * 0.1;
         }
 
@@ -1150,7 +1151,6 @@ import brandProducts from '../brand_products.json';
              mesh.position.y += (isolationY - mesh.position.y) * 0.1;
              mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
 
-             // SMORZAMENTO OSCILLAZIONE
              mesh.rotation.y += (mouse.x * 0.008 - mesh.rotation.y) * 0.1;
              mesh.rotation.x += (-mouse.y * 0.008 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
@@ -1160,7 +1160,6 @@ import brandProducts from '../brand_products.json';
              mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // 🎯 SINCRONIZZAZIONE MATRICIALE 3D PERFETTA DELLA CORNICE LASER CON L'ONDEGGIAMENTO DELLA FOTO!
              mesh.updateMatrixWorld(true);
              laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
@@ -1176,16 +1175,12 @@ import brandProducts from '../brand_products.json';
                arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
              }
 
-             // Top-Left
              addSeg(-w, h, zOff, -w + len, h, zOff);
              addSeg(-w, h, zOff, -w, h - len, zOff);
-             // Top-Right
              addSeg(w, h, zOff, w - len, h, zOff);
              addSeg(w, h, zOff, w, h - len, zOff);
-             // Bottom-Right
              addSeg(w, -h, zOff, w - len, -h, zOff);
              addSeg(w, -h, zOff, w, -h + len, zOff);
-             // Bottom-Left
              addSeg(-w, -h, zOff, -w + len, -h, zOff);
              addSeg(-w, -h, zOff, -w, -h + len, zOff);
 
