@@ -30,7 +30,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[VECTOR_CRISP_TOPOGRAPHY]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[3D_VECTOR_CONTOUR_LOOPS]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -458,80 +458,6 @@ import brandProducts from '../brand_products.json';
     });
   });
 
-  // 🗺️ HIGH-DPI 2048x2048 VECTOR TOPOGRAPHIC ENGINE (CONCENTRIC ALTITUDE contours)
-  function createTopographicTexture(layerIndex: number) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 2048; canvas.height = 2048; // HIGH DPI RESOLUTION
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return new THREE.CanvasTexture(canvas);
-
-    ctx.clearRect(0, 0, 2048, 2048);
-
-    // 1. UTM Military Grid (Tratto Vettoriale Nitido)
-    ctx.strokeStyle = 'rgba(13, 13, 13, 0.04)';
-    ctx.lineWidth = 1.0;
-    const gridSize = 256;
-    for (let x = 0; x <= 2048; x += gridSize) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 2048); ctx.stroke();
-    }
-    for (let y = 0; y <= 2048; y += gridSize) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2048, y); ctx.stroke();
-    }
-
-    // 2. Centri dei Massicci Alpini (Punta Gnifetti / Alagna Valley / Monterosa Massif)
-    const centers = [
-      { x: 1024 + Math.sin(layerIndex) * 150, y: 1024 + Math.cos(layerIndex) * 150, scale: 1.1 },
-      { x: 450 + layerIndex * 120, y: 1550 - layerIndex * 80, scale: 0.75 },
-      { x: 1600 - layerIndex * 100, y: 550 + layerIndex * 110, scale: 0.85 }
-    ];
-
-    // 3. Disegno delle Sagome Concentriche (Isoipse Altitudini)
-    centers.forEach((center, cIdx) => {
-      const rings = 20;
-      for (let r = 1; r <= rings; r++) {
-        const isMajor = (r % 4 === 0);
-        ctx.strokeStyle = isMajor ? 'rgba(192, 158, 90, 0.60)' : 'rgba(30, 30, 30, 0.28)';
-        ctx.lineWidth = isMajor ? 2.2 : 0.9;
-
-        ctx.beginPath();
-        const baseR = r * 48.0 * center.scale;
-        const points = 72; // Vettori ad alta definizione curvale
-
-        for (let p = 0; p <= points; p++) {
-          const angle = (p / points) * Math.PI * 2;
-          
-          // Perturbazione altimetrica naturale della montagna
-          const n1 = Math.sin(angle * 3.0 + r * 0.4 + layerIndex) * 28.0;
-          const n2 = Math.cos(angle * 6.0 - cIdx) * 16.0;
-          const finalR = baseR + n1 + n2;
-
-          const x = center.x + Math.cos(angle) * finalR;
-          const y = center.y + Math.sin(angle) * finalR;
-
-          if (p === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-
-        // 🎯 Nomenclatura di Quota Vettoriale Nitta (Space Mono)
-        if (isMajor && r > 2) {
-          ctx.fillStyle = '#C09E5A';
-          ctx.font = '700 15px "Space Mono", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${1200 + r * 160 + layerIndex * 250}m`, center.x + baseR * 0.75, center.y - baseR * 0.75);
-        }
-      }
-    });
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.generateMipmaps = true;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.needsUpdate = true;
-    return texture;
-  }
-
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
     let cleanText = caption.replace(/#\w+/g, '').replace(/@\w+/g, '').trim();
@@ -579,36 +505,62 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // ⚡ ATTIVAZIONE ANISOTROPIA x16 PER LINEE VETTORIALI SHARP IN PROSPETTIVA 3D
-    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+    // 🗺️ CREAZIONE PRIMITIVE VETTORIALI 3D NATIVE (THREE.LineLoop) PER OGNI STRATO Z
+    // Zero texture 2D spalmata = ZERO sgranatura o sfocatura a qualsiasi livello di zoom!
+    const topoGroup = new THREE.Group();
+    scene.add(topoGroup);
 
-    // 🗺️ CREAZIONE DEI PIANI TOPOGRAFICI CON ANISOTROPIA CRISTALLINA
-    const topoPlanes: { mesh: THREE.Mesh; zBase: number; speedFactor: number }[] = [];
-    const topoDepths = [-18, -42, -68, -95];
-    const topoGeo = new THREE.PlaneGeometry(90, 70);
+    const ISO_COUNT = 16;
+    const ISO_DEPTH_STEP = 5.0;
+    const ISO_TOTAL_DEPTH = ISO_COUNT * ISO_DEPTH_STEP;
+    const topoLoops: { line: THREE.LineLoop; zBase: number }[] = [];
 
-    topoDepths.forEach((zPos, idx) => {
-      const topoTex = createTopographicTexture(idx);
-      topoTex.anisotropy = maxAnisotropy; // BLINDA LA NITIDEZZA DEI TRATTI!
+    for (let k = 0; k < ISO_COUNT; k++) {
+      const zPos = -k * ISO_DEPTH_STEP;
+      const pointsCount = 120;
+      const positions = new Float32Array((pointsCount + 1) * 3);
 
-      const topoMat = new THREE.MeshBasicMaterial({
-        map: topoTex,
+      // Una sola sagoma chiusa per ciascun livello altimetrico Z
+      const baseR = 7.0 + (k % 4) * 2.8 + k * 0.45;
+      const seed1 = k * 1.7;
+      const seed2 = k * 2.3;
+
+      for (let i = 0; i <= pointsCount; i++) {
+        const theta = (i / pointsCount) * Math.PI * 2;
+        
+        // Sagoma organica altimetrica vettoriale chiusa
+        const wave1 = Math.sin(theta * 2.0 + seed1) * 2.2;
+        const wave2 = Math.cos(theta * 3.0 - seed2) * 1.5;
+        const wave3 = Math.sin(theta * 5.0 + seed1 * 0.5) * 0.8;
+        
+        const r = Math.max(2.0, baseR + wave1 + wave2 + wave3);
+
+        const x = Math.cos(theta) * r;
+        const y = Math.sin(theta) * r;
+
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = 0;
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      // Alternanza Sepia Gold e Antracite Vettoriale Nitidissimo
+      const isSepia = k % 2 === 0;
+      const lineMat = new THREE.LineBasicMaterial({
+        color: isSepia ? 0xC09E5A : 0x282828,
         transparent: true,
-        opacity: 0.35 + idx * 0.08,
-        depthTest: true,
-        depthWrite: false,
-        side: THREE.DoubleSide
+        opacity: isSepia ? 0.45 : 0.22,
+        linewidth: 1
       });
-      const topoMesh = new THREE.Mesh(topoGeo, topoMat);
-      topoMesh.position.set(0, 0, zPos);
-      scene.add(topoMesh);
 
-      topoPlanes.push({
-        mesh: topoMesh,
-        zBase: zPos,
-        speedFactor: 0.25 + idx * 0.20
-      });
-    });
+      const lineLoop = new THREE.LineLoop(geo, lineMat);
+      lineLoop.position.set(0, 0, zPos);
+      topoGroup.add(lineLoop);
+
+      topoLoops.push({ line: lineLoop, zBase: zPos });
+    }
 
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -1018,14 +970,20 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ PARALLASSE INERZIALE PULITO SULLE ISOIPSE TOPOGRAFICHE CONCENTRICHE
-      topoPlanes.forEach((planeObj) => {
-        let currentTopoZ = (planeObj.zBase + scrollZ * planeObj.speedFactor) % 110;
-        if (currentTopoZ > 10) currentTopoZ -= 110;
-        if (currentTopoZ < -100) currentTopoZ += 110;
-        
-        planeObj.mesh.position.z = currentTopoZ;
-        planeObj.mesh.rotation.z = Math.sin(elapsedTime * 0.04 + planeObj.zBase) * 0.015;
+      // 🗺️ ANIMAZIONE PARALLASSE DIVERSIFICATO SULLE SAGOME VETTORIALI 3D (THREE.LineLoop)
+      topoLoops.forEach((loopObj) => {
+        let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
+        if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
+        if (currentZ < -ISO_TOTAL_DEPTH + 5) currentZ += ISO_TOTAL_DEPTH;
+
+        loopObj.line.position.z = currentZ;
+
+        // Inclinazione e rotazione organica impercettibile al volo
+        loopObj.line.rotation.z = Math.sin(elapsedTime * 0.03 + loopObj.zBase) * 0.015;
+
+        const lineMat = loopObj.line.material as THREE.LineBasicMaterial;
+        const targetOp = (activeMesh || activeDrawer) ? 0.08 : 0.35;
+        lineMat.opacity += (targetOp - lineMat.opacity) * 0.08;
       });
 
       const targetFOV = 60 + Math.min(Math.abs(scrollVelocity) * 3.5, 20);
