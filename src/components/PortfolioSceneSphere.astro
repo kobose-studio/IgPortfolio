@@ -15,19 +15,25 @@ import portfolioData from '../portfolio_cache.json';
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
 
-  <!-- HUD Ambientale -->
+  <!-- HUD Ambientale Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[3D_PARALLAX_STATE_LOCKED]</span>
+    <span class="hud-badge hidden md:inline">[SINUOUS_SERPENTINE_TUNNEL]</span>
   </div>
   
+  <!-- ⚜️ HUD FISSO IN ALTO A DESTRA PER IL TITOLO SU HOVER -->
+  <div id="fixed-hover-hud" class="font-syne">
+    <span class="hud-label font-mono-tech">TARGET //</span>
+    <span id="fixed-hover-title">ESPLORA L'ARCHIVIO</span>
+  </div>
+
   <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
-    <span class="hidden md:inline">MOVE MOUSE FOR 3D PARALLAX</span>
+    <span class="hidden md:inline">SCROLL TO FLY THROUGH WINDING TUNNEL</span>
     <span class="hud-divider hidden md:inline">//</span>
-    <span class="hud-sepia hidden md:inline">SCROLL TO FLY</span>
+    <span class="hud-sepia hidden md:inline">[▲/▼] 3D SNOW</span>
     <span class="hud-divider">//</span>
-    <span>CLICK / TAP TO CENTER & ISOLATE</span>
+    <span>HOVER TO INSPECT / CLICK TO ISOLATE</span>
   </div>
 
   <!-- Stage Modale Editoriale -->
@@ -95,6 +101,52 @@ import portfolioData from '../portfolio_cache.json';
   .hud-divider { color: #8c8c8c; margin: 0 4px; }
   .hud-badge { color: #C09E5A; margin-left: 8px; font-size: 10px; font-weight: bold; }
   .hud-sepia { color: #C09E5A; }
+
+  /* 🏛️ FIX HUD BADGE SU HOVER IN ALTO A DESTRA */
+  #fixed-hover-hud {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 110;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-8px);
+    background: rgba(13, 13, 13, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid #C09E5A;
+    color: #ffffff;
+    padding: 8px 18px;
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 80vw;
+  }
+  @media (min-width: 768px) {
+    #fixed-hover-hud { top: 32px; right: 36px; padding: 10px 22px; font-size: 12px; }
+  }
+  #fixed-hover-hud.is-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hud-label {
+    color: #C09E5A;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  #fixed-hover-title {
+    color: #ffffff;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   #editorial-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; display: none; opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
   #editorial-stage.is-active { display: block; opacity: 1; pointer-events: auto; }
@@ -172,7 +224,7 @@ import portfolioData from '../portfolio_cache.json';
   const container = document.getElementById('canvas-container');
   if (container) {
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0xf2f2f0, 0.022);
+    scene.fog = new THREE.FogExp2(0xf2f2f0, 0.020);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 0);
@@ -186,7 +238,7 @@ import portfolioData from '../portfolio_cache.json';
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
-    // ❄️ NEVE TRICROMA 3D ANCORATA ALLA SCENA
+    // ❄️ NEVE TRICROMA 3D
     const particleCount = 240;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.38, depthTest: false, side: THREE.DoubleSide });
@@ -217,18 +269,37 @@ import portfolioData from '../portfolio_cache.json';
     scene.add(laserMesh);
 
     const vertexShader = `
-      varying vec2 vUv; uniform float uFocus;
+      varying vec2 vUv;
+      uniform float uTime;
+      uniform vec2 uMouse;
+      uniform float uVelocity;
+      uniform float uFocus;
+
       void main() {
-        vUv = uv; vec3 pos = position;
-        float dx = uv.x - 0.5; float dy = uv.y - 0.5;
-        float focusCurvature = (0.25 - (dx * dx + dy * dy)) * 0.35 * uFocus;
+        vUv = uv;
+        vec3 pos = position;
+
+        float dist = distance(uv, uMouse);
+        float wave = sin(dist * 7.0 - uTime * 2.5) * (0.03 + abs(uVelocity) * 0.12);
+        float focusCurvature = (0.25 - (uv.x - 0.5)*(uv.x - 0.5) - (uv.y - 0.5)*(uv.y - 0.5)) * 0.35 * uFocus;
+
+        pos.z += wave * (1.0 - uFocus); // Annullamento durante l'ispezione della foto
         pos.z += focusCurvature;
+
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `;
 
     const fragmentShader = `
-      varying vec2 vUv; uniform sampler2D uTexture; uniform float uFocus; uniform float uOpacity; uniform float uTexAspect;
+      varying vec2 vUv;
+      uniform sampler2D uTexture;
+      uniform float uTime;
+      uniform float uVelocity;
+      uniform float uFocus;
+      uniform float uOpacity;
+      uniform float uTexAspect;
+      uniform vec2 uMouse;
+
       void main() {
         vec2 uv = vUv;
         float planeAspect = 2.2 / 2.8; 
@@ -238,15 +309,26 @@ import portfolioData from '../portfolio_cache.json';
           else st.y *= uTexAspect / planeAspect;
         }
         uv = st + 0.5;
-        vec4 texColor = texture2D(uTexture, uv);
-        
+
+        float distFromCenter = length(vUv - vec2(0.5));
+        float distortion = sin(uv.y * 12.0 + uTime * 3.0) * (0.003 + abs(uVelocity) * 0.015 + (uFocus * 0.001));
+        uv.x += distortion;
+
+        float chromaMask = smoothstep(0.10, 0.75, distFromCenter);
+        vec2 redOffset  = (vec2(0.0025, 0.001) * (1.0 + uFocus * 0.5) * chromaMask) + vec2(uVelocity * 0.01, 0.0);
+        vec2 blueOffset = (vec2(-0.0025, -0.001) * (1.0 + uFocus * 0.5) * chromaMask) - vec2(uVelocity * 0.01, 0.0);
+
+        float r = texture2D(uTexture, uv + redOffset).r;
+        float g = texture2D(uTexture, uv).g;
+        float b = texture2D(uTexture, uv + blueOffset).b;
+        vec3 color = vec3(r, g, b);
+
         if (uFocus > 0.01) {
-          float distFromCenter = length(vUv - vec2(0.5));
           float vignette = smoothstep(0.75, 0.20, distFromCenter);
           vec3 warmGalleryLight = vec3(1.02, 0.99, 0.95);
-          texColor.rgb = mix(texColor.rgb, texColor.rgb * warmGalleryLight * (0.88 + 0.12 * vignette), uFocus);
+          color = mix(color, color * warmGalleryLight * (0.88 + 0.12 * vignette), uFocus);
         }
-        gl_FragColor = vec4(texColor.rgb, uOpacity * texColor.a);
+        gl_FragColor = vec4(color, uOpacity);
       }
     `;
 
@@ -260,22 +342,29 @@ import portfolioData from '../portfolio_cache.json';
     const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
     const badgeGeometry = new THREE.PlaneGeometry(0.22, 0.25);
 
-    // 🌌 MATEMATICA DEL VORTICE AUREO A MULTI-RAGGIO
     const SPACING_Z = 2.8;
     const TOTAL_DEPTH = mediaItems.length * SPACING_Z;
     const GOLDEN_ANGLE = 2.399963;
 
     mediaItems.forEach((item: any, index: number) => {
-      let imageUrl = item.media_url || item.thumbnail_url;
-      if (!imageUrl) return;
+      let initialUrl = item.thumbnail_url || item.media_url;
+      if (!initialUrl) return;
 
       const material = new THREE.ShaderMaterial({
         vertexShader, fragmentShader,
-        uniforms: { uTexture: { value: null }, uTexAspect: { value: 1.0 }, uFocus: { value: 0.0 }, uOpacity: { value: 1.0 } },
+        uniforms: { 
+          uTexture: { value: null }, 
+          uTexAspect: { value: 1.0 }, 
+          uFocus: { value: 0.0 }, 
+          uOpacity: { value: 1.0 },
+          uTime: { value: 0 },
+          uVelocity: { value: 0 },
+          uMouse: { value: new THREE.Vector2(0.5, 0.5) }
+        },
         side: THREE.DoubleSide, transparent: true
       });
 
-      const texture = textureLoader.load(imageUrl, (tex) => {
+      const texture = textureLoader.load(initialUrl, (tex) => {
         if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
       });
       material.uniforms.uTexture.value = texture;
@@ -283,7 +372,7 @@ import portfolioData from '../portfolio_cache.json';
       const mesh = new THREE.Mesh(geometry, material);
       
       const theta = index * GOLDEN_ANGLE;
-      const radiusLayer = 5.5 + (index % 4) * 3.2; // Raggio tridimensionale variabile per spezzare la piattezza!
+      const radiusLayer = 5.5 + (index % 4) * 3.2;
       
       const baseX = radiusLayer * Math.cos(theta);
       const baseY = radiusLayer * Math.sin(theta);
@@ -321,21 +410,23 @@ import portfolioData from '../portfolio_cache.json';
     let activeMesh: THREE.Mesh | null = null;
     let activeMeshIndex = -1;
 
-    // 🔒 STATE-LOCK MEMORY: Salva la posizione esatta prima di aprire una foto!
     let savedScrollZ: number | null = null;
-    let scrollZ = 0, targetScrollZ = 0, isDragging = false, dragStartY = 0;
+    let scrollZ = 0, targetScrollZ = 0, prevScrollZ = 0, scrollVelocity = 0, isDragging = false, dragStartY = 0;
     const DRAG_MULTIPLIER = 0.08;
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
 
     const editorialStage = document.getElementById('editorial-stage');
     const brandLogo = document.getElementById('global-brand-logo'); 
     const videoStage = document.getElementById('video-stage');
+    
+    // ⚜️ ELEMENTI HUD FISSO IN ALTO A DESTRA
+    const fixedHoverHud = document.getElementById('fixed-hover-hud');
+    const fixedHoverTitle = document.getElementById('fixed-hover-title');
 
     function closeModal() {
       if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
       activeMesh = null; activeMeshIndex = -1;
       
-      // 🎯 RIPRISTINO PERFETTO DELLA POSIZIONE DI SCROLL ORIGINALE
       if (savedScrollZ !== null) {
         targetScrollZ = savedScrollZ;
         savedScrollZ = null;
@@ -348,13 +439,28 @@ import portfolioData from '../portfolio_cache.json';
     function openModalForMesh(mesh: THREE.Mesh) {
       if (activeMesh && activeMesh.userData.coverTexture) activeMesh.material.uniforms.uTexture.value = activeMesh.userData.coverTexture;
       
-      // 🔒 MEMORIZZA LO SCROLL PRIMA DELL'INSPEZIONE
       if (!activeMesh) {
         savedScrollZ = targetScrollZ;
       }
 
       activeMesh = mesh; activeMeshIndex = meshes.indexOf(mesh);
       const data = activeMesh.userData;
+
+      if (data.media_url && data.media_url !== data.thumbnail_url) {
+        textureLoader.load(data.media_url, (highResTex) => {
+          if (activeMesh === mesh) {
+            activeMesh.material.uniforms.uTexture.value = highResTex;
+            if (highResTex.image) activeMesh.material.uniforms.uTexAspect.value = highResTex.image.width / highResTex.image.height;
+          }
+        });
+      }
+
+      const focusTargetZ = 4.5;
+      let currentZWrap = (data.zBase + scrollZ) % TOTAL_DEPTH;
+      if (currentZWrap > 10) currentZWrap -= TOTAL_DEPTH;
+      if (currentZWrap < -TOTAL_DEPTH + 10) currentZWrap += TOTAL_DEPTH;
+
+      targetScrollZ += (focusTargetZ - currentZWrap);
 
       const workCounter = document.getElementById('work-counter');
       if (workCounter) workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
@@ -401,6 +507,7 @@ import portfolioData from '../portfolio_cache.json';
       }
 
       editorialStage?.classList.add('is-active'); brandLogo?.classList.add('is-focused'); 
+      if (fixedHoverHud) fixedHoverHud.classList.remove('is-active');
     }
 
     function navigateWork(direction: number) {
@@ -429,9 +536,29 @@ import portfolioData from '../portfolio_cache.json';
     window.addEventListener('pointerdown', (e) => { isDragging = true; dragStartY = e.clientY; });
     
     window.addEventListener('pointermove', (e) => {
-      // 👁️ TRACCIAMENTO MOUSE PER PARALLASSE DENSITÀ 3D
       mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 2;
+
+      // ⚜️ RAYCASTING ED ATTIVAZIONE BADGE HUD FISSO IN ALTO A DESTRA
+      if (!activeMesh && !isDragging) {
+        const rectDom = renderer.domElement.getBoundingClientRect();
+        clickMouse.x = ((e.clientX - rectDom.left) / rectDom.width) * 2 - 1; 
+        clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
+
+        camera.updateMatrixWorld(true);
+        raycaster.setFromCamera(clickMouse, camera);
+        const intersects = raycaster.intersectObjects(meshes, false);
+
+        if (intersects.length > 0 && fixedHoverHud && fixedHoverTitle) {
+          const hoveredMesh = intersects[0].object as THREE.Mesh;
+          fixedHoverTitle.innerText = hoveredMesh.userData.title || "OPERA D'ARCHIVIO";
+          fixedHoverHud.classList.add('is-active');
+        } else if (fixedHoverHud) {
+          fixedHoverHud.classList.remove('is-active');
+        }
+      } else if (fixedHoverHud) {
+        fixedHoverHud.classList.remove('is-active');
+      }
 
       if (isDragging && !activeMesh) {
         const deltaY = e.clientY - dragStartY;
@@ -465,28 +592,50 @@ import portfolioData from '../portfolio_cache.json';
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      // Smooth Lerp per mouse X/Y
+      prevScrollZ = scrollZ;
+      scrollZ += (targetScrollZ - scrollZ) * 0.08;
+      scrollVelocity = scrollZ - prevScrollZ;
+
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      // 👁️ DUAL PARALLASSE STEREO IN NORMALE SCROLLING
+      // 🚀 SPEED FOV WARP
+      const targetFOV = 60 + Math.min(Math.abs(scrollVelocity) * 3.5, 20);
+      camera.fov += (targetFOV - camera.fov) * 0.1;
+      camera.updateProjectionMatrix();
+
+      const maxTilt = 0.22;
+
+      // 🐍 CURVA SINUOSA DEL TUBO DI FIBONACCI (SERPENTINA 3D NEL VOLO)
+      const curveFreqX = 0.04;
+      const curveFreqY = 0.03;
+      const curveAmpX = 7.5;
+      const curveAmpY = 5.0;
+
       if (!activeMesh) {
-        worldGroup.rotation.y += (mouse.x * 0.28 - worldGroup.rotation.y) * 0.05;
-        worldGroup.rotation.x += (-mouse.y * 0.28 - worldGroup.rotation.x) * 0.05;
-        camera.position.x += (mouse.x * 1.8 - camera.position.x) * 0.05;
-        camera.position.y += (-mouse.y * 1.8 - camera.position.y) * 0.05;
+        // Parallasse inclinazione da mouse
+        worldGroup.rotation.y += (Math.max(-maxTilt, Math.min(maxTilt, mouse.x * 0.22)) - worldGroup.rotation.y) * 0.05;
+        worldGroup.rotation.x += (Math.max(-maxTilt, Math.min(maxTilt, -mouse.y * 0.22)) - worldGroup.rotation.x) * 0.05;
+
+        camera.position.x += (mouse.x * 1.2 - camera.position.x) * 0.05;
+        camera.position.y += (-mouse.y * 1.2 - camera.position.y) * 0.05;
+        
+        // 🎯 ANCORAGGIO DELLO SGUARDO LUNGO LA CURVA DEL TUNNEL IN AVANTI!
+        const camLookX = Math.sin((-18 - scrollZ) * curveFreqX) * curveAmpX * 0.5;
+        const camLookY = Math.cos((-18 - scrollZ) * curveFreqY) * curveAmpY * 0.5;
+        camera.lookAt(camLookX, camLookY, -20);
       } else {
-        // Annulla il parallasse in ispezione per bloccare l'inquadratura perfetta
         worldGroup.rotation.y += (0 - worldGroup.rotation.y) * 0.08;
         worldGroup.rotation.x += (0 - worldGroup.rotation.x) * 0.08;
+
         camera.position.x += (0 - camera.position.x) * 0.08;
         camera.position.y += (0 - camera.position.y) * 0.08;
+        camera.lookAt(0, 0, -10);
       }
 
-      scrollZ += (targetScrollZ - scrollZ) * 0.08;
       const pulseOpacity = 0.70 + Math.sin(elapsedTime * 2.8) * 0.28;
 
-      // 💫 SIMULAZIONE FISICA NEVE TRICROMA IN PRIMO PIANO
+      // 💫 FISICA NEVE TRICROMA
       for (let p = 0; p < particleCount; p++) {
         const pData = particleData[p];
         pData.y -= pData.vy;
@@ -503,7 +652,7 @@ import portfolioData from '../portfolio_cache.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA DI SCORRIMENTO TOROIDALE E CENTRATURA ASSOLUTA
+      // 🌌 MATEMATICA VORTICE & SERPENTINA AUREA
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
@@ -512,28 +661,38 @@ import portfolioData from '../portfolio_cache.json';
         if (currentZ > 10) currentZ -= TOTAL_DEPTH;
         if (currentZ < -TOTAL_DEPTH + 10) currentZ += TOTAL_DEPTH;
 
+        // 🐍 ONDEGIAMENTO SERPENTINO SULLE COORDINATE BASE DEL TUBO
+        const tunnelCurveX = Math.sin((currentZ - scrollZ) * curveFreqX) * curveAmpX;
+        const tunnelCurveY = Math.cos((currentZ - scrollZ) * curveFreqY) * curveAmpY;
+
+        const targetX = data.baseX + tunnelCurveX;
+        const targetY = data.baseY + tunnelCurveY;
+
+        mat.uniforms.uTime.value = elapsedTime;
+        mat.uniforms.uVelocity.value = scrollVelocity;
+
         if (activeMesh) {
            if (mesh === activeMesh) {
-             // 🎯 CENTRATURA PERFETTA E DIRITTA DAVANTI AGLI OCCHI (0, 0, -4.5)
              const isMobile = window.innerWidth < 640;
-             const targetX = 0;
-             const targetY = isMobile ? -0.45 : 0.0;
-             const targetZ = -4.5;
+             const isolationX = 0;
+             const isolationY = isMobile ? -0.45 : 0.0;
+             const isolationZ = -4.5;
 
-             mesh.position.x += (targetX - mesh.position.x) * 0.1;
-             mesh.position.y += (targetY - mesh.position.y) * 0.1;
-             mesh.position.z += (targetZ - mesh.position.z) * 0.1;
+             mesh.position.x += (isolationX - mesh.position.x) * 0.1;
+             mesh.position.y += (isolationY - mesh.position.y) * 0.1;
+             mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
 
-             // Annulla ogni rotazione obliqua
-             mesh.rotation.x += (0 - mesh.rotation.x) * 0.1;
-             mesh.rotation.y += (0 - mesh.rotation.y) * 0.1;
+             // 🎯 MICRO-TILT ULTRA STABILIZZATO (0.04 rad)
+             mesh.rotation.y += (mouse.x * 0.04 - mesh.rotation.y) * 0.1;
+             mesh.rotation.x += (-mouse.y * 0.04 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
 
+             mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
              mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (1.0 - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // ⚜️ CORNICE LASER D'ORO
+             // ⚜️ LASER FRAMEWORK
              laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
              const arr = posAttr.array as Float32Array;
@@ -563,8 +722,8 @@ import portfolioData from '../portfolio_cache.json';
              posAttr.needsUpdate = true;
 
            } else {
-             mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
-             mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
+             mesh.position.x += (targetX - mesh.position.x) * 0.1;
+             mesh.position.y += (targetY - mesh.position.y) * 0.1;
              mesh.position.z = currentZ;
 
              mesh.rotation.x += (data.rotX - mesh.rotation.x) * 0.1;
@@ -575,8 +734,8 @@ import portfolioData from '../portfolio_cache.json';
              if (badgeMat) badgeMat.opacity = 0.0;
            }
         } else {
-           mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
-           mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
+           mesh.position.x += (targetX - mesh.position.x) * 0.1;
+           mesh.position.y += (targetY - mesh.position.y) * 0.1;
            mesh.position.z = currentZ;
 
            mesh.rotation.x += (data.rotX - mesh.rotation.x) * 0.1;
