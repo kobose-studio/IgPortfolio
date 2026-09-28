@@ -527,7 +527,7 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE - GERARCHIA DI SPESSORE (ARCHITECTURAL PASS)
+    // 🗺️ PRIMITIVE VETTORIALI 3D NATIVE - GERARCHIA DI SPESSORE ED INCISIONE
     const topoGroup = new THREE.Group();
     scene.add(topoGroup);
 
@@ -565,7 +565,7 @@ import brandProducts from '../brand_products.json';
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-      // 🎯 INCISIONE VETTORIALE AD ALTO CONTRASTO (Sepia Gold 0.75 | Antracite 0.42)
+      // 🎯 CONTRASTO GERARCHICO DI TRATTO (Sepia Gold 0.75 | Antracite 0.42)
       const isSepia = k % 2 === 0;
       const lineMat = new THREE.LineBasicMaterial({
         color: isSepia ? 0xC09E5A : 0x282828,
@@ -744,11 +744,10 @@ import brandProducts from '../brand_products.json';
       mesh.position.set(baseX, baseY, zBase);
       mesh.rotation.set(rotX, rotY, 0);
 
-      // 🏔️ ANELLO TOPOGRAFICO PROCEDURALE ALTAMENTE DIVERSIFICATO PER OGNI NODO FOTO (FIBO-HARMONIC ENGINE)
+      // 🏔️ ANELLO TOPOGRAFICO PROCEDURALE AMPIO E DIVERSIFICATO (FIBO-HARMONIC)
       const ringPointsCount = 56;
       const ringPositions = new Float32Array((ringPointsCount + 1) * 3);
       
-      // Parametri procedurali unici calcolati sull'indice dell'immagine
       const baseRX = 1.95 + (index % 5) * 0.15 + Math.sin(index * 1.7) * 0.20;
       const baseRY = 2.45 + (index % 4) * 0.18 + Math.cos(index * 2.3) * 0.25;
       const hFreq1 = 2 + (index % 4);
@@ -768,7 +767,6 @@ import brandProducts from '../brand_products.json';
       const ringGeo = new THREE.BufferGeometry();
       ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPositions, 3));
       
-      // Alternanza di tono dorato/antracite per gli anelli dei nodi
       const isRingSepia = (index % 3 !== 0);
       const ringMat = new THREE.LineBasicMaterial({ 
         color: isRingSepia ? 0xC09E5A : 0x282828, 
@@ -1048,7 +1046,7 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA (Sepia 0.75 | Antracite 0.42)
+      // 🗺️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA
       topoLoops.forEach((loopObj) => {
         let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
         if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
@@ -1160,23 +1158,29 @@ import brandProducts from '../brand_products.json';
         } else if (activeMesh) {
            if (mesh === activeMesh) {
              const isMobile = window.innerWidth < 640;
-             const isolationX = 0;
-             const isolationY = isMobile ? -0.45 : 0.0;
+
+             // 🎯 PARALLASSE E TILT SINCRONIZZATO IN FOCUS MODE (FOTO + CORNICE)
+             const isolationX = mouse.x * 0.35;
+             const isolationY = (isMobile ? -0.45 : 0.0) + mouse.y * 0.25;
              const isolationZ = -4.5;
 
-             mesh.position.x += (isolationX - mesh.position.x) * 0.1;
-             mesh.position.y += (isolationY - mesh.position.y) * 0.1;
-             mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
+             mesh.position.x += (isolationX - mesh.position.x) * 0.08;
+             mesh.position.y += (isolationY - mesh.position.y) * 0.08;
+             mesh.position.z += (isolationZ - mesh.position.z) * 0.08;
 
-             mesh.rotation.y += (mouse.x * 0.008 - mesh.rotation.y) * 0.1;
-             mesh.rotation.x += (-mouse.y * 0.008 - mesh.rotation.x) * 0.1;
-             mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
+             // TILT PROSPETTICO SINCRONO GUIDATO DAL MOUSE
+             const targetRotY = mouse.x * 0.08;
+             const targetRotX = -mouse.y * 0.08;
+             mesh.rotation.y += (targetRotY - mesh.rotation.y) * 0.08;
+             mesh.rotation.x += (targetRotX - mesh.rotation.x) * 0.08;
+             mesh.rotation.z += (0 - mesh.rotation.z) * 0.08;
 
              mat.uniforms.uMouse.value.set((mouse.x + 1) * 0.5, (mouse.y + 1) * 0.5);
              mat.uniforms.uFocus.value += (1.0 - mat.uniforms.uFocus.value) * 0.1;
              mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
+             // AGGIORNAMENTO MATRICE WORLD PER LA CORNICE LASER
              mesh.updateMatrixWorld(true);
              laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
