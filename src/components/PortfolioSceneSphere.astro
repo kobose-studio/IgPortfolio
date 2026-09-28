@@ -565,7 +565,7 @@ import brandProducts from '../brand_products.json';
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-      // 🎯 CONTRASTO GERARCHICO DI TRATTO (Sepia Gold 0.75 | Antracite 0.42)
+      // CONTRASTO GERARCHICO DI TRATTO (Sepia Gold 0.75 | Antracite 0.42)
       const isSepia = k % 2 === 0;
       const lineMat = new THREE.LineBasicMaterial({
         color: isSepia ? 0xC09E5A : 0x282828,
@@ -617,6 +617,7 @@ import brandProducts from '../brand_products.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
+    // 🌊 VERTEX SHADER SOTTILE CON AZZERAMENTO COMPLETO DELL'ONDEGIAMENTO IN FOCUS MODE!
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -631,12 +632,14 @@ import brandProducts from '../brand_products.json';
         float dist = distance(uv, uMouse);
         float wave = sin(dist * 7.0 - uTime * 2.5) * (0.03 + abs(uVelocity) * 0.12);
         
+        // 🎯 DISATTIVAZIONE ONDA SHADER SUL MESH FOTOGRAFICO IN ISPEZIONE
         pos.z += wave * (1.0 - uFocus);
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `;
 
+    // 🎯 FRAGMENT SHADER: AZZERAMENTO RIGOROSO DELLA DISTORSIONE UV LIQUIDA SUI BORDI FOTO
     const fragmentShader = `
       varying vec2 vUv;
       uniform sampler2D uTexture;
@@ -658,7 +661,10 @@ import brandProducts from '../brand_products.json';
         uv = st + 0.5;
 
         float distFromCenter = length(vUv - vec2(0.5));
-        float distortion = sin(uv.y * 12.0 + uTime * 3.0) * (0.003 + abs(uVelocity) * 0.015 + (uFocus * 0.001));
+
+        // 🎯 AZZERAMENTO DISTORSIONE BORDISSIMO UV (1.0 - uFocus): 
+        // Quando uFocus = 1.0 la distorsione liquida si azzera del tutto, rendendo i bordi della foto perfettamente dritti come il frame!
+        float distortion = sin(uv.y * 12.0 + uTime * 3.0) * (0.003 + abs(uVelocity) * 0.015) * (1.0 - uFocus);
         uv.x += distortion;
 
         float chromaMask = smoothstep(0.10, 0.75, distFromCenter);
@@ -1141,7 +1147,6 @@ import brandProducts from '../brand_products.json';
 
         let targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? (data.media_type === 'VIDEO' ? 0.0 : 1.0 * loadedOpacity) : 1.0 * loadedOpacity);
 
-        // 🏔️ OPACITÀ ANELLI DEI NODI FOTO ELEVATA A 0.60
         if (topoRingMat) {
           const targetRingOp = (mesh === activeMesh || activeDrawer || !matchesFilter) ? 0.0 : (data.isLoaded ? 0.60 : 0.0);
           topoRingMat.opacity += (targetRingOp - topoRingMat.opacity) * 0.1;
@@ -1186,7 +1191,8 @@ import brandProducts from '../brand_products.json';
              const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
              const arr = posAttr.array as Float32Array;
              
-             const w = 1.28; const h = 1.58; const zOff = 0.05; const len = 0.25;
+             // 🎯 CORNICE LASER PERFETTAMENTE RETTANGOLARE ADIACENTE AI BORDI DRITTI DELLA FOTO
+             const w = 1.12; const h = 1.42; const zOff = 0.05; const len = 0.25;
              let ptr = 0;
 
              function addSeg(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
