@@ -27,10 +27,10 @@ import brandProducts from '../brand_products.json';
     <button id="btn-audio-toggle" class="hud-menu-btn text-sepia">🔊 SOUND: OFF</button>
   </nav>
 
-  <!-- HUD Right -->
-  <div id="hud-right-vertical" class="hud-element font-mono-tech">
+  <!-- 🎯 HUD RIGHT VERTICAL CON FILTRO DINAMICO INTERATTIVO -->
+  <div id="hud-right-vertical" class="hud-element font-mono-tech pointer-events-auto">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[3D_VECTOR_CONTOUR_LOOPS]</span>
+    <button id="btn-filter-toggle" class="hud-badge text-sepia cursor-pointer pointer-events-auto bg-transparent border-none font-mono-tech p-0 font-bold">[ FILTER: ALL ]</button>
   </div>
   
   <!-- HUD Hover Target -->
@@ -414,6 +414,28 @@ import brandProducts from '../brand_products.json';
     toggleAudio();
   });
 
+  // 🎯 FILTRO CINETICO ARCHIVIO MEDIA: ALL -> CAROUSEL -> VIDEO -> ALL
+  let currentFilter: 'ALL' | 'CAROUSEL_ALBUM' | 'VIDEO' = 'ALL';
+  const btnFilterToggle = document.getElementById('btn-filter-toggle');
+
+  function cycleFilter() {
+    if (currentFilter === 'ALL') {
+      currentFilter = 'CAROUSEL_ALBUM';
+      if (btnFilterToggle) btnFilterToggle.innerText = '[ FILTER: CAROUSEL ]';
+    } else if (currentFilter === 'CAROUSEL_ALBUM') {
+      currentFilter = 'VIDEO';
+      if (btnFilterToggle) btnFilterToggle.innerText = '[ FILTER: VIDEO ]';
+    } else {
+      currentFilter = 'ALL';
+      if (btnFilterToggle) btnFilterToggle.innerText = '[ FILTER: ALL ]';
+    }
+  }
+
+  btnFilterToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    cycleFilter();
+  });
+
   // ⚜️ LOGICA DRAWERS MENU
   let activeDrawer: HTMLElement | null = null;
 
@@ -457,6 +479,74 @@ import brandProducts from '../brand_products.json';
       }
     });
   });
+
+  // 🗺️ HIGH-DPI 2048x2048 VECTOR TOPOGRAPHIC ENGINE
+  function createTopographicTexture(layerIndex: number) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 2048; canvas.height = 2048;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.CanvasTexture(canvas);
+
+    ctx.clearRect(0, 0, 2048, 2048);
+
+    ctx.strokeStyle = 'rgba(13, 13, 13, 0.04)';
+    ctx.lineWidth = 1.0;
+    const gridSize = 256;
+    for (let x = 0; x <= 2048; x += gridSize) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 2048); ctx.stroke();
+    }
+    for (let y = 0; y <= 2048; y += gridSize) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2048, y); ctx.stroke();
+    }
+
+    const centers = [
+      { x: 1024 + Math.sin(layerIndex) * 150, y: 1024 + Math.cos(layerIndex) * 150, scale: 1.1 },
+      { x: 450 + layerIndex * 120, y: 1550 - layerIndex * 80, scale: 0.75 },
+      { x: 1600 - layerIndex * 100, y: 550 + layerIndex * 110, scale: 0.85 }
+    ];
+
+    centers.forEach((center, cIdx) => {
+      const rings = 20;
+      for (let r = 1; r <= rings; r++) {
+        const isMajor = (r % 4 === 0);
+        ctx.strokeStyle = isMajor ? 'rgba(192, 158, 90, 0.60)' : 'rgba(30, 30, 30, 0.28)';
+        ctx.lineWidth = isMajor ? 2.2 : 0.9;
+
+        ctx.beginPath();
+        const baseR = r * 48.0 * center.scale;
+        const points = 72;
+
+        for (let p = 0; p <= points; p++) {
+          const angle = (p / points) * Math.PI * 2;
+          const n1 = Math.sin(angle * 3.0 + r * 0.4 + layerIndex) * 28.0;
+          const n2 = Math.cos(angle * 6.0 - cIdx) * 16.0;
+          const finalR = baseR + n1 + n2;
+
+          const x = center.x + Math.cos(angle) * finalR;
+          const y = center.y + Math.sin(angle) * finalR;
+
+          if (p === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        if (isMajor && r > 2) {
+          ctx.fillStyle = '#C09E5A';
+          ctx.font = '700 15px "Space Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${1200 + r * 160 + layerIndex * 250}m`, center.x + baseR * 0.75, center.y - baseR * 0.75);
+        }
+      }
+    });
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
+    return texture;
+  }
 
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
@@ -505,8 +595,9 @@ import brandProducts from '../brand_products.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // 🗺️ CREAZIONE PRIMITIVE VETTORIALI 3D NATIVE (THREE.LineLoop) PER OGNI STRATO Z
-    // Zero texture 2D spalmata = ZERO sgranatura o sfocatura a qualsiasi livello di zoom!
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    // 🗺️ CREAZIONE PRIMITIVE VETTORIALI 3D NATIVE (THREE.LineLoop)
     const topoGroup = new THREE.Group();
     scene.add(topoGroup);
 
@@ -520,7 +611,6 @@ import brandProducts from '../brand_products.json';
       const pointsCount = 120;
       const positions = new Float32Array((pointsCount + 1) * 3);
 
-      // Una sola sagoma chiusa per ciascun livello altimetrico Z
       const baseR = 7.0 + (k % 4) * 2.8 + k * 0.45;
       const seed1 = k * 1.7;
       const seed2 = k * 2.3;
@@ -528,7 +618,6 @@ import brandProducts from '../brand_products.json';
       for (let i = 0; i <= pointsCount; i++) {
         const theta = (i / pointsCount) * Math.PI * 2;
         
-        // Sagoma organica altimetrica vettoriale chiusa
         const wave1 = Math.sin(theta * 2.0 + seed1) * 2.2;
         const wave2 = Math.cos(theta * 3.0 - seed2) * 1.5;
         const wave3 = Math.sin(theta * 5.0 + seed1 * 0.5) * 0.8;
@@ -546,7 +635,6 @@ import brandProducts from '../brand_products.json';
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-      // Alternanza Sepia Gold e Antracite Vettoriale Nitidissimo
       const isSepia = k % 2 === 0;
       const lineMat = new THREE.LineBasicMaterial({
         color: isSepia ? 0xC09E5A : 0x282828,
@@ -862,8 +950,19 @@ import brandProducts from '../brand_products.json';
 
     function navigateWork(direction: number) {
       if (meshes.length === 0 || activeMeshIndex === -1) return;
-      const nextIdx = (activeMeshIndex + direction + meshes.length) % meshes.length;
-      openModalForMesh(meshes[nextIdx]);
+      
+      // Se c'è un filtro attivo, naviga solo tra le opere filtrate!
+      let filteredMeshes = meshes;
+      if (currentFilter !== 'ALL') {
+        filteredMeshes = meshes.filter(m => m.userData.media_type === currentFilter);
+      }
+      if (filteredMeshes.length === 0) return;
+
+      let currentFilteredIdx = filteredMeshes.indexOf(activeMesh!);
+      if (currentFilteredIdx === -1) currentFilteredIdx = 0;
+
+      const nextFilteredIdx = (currentFilteredIdx + direction + filteredMeshes.length) % filteredMeshes.length;
+      openModalForMesh(filteredMeshes[nextFilteredIdx]);
     }
 
     document.getElementById('btn-prev-work')?.addEventListener('click', (e) => { e.stopPropagation(); navigateWork(-1); });
@@ -908,7 +1007,15 @@ import brandProducts from '../brand_products.json';
 
         camera.updateMatrixWorld(true);
         raycaster.setFromCamera(clickMouse, camera);
-        const intersects = raycaster.intersectObjects(meshes, false);
+
+        // 🎯 ESCLUDIAMO DALLA INTERSEZIONE LE OPERE FILTRATE VIA
+        const visibleCandidates = meshes.filter(m => {
+          if (!m.userData.isLoaded) return false;
+          if (currentFilter === 'ALL') return true;
+          return m.userData.media_type === currentFilter;
+        });
+
+        const intersects = raycaster.intersectObjects(visibleCandidates, false);
 
         if (intersects.length > 0 && fixedHoverHud && fixedHoverTitle) {
           const hoveredMesh = intersects[0].object as THREE.Mesh;
@@ -943,7 +1050,14 @@ import brandProducts from '../brand_products.json';
       clickMouse.y = -((e.clientY - rectDom.top) / rectDom.height) * 2 + 1;
       
       camera.updateMatrixWorld(true);
-      const intersects = raycaster.intersectObjects(meshes, false);
+
+      const visibleCandidates = meshes.filter(m => {
+        if (!m.userData.isLoaded) return false;
+        if (currentFilter === 'ALL') return true;
+        return m.userData.media_type === currentFilter;
+      });
+
+      const intersects = raycaster.intersectObjects(visibleCandidates, false);
       if (intersects.length > 0) {
         openModalForMesh(intersects[0].object as THREE.Mesh);
       }
@@ -970,15 +1084,13 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ ANIMAZIONE PARALLASSE DIVERSIFICATO SULLE SAGOME VETTORIALI 3D (THREE.LineLoop)
+      // 🗺️ PARALLASSE VETTORIALE SULLE ISOIPSE TOPOGRAFICHE CONCENTRICHE
       topoLoops.forEach((loopObj) => {
         let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
         if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
         if (currentZ < -ISO_TOTAL_DEPTH + 5) currentZ += ISO_TOTAL_DEPTH;
 
         loopObj.line.position.z = currentZ;
-
-        // Inclinazione e rotazione organica impercettibile al volo
         loopObj.line.rotation.z = Math.sin(elapsedTime * 0.03 + loopObj.zBase) * 0.015;
 
         const lineMat = loopObj.line.material as THREE.LineBasicMaterial;
@@ -1048,7 +1160,7 @@ import brandProducts from '../brand_products.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA VORTICE & DISSOLVENZA PULITA DALLA NEBBIA
+      // 🌌 MATEMATICA VORTICE & DISSOLVENZA SHADER SUI MEDIA FILTRATI
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
@@ -1060,7 +1172,10 @@ import brandProducts from '../brand_products.json';
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
 
-        const loadedOpacity = data.isLoaded ? 1.0 : 0.0;
+        // 🎯 DISSOLVENZA GLSL SHADER: Se l'opera non passa il filtro, sfuma a 0.0!
+        const matchesFilter = (currentFilter === 'ALL') || (data.media_type === currentFilter);
+        const loadedOpacity = (data.isLoaded && matchesFilter) ? 1.0 : 0.0;
+
         const targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? 1.0 * loadedOpacity : 1.0 * loadedOpacity);
 
         if (activeDrawer) {
@@ -1141,7 +1256,7 @@ import brandProducts from '../brand_products.json';
 
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.08;
-           if (badgeMat) badgeMat.opacity = data.isLoaded ? pulseOpacity : 0.0;
+           if (badgeMat) badgeMat.opacity = (data.isLoaded && matchesFilter) ? pulseOpacity : 0.0;
 
            laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
         }
