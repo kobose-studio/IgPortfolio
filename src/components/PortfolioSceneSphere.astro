@@ -25,7 +25,7 @@ import brandProducts from '../brand_products.json';
   <!-- HUD Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span id="hud-stream-status" class="hud-badge hidden md:inline">[INSTANT_CRYSTAL_CONSTELLATION]</span>
+    <span id="hud-stream-status" class="hud-badge hidden md:inline">[WIREFRAME_STREAM_ACTIVE]</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -41,7 +41,7 @@ import brandProducts from '../brand_products.json';
     <span class="hidden md:inline">MOVE MOUSE TO STEER // SCROLL FOR PIXEL STORM</span>
   </div>
 
-  <!-- ==================== DRAWER 1: MANIFESTO (TITOLO AGGIORNATO) ==================== -->
+  <!-- ==================== DRAWER 1: MANIFESTO ==================== -->
   <div id="drawer-manifesto" class="editorial-drawer">
     <div class="drawer-content-box">
       <div class="drawer-header font-mono-tech">
@@ -67,7 +67,7 @@ import brandProducts from '../brand_products.json';
     </div>
   </div>
 
-  <!-- ==================== DRAWER 2: OUTDOOR GEAR (CON PLACEHOLDER BOX IMMAGINE) ==================== -->
+  <!-- ==================== DRAWER 2: OUTDOOR GEAR ==================== -->
   <div id="drawer-gear" class="editorial-drawer">
     <div class="drawer-content-box gear-wide-box">
       <div class="drawer-header font-mono-tech">
@@ -329,43 +329,43 @@ import brandProducts from '../brand_products.json';
   import * as THREE from 'three';
   import rawData from '../portfolio_cache.json';
 
-  // ⚜️ GENERAZIONE ISTANTANEA TESSERA MINERALE PROCEDURALE (0ms FRAME-ZERO PORTAL)
-  function createPlaceholderTexture(index: number) {
+  // ⚜️ UNICA TEXTURE CONDIVISA PER TELAIO WIREFRAME TRASPARENTE A 0ms (MOMENTUM VELOCE)
+  function createSharedWireframeTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 256; canvas.height = 320;
+    canvas.width = 128; canvas.height = 160;
     const ctx = canvas.getContext('2d');
     if (!ctx) return new THREE.CanvasTexture(canvas);
     
-    // Fondo minerale caldo
-    ctx.fillStyle = '#f4f4f0';
-    ctx.fillRect(0, 0, 256, 320);
+    // Fondo completamente TRASPARENTE (zero mattoni opachi)
+    ctx.clearRect(0, 0, 128, 160);
     
     // Cornice sottile Sepia Gold
     ctx.strokeStyle = '#C09E5A';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(10, 10, 236, 300);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(6, 6, 116, 148);
     
-    // Reticolo di allineamento tattico
-    ctx.strokeStyle = 'rgba(192, 158, 90, 0.25)';
+    // Mirini tattici a croce "+" ai 4 angoli
+    ctx.strokeStyle = '#C09E5A';
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(128, 20); ctx.lineTo(128, 300);
-    ctx.moveTo(20, 160); ctx.lineTo(236, 160);
-    ctx.stroke();
+    const len = 6;
+    // Top-Left
+    ctx.beginPath(); ctx.moveTo(2, 6); ctx.lineTo(10, 6); ctx.moveTo(6, 2); ctx.lineTo(6, 10); ctx.stroke();
+    // Top-Right
+    ctx.beginPath(); ctx.moveTo(118, 6); ctx.lineTo(126, 6); ctx.moveTo(122, 2); ctx.lineTo(122, 10); ctx.stroke();
+    // Bottom-Left
+    ctx.beginPath(); ctx.moveTo(2, 154); ctx.lineTo(10, 154); ctx.moveTo(6, 150); ctx.lineTo(6, 158); ctx.stroke();
+    // Bottom-Right
+    ctx.beginPath(); ctx.moveTo(118, 154); ctx.lineTo(126, 154); ctx.moveTo(122, 150); ctx.lineTo(122, 158); ctx.stroke();
 
-    // Dicitura di marca
+    // Dicitura minimalista
     ctx.fillStyle = '#C09E5A';
-    ctx.font = '700 11px "Space Mono", monospace';
+    ctx.font = '700 8px "Space Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('IMLAND MONTEROSA', 128, 145);
-
-    ctx.fillStyle = '#0d0d0d';
-    ctx.font = '700 10px "Space Mono", monospace';
-    ctx.fillText(`NODE // ${String(index + 1).padStart(3, '0')}`, 128, 168);
+    ctx.fillText('IMLAND // MONTEROSA', 64, 76);
 
     ctx.fillStyle = '#8c8c8c';
-    ctx.font = '9px "Space Mono", monospace';
-    ctx.fillText('MATERIALIZING...', 128, 185);
+    ctx.font = '700 7px "Space Mono", monospace';
+    ctx.fillText('[ SYNCHRONIZING ]', 64, 90);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -561,6 +561,9 @@ import brandProducts from '../brand_products.json';
     const carouselBadgeTexture = createBadgeTexture('CAROUSEL_ALBUM');
     const badgeGeometry = new THREE.PlaneGeometry(0.22, 0.25);
 
+    // ⚡ CREAZIONE DELL'UNICA TEXTURE CONDIVISA PER TUTTI I MESH (0ms RAM & ZERO CPU LAG!)
+    const sharedWireframeTex = createSharedWireframeTexture();
+
     const SPACING_Z = 2.8;
     const TOTAL_DEPTH = mediaItems.length * SPACING_Z;
     const GOLDEN_ANGLE = 2.399963;
@@ -570,16 +573,13 @@ import brandProducts from '../brand_products.json';
       let initialUrl = item.thumbnail_url || item.media_url;
       if (!initialUrl) return;
 
-      // ⚡ FRAME-ZERO ISTANTANEO: La tessera ha subito una texture procedurale ad altissima eleganza a 0ms!
-      const placeholderTex = createPlaceholderTexture(index);
-
       const material = new THREE.ShaderMaterial({
         vertexShader, fragmentShader,
         uniforms: { 
-          uTexture: { value: placeholderTex }, // Sostituto istantaneo
+          uTexture: { value: sharedWireframeTex }, // Usiamo il wireframe trasparente istantaneo
           uTexAspect: { value: 1.0 }, 
           uFocus: { value: 0.0 }, 
-          uOpacity: { value: 1.0 }, // SUBITO VISIBILE DAL PRIMO FRAME!
+          uOpacity: { value: 1.0 },
           uTime: { value: 0 },
           uVelocity: { value: 0 },
           uMouse: { value: new THREE.Vector2(0.5, 0.5) }
@@ -587,10 +587,9 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
-      // Caricamento asincrono foto Instagram reale
+      // Caricamento in streaming dell'immagine reale
       const texture = textureLoader.load(initialUrl, (tex) => {
         if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
-        // Cross-fade alla foto reale
         material.uniforms.uTexture.value = tex;
         mesh.userData.isLoaded = true;
         mesh.userData.coverTexture = tex;
@@ -598,7 +597,7 @@ import brandProducts from '../brand_products.json';
         
         const hudCounter = document.getElementById('hud-loading-counter');
         if (hudCounter && loadedCount < mediaItems.length) {
-          hudCounter.innerText = `MATERIALIZING ARCHIVE // ${loadedCount} OF ${mediaItems.length} NODES`;
+          hudCounter.innerText = `CRYSTALLIZING ARCHIVE // ${loadedCount} OF ${mediaItems.length} NODES`;
         } else if (hudCounter) {
           hudCounter.innerText = `STEER TUNNEL // SCROLL FOR PIXEL STORM`;
           const statusBadge = document.getElementById('hud-stream-status');
@@ -636,7 +635,7 @@ import brandProducts from '../brand_products.json';
         thumbnail_url: item.thumbnail_url, caption: item.caption, timestamp: item.timestamp ? new Date(item.timestamp).toLocaleDateString('it-IT') : 'ARCHIVIO', 
         permalink: item.permalink || '#', children: item.children ? item.children.data : null, 
         baseX: baseX, baseY: baseY, zBase: zBase, rotY: rotY, rotX: rotX,
-        coverTexture: placeholderTex, badgeMat: badgeMat, isLoaded: false 
+        coverTexture: sharedWireframeTex, badgeMat: badgeMat, isLoaded: false 
       };
 
       worldGroup.add(mesh); meshes.push(mesh); materials.push(material);
@@ -843,6 +842,7 @@ import brandProducts from '../brand_products.json';
       camera.fov += (targetFOV - camera.fov) * 0.1;
       camera.updateProjectionMatrix();
 
+      // 🏎️ IL MOVIMENTO STERZANTE PARTE DA ZERO MILLISECONDI!
       if (!activeMesh && !activeDrawer) {
         worldGroup.position.x += (-mouse.x * 6.5 - worldGroup.position.x) * 0.06;
         worldGroup.position.y += (mouse.y * 5.5 - worldGroup.position.y) * 0.06;
@@ -889,7 +889,7 @@ import brandProducts from '../brand_products.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA VORTICE & ZERO LAG VISIVO (FRAME-ZERO CRYSTAL PORTALS)
+      // 🌌 MATEMATICA VORTICE E WIREFRAME FLUIDO
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
