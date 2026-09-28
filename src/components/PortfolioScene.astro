@@ -10,7 +10,7 @@ import portfolioData from '../portfolio_cache.json';
   <!-- LA NEBBIA MINERALE -->
   <div class="top-vapour-mask"></div>
 
-  <!-- BRAND HEADER GLOBALE (+25% BOOST) -->
+  <!-- BRAND HEADER GLOBALE -->
   <div id="global-brand-logo">
     <img src="/brand/logo-imland.png" alt="IMLAND MONTEROSA" />
   </div>
@@ -18,7 +18,7 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[FULL_ARCHIVE_UNLOCKED]</span>
+    <span class="hud-badge hidden md:inline">[GLSL_ASPECT_COVER_UNCAPPED]</span>
   </div>
   
   <!-- HUD Bottom Left -->
@@ -48,7 +48,7 @@ import portfolioData from '../portfolio_cache.json';
          <button id="btn-next-work" class="btn-nav font-mono-tech">[ NEXT ► ]</button>
        </div>
 
-       <!-- TITOLO BILINGUE ITALIANO / INGLESE (ESTRATTO DA RIGA 2) -->
+       <!-- TITOLO BILINGUE ITALIANO / INGLESE -->
        <h1 id="modal-title" class="font-syne">TITOLO_ITALIANO / ENGLISH_TITLE</h1>
 
        <!-- DIDASCALIA COMPLETA -->
@@ -210,7 +210,6 @@ import portfolioData from '../portfolio_cache.json';
   import * as THREE from 'three';
   import rawData from '../portfolio_cache.json';
 
-  // 🇮🇹 PARSER BILINGUE RIGA-2 (Ignora prefissi IMLAND)
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
 
@@ -294,7 +293,6 @@ import portfolioData from '../portfolio_cache.json';
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
-    // 🔺 MOTORE NEVE TRIANGOLARE 3D INSTANCED
     const particleCount = 220;
     const particleTriangleGeo = new THREE.CircleGeometry(0.06, 3);
     
@@ -310,9 +308,9 @@ import portfolioData from '../portfolio_cache.json';
     pixelSnowSystem.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
     const snowPalette = [
-      new THREE.Color('#282828'), // Onyx Charcoal
-      new THREE.Color('#C09E5A'), // Sepia Gold
-      new THREE.Color('#2C5260')  // Alpine Mineral Blue
+      new THREE.Color('#282828'),
+      new THREE.Color('#C09E5A'),
+      new THREE.Color('#2C5260')
     ];
 
     const dummyMatrix = new THREE.Object3D();
@@ -380,11 +378,25 @@ import portfolioData from '../portfolio_cache.json';
       }
     `;
 
+    // 🖼️ GLSL ASPECT CORRECTION: object-fit cover integrato nello Shader
     const fragmentShader = `
-      varying vec2 vUv; uniform sampler2D uTexture; uniform float uTime; uniform float uVelocity; uniform float uFocus; uniform float uOpacity;
+      varying vec2 vUv; uniform sampler2D uTexture; uniform float uTime; uniform float uVelocity; uniform float uFocus; uniform float uOpacity; uniform float uTexAspect;
       void main() {
         vec2 uv = vUv;
-        float distFromCenter = length(uv - vec2(0.5));
+        
+        // 🚀 OBJECT-FIT COVER MATEMATICO SUL 3D PLANE:
+        float planeAspect = 2.2 / 2.8; // 0.785714
+        vec2 st = uv - 0.5;
+        if (uTexAspect > 0.0) {
+          if (uTexAspect > planeAspect) {
+            st.x *= planeAspect / uTexAspect;
+          } else {
+            st.y *= uTexAspect / planeAspect;
+          }
+        }
+        uv = st + 0.5;
+
+        float distFromCenter = length(vUv - vec2(0.5));
         float distortion = sin(uv.y * 10.0 + uTime * 2.0) * (0.003 + abs(uVelocity) * 0.012) * (1.0 - uFocus);
         uv.x += distortion;
         float chromaMask = smoothstep(0.15, 0.70, distFromCenter);
@@ -405,7 +417,7 @@ import portfolioData from '../portfolio_cache.json';
 
     const textureLoader = new THREE.TextureLoader();
     
-    // 🔓 SBLOCCO ARCHIVIO INTEGRALE: Carica tutti i ~400/450 media salvati da update_cache.js!
+    // 🔓 SBLOCCO INTEGRALE ARCHIVIO: Carica l'INTERO array senza alcuna limitazione!
     const mediaItems = rawData.data || []; 
 
     const materials: THREE.ShaderMaterial[] = [];
@@ -425,12 +437,27 @@ import portfolioData from '../portfolio_cache.json';
       if (!imageUrl) imageUrl = item.thumbnail_url;
       if (!imageUrl) return;
 
-      const texture = textureLoader.load(imageUrl);
       const material = new THREE.ShaderMaterial({
         vertexShader, fragmentShader,
-        uniforms: { uTexture: { value: texture }, uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(0.5, 0.5) }, uVelocity: { value: 0 }, uFocus: { value: 0.0 }, uOpacity: { value: 1.0 } },
+        uniforms: { 
+          uTexture: { value: null }, 
+          uTexAspect: { value: 1.0 }, 
+          uTime: { value: 0 }, 
+          uMouse: { value: new THREE.Vector2(0.5, 0.5) }, 
+          uVelocity: { value: 0 }, 
+          uFocus: { value: 0.0 }, 
+          uOpacity: { value: 1.0 } 
+        },
         side: THREE.DoubleSide, transparent: true
       });
+
+      // 🔍 CARICAMENTO TEXTURE CON MISURAZIONE ASPETTO REALE (Zero Proporzioni Schiacciate)
+      const texture = textureLoader.load(imageUrl, (tex) => {
+        if (tex.image) {
+          material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+        }
+      });
+      material.uniforms.uTexture.value = texture;
 
       const mesh = new THREE.Mesh(geometry, material);
       let rawCaption = item.caption || "IMLAND ARCHIVE WORK";
@@ -534,7 +561,6 @@ import portfolioData from '../portfolio_cache.json';
       const data = activeMesh.userData;
 
       if (workCounter) {
-        // Formattazione a 3 cifre (es. 001 / 450)
         workCounter.innerText = `${String(activeMeshIndex + 1).padStart(3, '0')} / ${String(meshes.length).padStart(3, '0')}`;
       }
 
@@ -562,7 +588,11 @@ import portfolioData from '../portfolio_cache.json';
             ? children.map((c: any) => c.media_url || c.thumbnail_url)
             : [data.media_url];
 
-          const slideTextures = slides.map(url => textureLoader.load(url));
+          const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
+            if (tex.image && activeMesh) {
+              activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+            }
+          }));
 
           const controlsBox = document.createElement('div');
           controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
@@ -584,7 +614,11 @@ import portfolioData from '../portfolio_cache.json';
           function updateSlide(newIdx: number) {
             slideIndex = (newIdx + slides.length) % slides.length;
             if (activeMesh) {
-              activeMesh.material.uniforms.uTexture.value = slideTextures[slideIndex];
+              const currentTex = slideTextures[slideIndex];
+              activeMesh.material.uniforms.uTexture.value = currentTex;
+              if (currentTex.image) {
+                activeMesh.material.uniforms.uTexAspect.value = currentTex.image.width / currentTex.image.height;
+              }
             }
             counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
           }
@@ -608,7 +642,6 @@ import portfolioData from '../portfolio_cache.json';
       if (hudBottomLeft) hudBottomLeft.style.opacity = '0';
     }
 
-    // 🚀 NAVIGATORE TOROIDALE AD ALTA CAPACITÀ (Senza salto o looping errato)
     function navigateWork(direction: number) {
       if (meshes.length === 0 || activeMeshIndex === -1) return;
       
@@ -619,7 +652,6 @@ import portfolioData from '../portfolio_cache.json';
       const nextY = basePositions[nextIdx].y;
       let dy = nextY - currentY;
 
-      // 🎯 MODULO TOROIDALE: Se si supera il confine dell'archivio, calcola il salto minimo
       if (Math.abs(dy) > TOTAL_HEIGHT / 2) {
         if (dy > 0) {
           dy -= TOTAL_HEIGHT;

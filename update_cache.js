@@ -7,7 +7,6 @@ const __dirname = path.dirname(__filename);
 
 console.log("🛠️ Inizializzazione Alchimia di Rete...");
 
-// 1. RADAR AMBIENTALE: Cerca .env con il punto corretto e varianti
 const possibleEnvFiles = ['.env', '.env.local', '.env.development'];
 let envFound = false;
 
@@ -29,11 +28,6 @@ for (const file of possibleEnvFiles) {
   }
 }
 
-if (!envFound) {
-  console.log('⚠️ Nessun file .env trovato nella root!');
-}
-
-// 2. ESTRAZIONE TOKEN: Include IG_ACCESS_TOKEN (rilevato nel tuo log!)
 const ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN || process.env.INSTAGRAM_TOKEN || process.env.PUBLIC_INSTAGRAM_TOKEN || ''; 
 const CACHE_FILE = path.join(__dirname, 'src', 'portfolio_cache.json');
 
@@ -51,9 +45,10 @@ async function fetchInstagramArchive() {
     let allMedia = [];
     let url = `https://graph.instagram.com/me/media?fields=${FIELDS}&access_token=${ACCESS_TOKEN}&limit=50`;
 
-    console.log('🔄 Avvio estrazione ricorsiva dell\'Archivio IMLAND con nodi Children (Fase 7)...');
+    console.log('🔄 Avvio estrazione ricorsiva dell\'INTERO ARCHIVIO IMLAND (Target 500 nodi)...');
 
-    while (url && allMedia.length < 200) {
+    // 🚀 UNLOCKED: Limite alzato a 500 per catturare l'intero patrimonio di 450+ post!
+    while (url && allMedia.length < 500) {
       const response = await fetch(url);
       const data = await response.json();
 
@@ -64,6 +59,7 @@ async function fetchInstagramArchive() {
 
       if (data.data) {
         allMedia = [...allMedia, ...data.data];
+        console.log(`📦 Scaricati ${data.data.length} nodi. Totale accumulato: ${allMedia.length}`);
         url = data.paging?.next || null;
       } else {
         break;
@@ -77,7 +73,7 @@ async function fetchInstagramArchive() {
     };
 
     fs.writeFileSync(CACHE_FILE, JSON.stringify(payload, null, 2));
-    console.log(`✅ FASE 7 COMPLETATA! Cache blindata. Salvati ${allMedia.length} media con i relativi Caroselli!`);
+    console.log(`✅ ARCHIVIO COMPLETO BLINDATO! Salvati ${allMedia.length} media totali con Caroselli!`);
   } catch (error) {
     console.error('❌ Errore critico durante la compilazione:', error);
   }
