@@ -18,10 +18,10 @@ import portfolioData from '../portfolio_cache.json';
   <!-- HUD Ambientale Right -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     ARCHIVE 2026 <span class="hud-divider">//</span> 
-    <span class="hud-badge hidden md:inline">[ALPINE_ROLLERCOASTER_ENVELOPE]</span>
+    <span class="hud-badge hidden md:inline">[DYNAMIC_MOUSE_STEERED_FLIGHT]</span>
   </div>
   
-  <!-- HUD FISSO IN ALTO A DESTRA PER IL TITOLO SU HOVER -->
+  <!-- HUD FISSO IN ALTO A DESTRA -->
   <div id="fixed-hover-hud" class="font-syne">
     <span class="hud-label font-mono-tech">TARGET //</span>
     <span id="fixed-hover-title">ESPLORA L'ARCHIVIO</span>
@@ -29,11 +29,11 @@ import portfolioData from '../portfolio_cache.json';
 
   <!-- HUD Bottom Left -->
   <div id="hud-bottom-left" class="hud-element font-mono-tech">
-    <span class="hidden md:inline">SCROLL TO FLY THROUGH ROLLERCOASTER TUNNEL</span>
+    <span class="hidden md:inline">MOVE MOUSE TO STEER TUNNEL // SCROLL TO FLY</span>
     <span class="hud-divider hidden md:inline">//</span>
     <span class="hud-sepia hidden md:inline">[▲/▼] 3D SNOW</span>
     <span class="hud-divider">//</span>
-    <span>HOVER TO INSPECT / CLICK TO ISOLATE</span>
+    <span>CLICK TO CENTER & ISOLATE</span>
   </div>
 
   <!-- Stage Modale Editoriale -->
@@ -370,8 +370,9 @@ import portfolioData from '../portfolio_cache.json';
 
       const mesh = new THREE.Mesh(geometry, material);
       
+      // 🪐 CILINDRO DI FIBONACCI PERFETTAMENTO EQUILIBRATO
       const theta = index * GOLDEN_ANGLE;
-      const radiusLayer = 5.5 + (index % 4) * 3.2;
+      const radiusLayer = 5.5 + (index % 4) * 3.0; // Raggio tridimensionale graduale senza grappoli!
       
       const baseX = radiusLayer * Math.cos(theta);
       const baseY = radiusLayer * Math.sin(theta);
@@ -596,33 +597,29 @@ import portfolioData from '../portfolio_cache.json';
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      // 🚀 SPEED FOV WARP
+      // 🚀 SPEED FOV WARP PER EFFETTO ACCELERAZIONE SENZA WARP DEFORMI
       const targetFOV = 60 + Math.min(Math.abs(scrollVelocity) * 3.5, 20);
       camera.fov += (targetFOV - camera.fov) * 0.1;
       camera.updateProjectionMatrix();
 
-      const maxTilt = 0.22;
-
-      // 🎢 BUSTA ARMONICA DELLA MONTAGNA RUSSA (Rettilinei lunghi alternati a ampie svolte)
-      const envelope = Math.sin((-scrollZ) * 0.008); 
-      const curveX = Math.sin((-scrollZ) * 0.035) * envelope * 12.0;
-      const curveY = Math.cos((-scrollZ) * 0.028) * envelope * 8.0;
-
       if (!activeMesh) {
-        worldGroup.rotation.y += (Math.max(-maxTilt, Math.min(maxTilt, mouse.x * 0.22)) - worldGroup.rotation.y) * 0.05;
-        worldGroup.rotation.x += (Math.max(-maxTilt, Math.min(maxTilt, -mouse.y * 0.22)) - worldGroup.rotation.x) * 0.05;
+        // 🎯 INTERACTIVE MOUSE-STEERED FLIGHT MATH:
+        // Spostiamo la posizione e la rotazione del Mondo e della Telecamera per piegare il tubo VERSE IL MOUSE!
+        worldGroup.position.x += (-mouse.x * 6.5 - worldGroup.position.x) * 0.06;
+        worldGroup.position.y += (mouse.y * 5.5 - worldGroup.position.y) * 0.06;
 
-        camera.position.x += (mouse.x * 1.2 - camera.position.x) * 0.05;
-        camera.position.y += (-mouse.y * 1.2 - camera.position.y) * 0.05;
+        worldGroup.rotation.y += (mouse.x * 0.40 - worldGroup.rotation.y) * 0.06;
+        worldGroup.rotation.x += (-mouse.y * 0.40 - worldGroup.rotation.x) * 0.06;
+
+        camera.position.x += (mouse.x * 1.5 - camera.position.x) * 0.06;
+        camera.position.y += (-mouse.y * 1.5 - camera.position.y) * 0.06;
         
-        // 🎯 TARGET TRAJECTORY PROIETTATO NEL PUNTO FINALE DEL TUNNEL
-        const lookZ = -22.0 - scrollZ;
-        const lookEnv = Math.sin(lookZ * 0.008);
-        const camLookX = Math.sin(lookZ * 0.035) * lookEnv * 8.0;
-        const camLookY = Math.cos(lookZ * 0.028) * lookEnv * 5.0;
-        
-        camera.lookAt(camLookX, camLookY, -25);
+        // 🎯 ANCORAGGIO DINAMICO DELLO SGUARDO AL CENTRO STERZANTE DEL TUBO
+        camera.lookAt(-mouse.x * 4.5, mouse.y * 3.5, -20);
       } else {
+        // In Ispezione, l'universo si stabilizza perfettamente in centro
+        worldGroup.position.x += (0 - worldGroup.position.x) * 0.08;
+        worldGroup.position.y += (0 - worldGroup.position.y) * 0.08;
         worldGroup.rotation.y += (0 - worldGroup.rotation.y) * 0.08;
         worldGroup.rotation.x += (0 - worldGroup.rotation.x) * 0.08;
 
@@ -650,7 +647,7 @@ import portfolioData from '../portfolio_cache.json';
       }
       pixelSnowSystem.instanceMatrix.needsUpdate = true;
 
-      // 🌌 MATEMATICA MONTAGNA RUSSA CON BUSTA DI STASI
+      // 🌌 MATEMATICA VORTICE & STERZATA MOUSE
       meshes.forEach((mesh, idx) => {
         const mat = materials[idx]; const data = mesh.userData;
         const badgeMat = data.badgeMat as THREE.MeshBasicMaterial | null;
@@ -658,13 +655,6 @@ import portfolioData from '../portfolio_cache.json';
         let currentZ = (data.zBase + scrollZ) % TOTAL_DEPTH;
         if (currentZ > 10) currentZ -= TOTAL_DEPTH;
         if (currentZ < -TOTAL_DEPTH + 10) currentZ += TOTAL_DEPTH;
-
-        const meshEnv = Math.sin((currentZ - scrollZ) * 0.008);
-        const tunnelCurveX = Math.sin((currentZ - scrollZ) * 0.035) * meshEnv * 12.0;
-        const tunnelCurveY = Math.cos((currentZ - scrollZ) * 0.028) * meshEnv * 8.0;
-
-        const targetX = data.baseX + tunnelCurveX;
-        const targetY = data.baseY + tunnelCurveY;
 
         mat.uniforms.uTime.value = elapsedTime;
         mat.uniforms.uVelocity.value = scrollVelocity;
@@ -680,6 +670,7 @@ import portfolioData from '../portfolio_cache.json';
              mesh.position.y += (isolationY - mesh.position.y) * 0.1;
              mesh.position.z += (isolationZ - mesh.position.z) * 0.1;
 
+             // Micro-tilt ultra-stabilizzato anti mal di mare
              mesh.rotation.y += (mouse.x * 0.04 - mesh.rotation.y) * 0.1;
              mesh.rotation.x += (-mouse.y * 0.04 - mesh.rotation.x) * 0.1;
              mesh.rotation.z += (0 - mesh.rotation.z) * 0.1;
@@ -718,8 +709,8 @@ import portfolioData from '../portfolio_cache.json';
              posAttr.needsUpdate = true;
 
            } else {
-             mesh.position.x += (targetX - mesh.position.x) * 0.1;
-             mesh.position.y += (targetY - mesh.position.y) * 0.1;
+             mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
+             mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
              mesh.position.z = currentZ;
 
              mesh.rotation.x += (data.rotX - mesh.rotation.x) * 0.1;
@@ -730,8 +721,8 @@ import portfolioData from '../portfolio_cache.json';
              if (badgeMat) badgeMat.opacity = 0.0;
            }
         } else {
-           mesh.position.x += (targetX - mesh.position.x) * 0.1;
-           mesh.position.y += (targetY - mesh.position.y) * 0.1;
+           mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
+           mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
            mesh.position.z = currentZ;
 
            mesh.rotation.x += (data.rotX - mesh.rotation.x) * 0.1;
