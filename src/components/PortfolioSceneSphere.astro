@@ -617,7 +617,7 @@ import brandProducts from '../brand_products.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
-    // 🌊 VERTEX SHADER CON ONDEGGIAMENTO FLUIDO MANTENUTOIN FOCUS MODE
+    // 🌊 VERTEX SHADER CON ONDEGIAMENTO PERFETTAMENTE COORDINATO IN OGNI MODALITÀ
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -748,7 +748,7 @@ import brandProducts from '../brand_products.json';
       mesh.position.set(baseX, baseY, zBase);
       mesh.rotation.set(rotX, rotY, 0);
 
-      // 🏔️ ANELLO TOPOGRAFICO PROCEDURALE AMPIO E DIVERSIFICATO (FIBO-HARMONIC)
+      // 🏔️ ANELLO TOPOGRAFICO PROCEDURALE AMPIO PER OGNI NODO FOTO (FIBO-HARMONIC)
       const ringPointsCount = 56;
       const ringPositions = new Float32Array((ringPointsCount + 1) * 3);
       
@@ -1000,7 +1000,7 @@ import brandProducts from '../brand_products.json';
       }
     });
 
-    // 🎯 PROTEZIONE BINDING CLICK: I BOTTONI HUD (SOUND & FILTRI) NON CHIUDONO LA MODALE!
+    // 🎯 SCHERMATURA COMANDI HUD DALLA CHIUSURA MODALE
     window.addEventListener('pointerup', (e) => {
       isDragging = false;
       if (activeDrawer) return;
@@ -1060,7 +1060,7 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA
+      // 🗺️️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA
       topoLoops.forEach((loopObj) => {
         let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
         if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
@@ -1195,8 +1195,32 @@ import brandProducts from '../brand_products.json';
              mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // 🎯 DISATTIVAZIONE CORNICE LASER RIGIDA: lasciamo spazio all'anello topografico fluido!
-             laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.1;
+             // 🎯 CORNICE LASER PERFETTAMENTE ADIACENTE E SINCRONIZZATA CON I BORDI RETTANGOLARI DRITTI DELLA FOTO
+             mesh.updateMatrixWorld(true);
+             laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
+             const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
+             const arr = posAttr.array as Float32Array;
+             
+             const w = 1.12; const h = 1.42; const zOff = 0.05; const len = 0.25;
+             let ptr = 0;
+
+             function addSeg(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
+               tempVec.set(x1, y1, z1).applyMatrix4(mesh.matrixWorld);
+               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
+               tempVec.set(x2, y2, z2).applyMatrix4(mesh.matrixWorld);
+               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
+             }
+
+             addSeg(-w, h, zOff, -w + len, h, zOff);
+             addSeg(-w, h, zOff, -w, h - len, zOff);
+             addSeg(w, h, zOff, w - len, h, zOff);
+             addSeg(w, h, zOff, w, h - len, zOff);
+             addSeg(w, -h, zOff, w - len, -h, zOff);
+             addSeg(w, -h, zOff, w, -h + len, zOff);
+             addSeg(-w, -h, zOff, -w + len, -h, zOff);
+             addSeg(-w, -h, zOff, -w, -h + len, zOff);
+
+             posAttr.needsUpdate = true;
 
            } else {
              mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
