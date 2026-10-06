@@ -480,6 +480,25 @@ import brandProducts from '../brand_products.json';
     });
   });
 
+  // 🎨 GENERATORE SCHEDA MINERALE DI FALLBACK PER CDN SCADUTI
+  function createFallbackTexture(title: string) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 640;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.CanvasTexture(canvas);
+
+    ctx.fillStyle = '#e8e8e5'; ctx.fillRect(0, 0, 512, 640);
+    ctx.strokeStyle = '#C09E5A'; ctx.lineWidth = 2; ctx.strokeRect(20, 20, 472, 600);
+    ctx.fillStyle = '#0d0d0d'; ctx.font = 'bold 24px "Space Mono", monospace'; ctx.textAlign = 'center';
+    ctx.fillText('IMLAND MONTEROSA', 256, 300);
+    ctx.fillStyle = '#C09E5A'; ctx.font = '14px "Space Mono", monospace';
+    ctx.fillText('ARCHIVE NODE // 45° 51\' N, 7° 56\' E', 256, 340);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }
+
   function parseBilingualTitle(caption: string) {
     if (!caption) return "OPERA D'ARCHIVIO";
     let cleanText = caption.replace(/#\w+/g, '').replace(/@\w+/g, '').trim();
@@ -617,7 +636,7 @@ import brandProducts from '../brand_products.json';
     laserMesh.frustumCulled = false;
     scene.add(laserMesh);
 
-    // 🌊 VERTEX SHADER CON ONDEGIAMENTO PERFETTAMENTE COORDINATO IN OGNI MODALITÀ
+    // 🌊 VERTEX SHADER CON ONDEGIAMENTO FLUIDO MANTENUTO IN FOCUS MODE
     const vertexShader = `
       varying vec2 vUv;
       uniform float uTime;
@@ -638,7 +657,7 @@ import brandProducts from '../brand_products.json';
       }
     `;
 
-    // 🎯 FRAGMENT SHADER CON BORDI RETTANGOLARI DRITTI SENZA DISTORSIONE LIQUIDA
+    // 🎯 FRAGMENT SHADER CON BORDI RETTANGOLARI DRITTI SENZA DISTORSIONE LIQUIDA IN FOCUS
     const fragmentShader = `
       varying vec2 vUv;
       uniform sampler2D uTexture;
@@ -661,7 +680,7 @@ import brandProducts from '../brand_products.json';
 
         float distFromCenter = length(vUv - vec2(0.5));
 
-        // 🎯 ONDEGGIAMENTO UV DISATTIVATO QUANDO FOCALIZZATO (1.0 - uFocus) PER MANTENERE I BORDI ADIACENTI AL FRAME
+        // 🎯 ONDEGGIAMENTO UV DISATTIVATO QUANDO FOCALIZZATO (1.0 - uFocus)
         float distortion = sin(uv.y * 12.0 + uTime * 3.0) * (0.003 + abs(uVelocity) * 0.015) * (1.0 - uFocus);
         uv.x += distortion;
 
@@ -716,13 +735,30 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
-      const texture = textureLoader.load(initialUrl, (tex) => {
-        if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
-        material.uniforms.uTexture.value = tex;
-        mesh.userData.isLoaded = true;
-        mesh.userData.coverTexture = tex;
-        loadedCount++;
-        
+      // 🎯 RESILIENT TEXTURE LOAD (CON FALLBACK INTEGRATO PER LINK META SCADUTI)
+      const texture = textureLoader.load(
+        initialUrl, 
+        (tex) => {
+          if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+          material.uniforms.uTexture.value = tex;
+          mesh.userData.isLoaded = true;
+          mesh.userData.coverTexture = tex;
+          loadedCount++;
+          updateLoadingHud();
+        },
+        undefined,
+        () => {
+          // Fallback immediato in caso di link Meta scaduto
+          const fallbackTex = createFallbackTexture(item.caption);
+          material.uniforms.uTexture.value = fallbackTex;
+          mesh.userData.isLoaded = true;
+          mesh.userData.coverTexture = fallbackTex;
+          loadedCount++;
+          updateLoadingHud();
+        }
+      );
+
+      function updateLoadingHud() {
         const hudCounter = document.getElementById('hud-loading-counter');
         if (hudCounter && loadedCount < mediaItems.length) {
           hudCounter.innerText = `MATERIALIZING ARCHIVE // ${loadedCount} OF ${mediaItems.length} NODES`;
@@ -731,7 +767,7 @@ import brandProducts from '../brand_products.json';
           const statusBadge = document.getElementById('hud-stream-status');
           if (statusBadge) statusBadge.innerText = `[STREAM_SYNCHRONIZED]`;
         }
-      });
+      }
 
       const mesh = new THREE.Mesh(geometry, material);
       
@@ -1060,7 +1096,7 @@ import brandProducts from '../brand_products.json';
         bassIntensity = Math.pow(rawBass, 2.5);
       }
 
-      // 🗺️️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA
+      // 🗺️ PARALLASSE ISOIPSE CON DENSITÀ AUMENTATA
       topoLoops.forEach((loopObj) => {
         let currentZ = (loopObj.zBase + scrollZ * 0.5) % ISO_TOTAL_DEPTH;
         if (currentZ > 5) currentZ -= ISO_TOTAL_DEPTH;
@@ -1156,7 +1192,6 @@ import brandProducts from '../brand_products.json';
         let targetOpacity = activeDrawer ? 0.15 * loadedOpacity : (mesh === activeMesh ? (data.media_type === 'VIDEO' ? 0.0 : 1.0 * loadedOpacity) : 1.0 * loadedOpacity);
 
         // 🏔️ OPACITÀ ANELLI TOPOGRAFICI DI NODO:
-        // Mantengono la presenza vivace (0.85) attorno alla foto in Focus Mode, ruotando e ondeggiando a 1:1 con essa!
         if (topoRingMat) {
           const targetRingOp = (activeDrawer || !matchesFilter) ? 0.0 : (mesh === activeMesh ? 0.85 : (data.isLoaded ? 0.60 : 0.0));
           topoRingMat.opacity += (targetRingOp - topoRingMat.opacity) * 0.1;
@@ -1195,33 +1230,6 @@ import brandProducts from '../brand_products.json';
              mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.1;
              if (badgeMat) badgeMat.opacity = pulseOpacity;
 
-             // 🎯 CORNICE LASER PERFETTAMENTE ADIACENTE E SINCRONIZZATA CON I BORDI RETTANGOLARI DRITTI DELLA FOTO
-             mesh.updateMatrixWorld(true);
-             laserMaterial.opacity += (0.95 - laserMaterial.opacity) * 0.1;
-             const posAttr = laserGeometry.attributes.position as THREE.BufferAttribute;
-             const arr = posAttr.array as Float32Array;
-             
-             const w = 1.12; const h = 1.42; const zOff = 0.05; const len = 0.25;
-             let ptr = 0;
-
-             function addSeg(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
-               tempVec.set(x1, y1, z1).applyMatrix4(mesh.matrixWorld);
-               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
-               tempVec.set(x2, y2, z2).applyMatrix4(mesh.matrixWorld);
-               arr[ptr++] = tempVec.x; arr[ptr++] = tempVec.y; arr[ptr++] = tempVec.z;
-             }
-
-             addSeg(-w, h, zOff, -w + len, h, zOff);
-             addSeg(-w, h, zOff, -w, h - len, zOff);
-             addSeg(w, h, zOff, w - len, h, zOff);
-             addSeg(w, h, zOff, w, h - len, zOff);
-             addSeg(w, -h, zOff, w - len, -h, zOff);
-             addSeg(w, -h, zOff, w, -h + len, zOff);
-             addSeg(-w, -h, zOff, -w + len, -h, zOff);
-             addSeg(-w, -h, zOff, -w, -h + len, zOff);
-
-             posAttr.needsUpdate = true;
-
            } else {
              mesh.position.x += (data.baseX - mesh.position.x) * 0.1;
              mesh.position.y += (data.baseY - mesh.position.y) * 0.1;
@@ -1245,8 +1253,6 @@ import brandProducts from '../brand_products.json';
            mat.uniforms.uFocus.value += (0.0 - mat.uniforms.uFocus.value) * 0.1;
            mat.uniforms.uOpacity.value += (targetOpacity - mat.uniforms.uOpacity.value) * 0.08;
            if (badgeMat) badgeMat.opacity = (data.isLoaded && matchesFilter) ? pulseOpacity : 0.0;
-
-           laserMaterial.opacity += (0.0 - laserMaterial.opacity) * 0.15;
         }
       });
 
