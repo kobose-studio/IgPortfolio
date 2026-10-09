@@ -122,41 +122,41 @@ import brandProducts from '../brand_products.json';
             </div>
           ))}
         </div>
-      <div class="brand-panel-content p-4 md:p-6" id="contacts-content" style="display: none;">
-          <div class="mb-6 border-b border-[#222] pb-4">
-            <h2 class="font-syne text-lg md:text-xl font-bold tracking-tight text-[#111] uppercase">CONNETTITI CON L'ARCHIVIO</h2>
+      <div class="brand-panel-content p-6" id="contacts-content" style="display: none;">
+          <div class="mb-8 border-b border-[#222] pb-4">
+            <h2 class="font-syne text-xl font-bold tracking-tight text-[#111] uppercase">CONNETTITI CON L'ARCHIVIO</h2>
           </div>
           
-          <div class="flex flex-col gap-2 mb-6">
+          <div class="flex flex-col gap-3 mb-6">
             <!-- BOX 1: EMAIL DIRECT -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-3 md:p-4 border border-[#eee] bg-[#fafafa]">
-              <span class="font-mono-tech text-[9px] md:text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0">EMAIL DIRECT //</span>
-              <span class="font-mono-tech text-[9px] md:text-[10px] font-bold text-[#b3a082] uppercase break-all">IMLANDMOTEROSA@GMAIL.COM</span>
-            </div>
+            <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa] hover:border-[#b3a082] transition-colors group text-decoration-none">
+              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111]">EMAIL DIRECT //</span>
+              <span class="font-mono-tech text-[10px] font-bold text-[#b3a082] uppercase group-hover:text-[#111]">IMLANDMOTEROSA@GMAIL.COM ↗</span>
+            </a>
 
             <!-- BOX 2: OSSERVATORIO -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-3 md:p-4 border border-[#eee] bg-[#fafafa]">
-              <span class="font-mono-tech text-[9px] md:text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 whitespace-nowrap">OSSERVATORIO IMLAND //</span>
-              <span class="font-mono-tech text-[9px] md:text-[10px] font-bold text-[#b3a082] uppercase text-left md:text-right mt-1 md:mt-0">VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</span>
+            <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa] hover:border-[#b3a082] transition-colors group text-decoration-none">
+              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111]">OSSERVATORIO IMLAND //</span>
+              <span class="font-mono-tech text-[10px] font-bold text-[#b3a082] uppercase text-right md:text-left group-hover:text-[#111]">VIA DEI WALSER 23, ALAGNA (VC) ↗</span>
+            </a>
+
+            <!-- BOX 3: CREATIVE LAB -->
+            <div class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa]">
+              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0">CREATIVE LAB //</span>
+              <span class="font-mono-tech text-[10px] font-bold text-[#888] uppercase text-right md:text-left">NAVIGLIO PAVESE 114, MILANO (MI)</span>
             </div>
+
+            <!-- BOX 4: COLLAB & PRESS -->
+            <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa] hover:border-[#b3a082] transition-colors group text-decoration-none">
+              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111]">COLLAB & PRESS //</span>
+              <span class="font-mono-tech text-[10px] font-bold text-[#b3a082] uppercase group-hover:text-[#111]">INFO.IMLAND@GMAIL.COM ↗</span>
+            </a>
           </div>
 
           <!-- TESTO DESCRITTIVO SNELLITO -->
-          <p class="font-inter text-[11px] md:text-xs text-[#444] leading-relaxed mb-6">
+          <p class="font-inter text-xs text-[#444] leading-relaxed">
             Il nostro campo base operativo nel cuore di Alagna. L'Atelier non vive solo nello spazio digitale: è uno studio di creazione e materia. È possibile visionare, toccare e provare fisicamente le collezioni direttamente in sede, esclusivamente su appuntamento.
           </p>
-
-          <!-- TERMINALI DI CONTATTO FINALI (LINK ATTIVI) -->
-          <div class="flex flex-col gap-2">
-            <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex flex-col md:flex-row justify-between items-start md:items-center py-3 md:py-4 border-t border-[#eee] group text-decoration-none">
-              <span class="font-mono-tech text-[9px] md:text-[10px] tracking-wider text-[#555] group-hover:text-[#111] transition-colors mb-1 md:mb-0 uppercase">VISITA L'ATELIER (SU APPUNTAMENTO) //</span>
-              <span class="font-mono-tech text-[9px] md:text-[10px] font-bold text-[#b3a082] group-hover:text-[#111] transition-colors uppercase break-all">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-            </a>
-            <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="flex flex-col md:flex-row justify-between items-start md:items-center py-3 md:py-4 border-t border-[#eee] group text-decoration-none">
-              <span class="font-mono-tech text-[9px] md:text-[10px] tracking-wider text-[#555] group-hover:text-[#111] transition-colors mb-1 md:mb-0 uppercase">COLLAB & PRESS //</span>
-              <span class="font-mono-tech text-[9px] md:text-[10px] font-bold text-[#b3a082] group-hover:text-[#111] transition-colors uppercase break-all">INFO.IMLAND@GMAIL.COM ↗</span>
-            </a>
-          </div>
         </div>
       </div>
     </div>
@@ -386,10 +386,11 @@ import brandProducts from '../brand_products.json';
 
   
   
-  /* IMLAND ORIGINAL LEFT AXIS (NO GLITCH) */
+  
+  /* IMLAND ABSOLUTE LEFT AXIS (DESKTOP & MOBILE) */
   header, nav, .nav-container, #main-nav {
     position: fixed !important;
-    left: -120px !important; /* Regola lo spostamento a sinistra */
+    left: -120px !important;
     top: 50% !important;
     transform: translateY(-50%) rotate(-90deg) !important;
     transform-origin: center center !important;
@@ -398,8 +399,8 @@ import brandProducts from '../brand_products.json';
     justify-content: center !important;
     align-items: center !important;
     z-index: 9999 !important;
-    background: transparent !important; /* Niente sfondo grigio */
-    border: none !important; /* Niente box bianco */
+    background: transparent !important;
+    border: none !important;
     box-shadow: none !important;
     width: auto !important;
     height: auto !important;
@@ -407,17 +408,18 @@ import brandProducts from '../brand_products.json';
     margin: 0 !important;
   }
 
-  /* I link tornano orizzontali all'interno del box ruotato */
   header a, nav a, .nav-container a {
     display: inline-block !important;
-    margin: 0 1rem !important;
+    margin: 0 1.25rem !important;
     letter-spacing: 0.15em !important;
     white-space: nowrap !important;
-    color: #111 !important; /* Testo nero */
+    color: #111 !important;
+    font-size: 11px !important;
+    transition: color 0.3s ease !important;
   }
   
   header a:hover, nav a:hover, .nav-container a:hover {
-    color: #b3a082 !important; /* Hover Seppia */
+    color: #b3a082 !important;
   }
 </style>
 
