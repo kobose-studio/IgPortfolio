@@ -89,7 +89,15 @@ import brandProducts from '../brand_products.json';
           {brandProducts.map((prod) => (
             <div class="product-card">
               <div class="product-img-container">
-                <img src={prod.image} alt={prod.title} class="product-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                {prod.images ? (
+                  <div class="carousel-wrapper">
+                    {prod.images.map((img, i) => (
+                      <img src={img} alt={prod.title} class={`product-img crossfade-layer delay-${i}`} />
+                    ))}
+                  </div>
+                ) : (
+                  <img src={prod.image} alt={prod.title} class="product-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                )}
                 <div class="product-placeholder-box font-mono-tech">
                   <span class="ph-icon">📷</span>
                   <span class="ph-label">[ {prod.category} ]</span>
@@ -106,7 +114,7 @@ import brandProducts from '../brand_products.json';
                 
                 <div class="product-footer">
                   <span class="product-price font-mono-tech">{prod.price}</span>
-                  <button class="btn-product-action font-mono-tech">{prod.status}</button>
+                  <a href={prod.mailto} class="btn-product-action font-mono-tech" style="text-decoration:none; text-align:center;">{prod.status}</a>
                 </div>
               </div>
             </div>
@@ -276,6 +284,14 @@ import brandProducts from '../brand_products.json';
   .btn-secondary { background: transparent; border: none; color: #737373; font-size: 9px; cursor: pointer; text-transform: uppercase; }
 
   #video-stage { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 90; display: flex; justify-content: center; align-items: center; }
+
+  /* IMLAND CSS CROSSFADE CAROUSEL */
+  .carousel-wrapper { position: relative; width: 100%; height: 100%; }
+  .crossfade-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; animation: imlandCrossfade 12s infinite; }
+  .delay-0 { animation-delay: 0s; }
+  .delay-1 { animation-delay: 4s; }
+  .delay-2 { animation-delay: 8s; }
+  @keyframes imlandCrossfade { 0%, 25% { opacity: 1; } 33%, 92% { opacity: 0; } 100% { opacity: 1; } }
 </style>
 
 <script>

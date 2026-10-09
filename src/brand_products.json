@@ -1,38 +1,38 @@
 [
   {
-    "id": "gear_01",
-    "title": "IMLAND / MONTEROSA ALPINIST HOODIE",
-    "category": "OUTDOOR OUTFIT",
-    "tag": "LIMITED EDITION // 50 PCS",
-    "subtitle": "Cotone Organico Pesante 480 GSM & Fibra Minerale",
-    "description": "Felpa tecnica ad alta grammatura testata sotto le raffiche del Colle del Lys. Cuciture rinforzate a tre punti, cappuccio anatomico e isolamento termico naturale per la massima protezione in quota.",
-    "price": "€ 170.00",
+    "id": "imland_hoodie",
+    "title": "IMLAND / CLASSIC HOODIE",
+    "category": "UNISEX // HEAVYWEIGHT",
+    "tag": "SIGNATURE COLLECTION",
+    "subtitle": "Felpa Classica con Cappuccio // 100% Cotone",
+    "description": "Il capo iconico dell'Atelier. Grafiche essenziali stampate in serigrafia. Morbidezza assoluta e resistenza termica, testata per affrontare il vento in quota e il caos urbano.",
+    "price": "€ 85.00",
     "status": "[ PRE-ORDER VIA EMAIL ]",
-    "image": "/brand/gear-hoodie.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20IMLAND%20ALPINIST%20HOODIE&body=Desidero%20riservare%20un%20capo%20dell%27Atelier%20IMLAND%20MONTEROSA.%0A%0AProdotto:%20IMLAND%20ALPINIST%20HOODIE%0ATaglia%20desiderata:%20[S%20/%20M%20/%20L%20/%20XL]%0ANome%20e%20Cognome:%20%0AIndirizzo%20di%20spedizione:%20"
+    "images": ["/brand/hoodie-1.jpg", "/brand/hoodie-2.jpg", "/brand/hoodie-3.jpg"],
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20CLASSIC%20HOODIE&body=Desidero%20riservare%20una%20Classic%20Hoodie%20IMLAND.%0A%0AColore%20(Blu/Sabbia/Nero):%20%0ATaglia%20(S/M/L/XL):%20%0ANome:%20"
   },
   {
-    "id": "gear_02",
-    "title": "IMLAND / ANTRACITE TECHNICAL SHELL",
-    "category": "OUTDOOR GEAR",
-    "tag": "ATELIER ALAGNA // PROTOTYPE",
-    "subtitle": "Guscio 3 Layer Membrana Impermeabile 20.000mm",
-    "description": "Guscio protettivo traspirante e antivento progettato per l'alpinismo invernale. Taglio ergonomico, termosaldature strutturali e resistenza estreme sulle pareti di roccia e ghiaccio.",
-    "price": "€ 320.00",
-    "status": "[ INQUIRE DISPONIBILITÀ ]",
-    "image": "/brand/gear-shell.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=INQUIRY%20//%20ANTRACITE%20TECHNICAL%20SHELL&body=Richiesta%20informazioni%20e%20disponibilit%C3%A0%20per%20ANTRACITE%20TECHNICAL%20SHELL.%0A%0ANome:%20%0ANote:%20"
+    "id": "imland_zip",
+    "title": "IMLAND / FULL-ZIP HOODIE",
+    "category": "UNISEX // DYNAMIC LAYER",
+    "tag": "ALPINE EDITION",
+    "subtitle": "Felpa con Zip Integrale // Isolamento Modulare",
+    "description": "Strato intermedio perfetto. La zip a tutta lunghezza permette una rapida regolazione termica durante le ascensioni o i cambi di pendenza. Taglio ergonomico e cappuccio strutturato.",
+    "price": "€ 95.00",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
+    "image": "/brand/zip-hoodie.jpg",
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20FULL-ZIP%20HOODIE&body=Desidero%20riservare%20una%20Full-Zip%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia%20(S/M/L/XL):%20%0ANome:%20"
   },
   {
-    "id": "gear_03",
-    "title": "IMLAND / ALPINE MINERAL BEANIE",
-    "category": "ACCESSORIES",
-    "tag": "RAW WOOL // 100% MERINO",
-    "subtitle": "Lana Merino Vergine Filata a Mano in Valsesia",
-    "description": "Berretto in lana termica ad altissima densità. Mantiene la temperatura corporea costante ed elimina l'umidità anche durante le ascensioni più impegnative.",
-    "price": "€ 45.00",
+    "id": "imland_tshirt",
+    "title": "IMLAND / MINERAL T-SHIRT",
+    "category": "UNISEX // ESSENTIAL",
+    "tag": "RAW COTTON // 100% ORGANIC",
+    "subtitle": "T-Shirt Manica Corta // Cotone Organico Pettinato",
+    "description": "L'essenza del brand a contatto con la pelle. Traspirabilità estrema e taglio confortevole. Una tela tessile che porta il marchio del Monte Rosa ovunque tu vada.",
+    "price": "€ 40.00",
     "status": "[ PRE-ORDER VIA EMAIL ]",
-    "image": "/brand/gear-beanie.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20ALPINE%20MINERAL%20BEANIE&body=Desidero%20riservare%20un%20berretto%20IMLAND%20ALPINE%20MINERAL%20BEANIE.%0A%0AColore/Variante:%20[Nero%20Antracite%20/%20Sabbia%20Minerale]%0ANome:%20"
+    "image": "/brand/t-shirt.jpg",
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20MINERAL%20T-SHIRT&body=Desidero%20riservare%20una%20Mineral%20T-Shirt%20IMLAND.%0A%0AColore:%20%0ATaglia%20(S/M/L/XL):%20%0ANome:%20"
   }
 ]
