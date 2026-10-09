@@ -384,20 +384,31 @@ import brandProducts from '../brand_products.json';
     opacity: 0.8;
   }
 
-  /* IMLAND MOBILE OVERRIDES */
-  @media (max-width: 768px) {
-    /* Impedisce rotazioni strane e forza il menu in orizzontale */
-    header, nav, .nav-container, [class*="nav"] {
-      transform: none !important;
-      writing-mode: horizontal-tb !important;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
-      width: 100% !important;
-      justify-content: center !important;
-    }
-    /* Riduciamo i font per farli stare nello schermo */
-    .font-mono-tech { font-size: 9px !important; }
-    .font-syne { font-size: 14px !important; }
+  
+  /* IMLAND VERTICAL LEFT NAVIGATION */
+  header, nav, .nav-container, #main-nav {
+    position: fixed !important;
+    left: 1.25rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    flex-direction: column !important;
+    writing-mode: vertical-rl !important;
+    rotate: 180deg !important;
+    z-index: 9999 !important;
+    background: transparent !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Styling dei singoli link dentro la barra verticale */
+  header a, nav a, .nav-container a {
+    display: inline-block !important;
+    margin: 0.5rem 0 !important;
+    letter-spacing: 0.15em !important;
+    white-space: nowrap !important;
   }
 </style>
 
