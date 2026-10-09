@@ -2,37 +2,37 @@
   {
     "id": "imland_hoodie",
     "title": "IMLAND / CLASSIC HOODIE",
-    "category": "UNISEX // HEAVYWEIGHT",
+    "category": "UNISEX & KIDS // HEAVYWEIGHT",
     "tag": "SIGNATURE COLLECTION",
-    "subtitle": "Felpa Classica con Cappuccio // 100% Cotone",
-    "description": "Il capo iconico dell'Atelier. Grafiche essenziali stampate in serigrafia. Morbidezza assoluta e resistenza termica, testata per affrontare il vento in quota e il caos urbano.",
+    "subtitle": "Matrice Ibrida: 80% Cotone Organico / 20% Polimeri Tecnici",
+    "description": "Il capo iconico dell'Atelier IMLAND. L'armatura tessile è un capolavoro di ingegneria: la purezza del cotone all'80% garantisce un respiro naturale a contatto con la pelle, mentre l'innesto del 20% di fibre strutturali assicura scudo termico e tenuta contro le abrasioni e i venti d'alta quota.",
     "price": "€ 85.00",
     "status": "[ PRE-ORDER VIA EMAIL ]",
-    "images": ["/brand/hoodie-1.jpg", "/brand/hoodie-2.jpg", "/brand/hoodie-3.jpg"],
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20CLASSIC%20HOODIE&body=Desidero%20riservare%20una%20Classic%20Hoodie%20IMLAND.%0A%0AColore%20(Blu/Sabbia/Nero):%20%0ATaglia%20(S/M/L/XL):%20%0ANome:%20"
+    "images": ["/brand/hoodie-1.jpg", "/brand/hoodie-2.jpg", "/brand/hoodie-kids.jpg"],
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20CLASSIC%20HOODIE&body=Desidero%20riservare%20una%20Classic%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia%20(Adulto/Kids):%20%0ANome:%20"
   },
   {
     "id": "imland_zip",
     "title": "IMLAND / FULL-ZIP HOODIE",
     "category": "UNISEX // DYNAMIC LAYER",
     "tag": "ALPINE EDITION",
-    "subtitle": "Felpa con Zip Integrale // Isolamento Modulare",
-    "description": "Strato intermedio perfetto. La zip a tutta lunghezza permette una rapida regolazione termica durante le ascensioni o i cambi di pendenza. Taglio ergonomico e cappuccio strutturato.",
+    "subtitle": "Guscio Termico: 80% Cotone / 20% Fibra di Resistenza",
+    "description": "Strato intermedio modulare IMLAND. Costruito con la nostra matrice mista per impedire la dispersione termica preservando il comfort. La zip integrale a scorrimento rapido permette una regolazione istantanea della temperatura corporea durante i cambi di pendenza.",
     "price": "€ 95.00",
     "status": "[ PRE-ORDER VIA EMAIL ]",
     "image": "/brand/zip-hoodie.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20FULL-ZIP%20HOODIE&body=Desidero%20riservare%20una%20Full-Zip%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia%20(S/M/L/XL):%20%0ANome:%20"
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20FULL-ZIP%20HOODIE&body=Desidero%20riservare%20una%20Full-Zip%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
   },
   {
     "id": "imland_tshirt",
     "title": "IMLAND / MINERAL T-SHIRT",
     "category": "UNISEX // ESSENTIAL",
     "tag": "RAW COTTON // 100% ORGANIC",
-    "subtitle": "T-Shirt Manica Corta // Cotone Organico Pettinato",
-    "description": "L'essenza del brand a contatto con la pelle. Traspirabilità estrema e taglio confortevole. Una tela tessile che porta il marchio del Monte Rosa ovunque tu vada.",
+    "subtitle": "T-Shirt Manica Corta // 100% Cotone Organico Pettinato",
+    "description": "L'essenza IMLAND a contatto diretto. Traspirabilità estrema e taglio aerodinamico grazie al 100% di purissimo cotone organico filato a mano. Una tela tessile leggera, pensata per chi non vuole filtri tra sé e la materia.",
     "price": "€ 40.00",
     "status": "[ PRE-ORDER VIA EMAIL ]",
     "image": "/brand/t-shirt.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20MINERAL%20T-SHIRT&body=Desidero%20riservare%20una%20Mineral%20T-Shirt%20IMLAND.%0A%0AColore:%20%0ATaglia%20(S/M/L/XL):%20%0ANome:%20"
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20MINERAL%20T-SHIRT&body=Desidero%20riservare%20una%20Mineral%20T-Shirt%20IMLAND.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
   }
 ]
