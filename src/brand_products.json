@@ -5,11 +5,18 @@
     "category": "UNISEX & KIDS // HEAVYWEIGHT",
     "tag": "SIGNATURE COLLECTION",
     "subtitle": "Matrice Ibrida: 80% Cotone Organico / 20% Polimeri Tecnici",
-    "description": "Il capo iconico dell'Atelier IMLAND. L'armatura tessile è un capolavoro di ingegneria: la purezza del cotone all'80% garantisce un respiro naturale a contatto con la pelle, mentre l'innesto del 20% di fibre strutturali assicura scudo termico e tenuta contro le abrasioni e i venti d'alta quota.",
+    "description": "Il capo iconico dell'Atelier IMLAND. L'armatura tessile è un capolavoro di ingegneria: la purezza del cotone all'80% garantisce un respiro naturale a contatto con la pelle, mentre l'innesto del 20% di fibre strutturali assicura scudo termico e tenuta contro le abrasioni d'alta quota.",
     "price": "€ 85.00",
-    "status": "[ PRE-ORDER VIA EMAIL ]",
-    "images": ["/brand/hoodie-1.jpg", "/brand/hoodie-2.jpg", "/brand/hoodie-kids.jpg"],
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20CLASSIC%20HOODIE&body=Desidero%20riservare%20una%20Classic%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia%20(Adulto/Kids):%20%0ANome:%20"
+    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "images": [
+      "/brand/hoodie-1.jpg", 
+      "/brand/hoodie-2.jpg", 
+      "/brand/hoodie-3.jpg", 
+      "/brand/hoodie-4.jpg", 
+      "/brand/hoodie-5.jpg", 
+      "/brand/hoodie-6.jpg"
+    ],
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20CLASSIC%20HOODIE&body=Richiesta%20per%20Classic%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia%20(Adulto/Kids):%20%0ANome:%20"
   },
   {
     "id": "imland_zip",
@@ -17,22 +24,29 @@
     "category": "UNISEX // DYNAMIC LAYER",
     "tag": "ALPINE EDITION",
     "subtitle": "Guscio Termico: 80% Cotone / 20% Fibra di Resistenza",
-    "description": "Strato intermedio modulare IMLAND. Costruito con la nostra matrice mista per impedire la dispersione termica preservando il comfort. La zip integrale a scorrimento rapido permette una regolazione istantanea della temperatura corporea durante i cambi di pendenza.",
+    "description": "Strato intermedio modulare. Costruito con la nostra matrice mista per impedire la dispersione termica preservando il comfort. La zip integrale permette una regolazione istantanea della temperatura corporea durante le ascensioni.",
     "price": "€ 95.00",
-    "status": "[ PRE-ORDER VIA EMAIL ]",
-    "image": "/brand/zip-hoodie.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20FULL-ZIP%20HOODIE&body=Desidero%20riservare%20una%20Full-Zip%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
+    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "images": [
+      "/brand/hoodie-7.jpg",
+      "/brand/hoodie-8.jpg"
+    ],
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20FULL-ZIP%20HOODIE&body=Richiesta%20per%20Full-Zip%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
   },
   {
-    "id": "imland_tshirt",
-    "title": "IMLAND / MINERAL T-SHIRT",
-    "category": "UNISEX // ESSENTIAL",
+    "id": "imland_essentials",
+    "title": "IMLAND / ESSENTIALS & GEAR",
+    "category": "APPAREL & EQUIPMENT",
     "tag": "RAW COTTON // 100% ORGANIC",
-    "subtitle": "T-Shirt Manica Corta // 100% Cotone Organico Pettinato",
-    "description": "L'essenza IMLAND a contatto diretto. Traspirabilità estrema e taglio aerodinamico grazie al 100% di purissimo cotone organico filato a mano. Una tela tessile leggera, pensata per chi non vuole filtri tra sé e la materia.",
-    "price": "€ 40.00",
-    "status": "[ PRE-ORDER VIA EMAIL ]",
-    "image": "/brand/t-shirt.jpg",
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20MINERAL%20T-SHIRT&body=Desidero%20riservare%20una%20Mineral%20T-Shirt%20IMLAND.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
+    "subtitle": "T-Shirt, Gerla Bag & Neck Warmer",
+    "description": "L'ecosistema essenziale IMLAND. La T-Shirt e la sacca 'Gerla Bag' sono forgiate in purissimo cotone organico al 100%. Il setup si completa con il Neck Warmer, scudo termico modulare per proteggere collo e testa dai venti glaciali.",
+    "price": "Da € 25.00",
+    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "images": [
+      "/brand/tee-1.jpg",
+      "/brand/tee-2.jpg",
+      "/brand/tee-3.jpg"
+    ],
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20ESSENTIALS%20AND%20GEAR&body=Richiesta%20per%20Essentials%20IMLAND.%0A%0AProdotto%20(T-Shirt%20/%20Gerla%20Bag%20/%20Neck%20Warmer):%20%0AColore/Taglia:%20%0ANome:%20"
   }
 ]
