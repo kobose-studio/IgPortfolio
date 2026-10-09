@@ -13,10 +13,9 @@
       "/brand/hoodie-2.jpg", 
       "/brand/hoodie-3.jpg", 
       "/brand/hoodie-4.jpg", 
-      "/brand/hoodie-5.jpg", 
-      "/brand/hoodie-6.jpg"
+      "/brand/hoodie-5.jpg"
     ],
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20CLASSIC%20HOODIE&body=Richiesta%20per%20Classic%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia%20(Adulto/Kids):%20%0ANome:%20"
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info/Pre-Order%20//%20CLASSIC%20HOODIE&body=Salve%20Atelier%20IMLAND,%0A%0ADesidero%20ricevere%20informazioni%20o%20preordinare%20una%20Classic%20Hoodie.%0A%0AColore%20(Blu/Viola/Nera):%20%0ATaglia%20(Adulto/Kids):%20%0ANome:%20"
   },
   {
     "id": "imland_zip",
@@ -31,7 +30,7 @@
       "/brand/hoodie-7.jpg",
       "/brand/hoodie-8.jpg"
     ],
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20FULL-ZIP%20HOODIE&body=Richiesta%20per%20Full-Zip%20Hoodie%20IMLAND.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info/Pre-Order%20//%20FULL-ZIP%20HOODIE&body=Salve%20Atelier%20IMLAND,%0A%0ADesidero%20ricevere%20informazioni%20o%20preordinare%20una%20Full-Zip%20Hoodie.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
   },
   {
     "id": "imland_essentials",
@@ -47,6 +46,6 @@
       "/brand/tee-2.jpg",
       "/brand/tee-3.jpg"
     ],
-    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20ESSENTIALS%20AND%20GEAR&body=Richiesta%20per%20Essentials%20IMLAND.%0A%0AProdotto%20(T-Shirt%20/%20Gerla%20Bag%20/%20Neck%20Warmer):%20%0AColore/Taglia:%20%0ANome:%20"
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info/Pre-Order%20//%20ESSENTIALS%20AND%20GEAR&body=Salve%20Atelier%20IMLAND,%0A%0ADesidero%20ricevere%20informazioni%20o%20preordinare%20gli%20Essentials.%0A%0AProdotto%20(T-Shirt%20/%20Gerla%20Bag%20/%20Neck%20Warmer):%20%0AColore/Taglia:%20%0ANome:%20"
   }
 ]
