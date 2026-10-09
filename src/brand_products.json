@@ -7,7 +7,7 @@
     "subtitle": "Matrice Ibrida: 80% Cotone Organico / 20% Polimeri Tecnici",
     "description": "Il capo iconico dell'Atelier IMLAND. L'armatura tessile è un capolavoro di ingegneria: la purezza del cotone all'80% garantisce un respiro naturale a contatto con la pelle, mentre l'innesto del 20% di fibre strutturali assicura scudo termico e tenuta contro le abrasioni d'alta quota.",
     "price": "€ 85.00",
-    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
     "images": [
       "/brand/hoodie-1.jpg", 
       "/brand/hoodie-2.jpg", 
@@ -25,8 +25,9 @@
     "subtitle": "Guscio Termico: 80% Cotone / 20% Fibra di Resistenza",
     "description": "Strato intermedio modulare. Costruito con la nostra matrice mista per impedire la dispersione termica preservando il comfort. La zip integrale permette una regolazione istantanea della temperatura corporea durante le ascensioni.",
     "price": "€ 95.00",
-    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
     "images": [
+      "/brand/hoodie-7.jpg",
       "/brand/hoodie-8.jpg"
     ],
     "mailto": "mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info/Pre-Order%20//%20FULL-ZIP%20HOODIE&body=Salve%20Atelier%20IMLAND,%0A%0ADesidero%20ricevere%20informazioni%20o%20preordinare%20una%20Full-Zip%20Hoodie.%0A%0AColore:%20%0ATaglia:%20%0ANome:%20"
@@ -39,7 +40,7 @@
     "subtitle": "T-Shirt, Gerla Bag & Neck Warmer",
     "description": "L'ecosistema essenziale IMLAND. La T-Shirt e la sacca 'Gerla Bag' sono forgiate in purissimo cotone organico al 100%. Il setup si completa con il Neck Warmer, scudo termico modulare per proteggere collo e testa dai venti glaciali.",
     "price": "Da € 25.00",
-    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
     "images": [
       "/brand/tee-1.jpg",
       "/brand/tee-2.jpg",
