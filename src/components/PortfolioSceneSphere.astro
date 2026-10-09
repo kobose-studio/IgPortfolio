@@ -288,19 +288,28 @@ import brandProducts from '../brand_products.json';
 
   
   
+  
   /* IMLAND ASYNC KEN BURNS CAROUSEL */
   .carousel-wrapper { position: relative; width: 100%; height: 100%; background: #eaeaea; overflow: hidden; }
   .carousel-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; object-fit: cover; transform-origin: center center; }
+  
+  /* 7 Immagini (28s Loop) */
+  .kburns-7 { animation: kb7 28s infinite linear; }
+  @keyframes kb7 { 0% { opacity: 0; transform: scale(1); } 1.5% { opacity: 1; transform: scale(1.005); } 13% { opacity: 1; transform: scale(1.04); } 14.3%, 100% { opacity: 0; transform: scale(1.05); } }
   
   /* 5 Immagini (20s Loop) */
   .kburns-5 { animation: kb5 20s infinite linear; }
   @keyframes kb5 { 0% { opacity: 0; transform: scale(1); } 2% { opacity: 1; transform: scale(1.005); } 18% { opacity: 1; transform: scale(1.04); } 20%, 100% { opacity: 0; transform: scale(1.05); } }
   
-  /* 3 Immagini (13s Loop - Sfalsato) */
+  /* 4 Immagini (17s Loop) */
+  .kburns-4 { animation: kb4 17s infinite linear; }
+  @keyframes kb4 { 0% { opacity: 0; transform: scale(1); } 2.5% { opacity: 1; transform: scale(1.005); } 22.5% { opacity: 1; transform: scale(1.04); } 25%, 100% { opacity: 0; transform: scale(1.05); } }
+  
+  /* 3 Immagini (13s Loop) */
   .kburns-3 { animation: kb3 13s infinite linear; }
   @keyframes kb3 { 0% { opacity: 0; transform: scale(1); } 3% { opacity: 1; transform: scale(1.005); } 30% { opacity: 1; transform: scale(1.04); } 33.3%, 100% { opacity: 0; transform: scale(1.05); } }
   
-  /* 2 Immagini (9s Loop - Sfalsato) */
+  /* 2 Immagini (9s Loop) */
   .kburns-2 { animation: kb2 9s infinite linear; }
   @keyframes kb2 { 0% { opacity: 0; transform: scale(1); } 5% { opacity: 1; transform: scale(1.005); } 45% { opacity: 1; transform: scale(1.04); } 50%, 100% { opacity: 0; transform: scale(1.05); } }
 </style>

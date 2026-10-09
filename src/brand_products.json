@@ -6,13 +6,15 @@
     "tag": "SIGNATURE COLLECTION",
     "subtitle": "Cotone Organico Pesante // Vestibilità & Calore",
     "description": "Il capo iconico dell'Atelier IMLAND. Una felpa ad alta grammatura, morbida, densa e calda, pensata per accompagnare il ritmo della montagna e la vita di tutti i giorni. Struttura resistente e massimo comfort.",
-    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
     "images": [
       "/brand/hoodie-1.jpg", 
       "/brand/hoodie-2.jpg", 
       "/brand/hoodie-3.jpg", 
       "/brand/hoodie-4.jpg", 
-      "/brand/hoodie-5.jpg"
+      "/brand/hoodie-5.jpg",
+      "/brand/hoodie-9.jpg",
+      "/brand/hoodie-11.jpg"
     ],
     "mailto": "mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info/Pre-Order%20//%20CLASSIC%20HOODIE&body=Salve%20Atelier%20IMLAND,%0A%0ADesidero%20ricevere%20informazioni%20o%20preordinare%20una%20Classic%20Hoodie.%0A%0AColore%20(Blu/Viola/Nera):%20%0ATaglia%20(Adulto/Kids):%20%0ANome:%20"
   },
@@ -23,7 +25,7 @@
     "tag": "ALPINE EDITION",
     "subtitle": "Felpa con Zip // Comfort & Praticità",
     "description": "Strato versatile con zip integrale a scorrimento rapido. Morbida, pratica e avvolgente, offre la giusta protezione termica durante le giornate all'aria aperta e nei cambi di temperatura.",
-    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
     "images": [
       "/brand/hoodie-7.jpg",
       "/brand/hoodie-8.jpg"
@@ -37,11 +39,12 @@
     "tag": "RAW COTTON & LIGHTWEAR",
     "subtitle": "T-Shirt, Gerla Bag & Neck Warmer",
     "description": "L'ecosistema essenziale IMLAND. La T-Shirt e la sacca 'Gerla Bag' sono realizzate in purissimo cotone organico al 100%. Il Neck Warmer è un copricollo leggerissimo e traspirante, progettato per riparare dal vento con la massima discrezione.",
-    "status": "[ INFO & PRE-ORDER VIA EMAIL ]",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
     "images": [
       "/brand/tee-1.jpg",
       "/brand/tee-2.jpg",
-      "/brand/tee-3.jpg"
+      "/brand/tee-3.jpg",
+      "/brand/tee-4.jpg"
     ],
     "mailto": "mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info/Pre-Order%20//%20ESSENTIALS%20AND%20GEAR&body=Salve%20Atelier%20IMLAND,%0A%0ADesidero%20ricevere%20informazioni%20o%20preordinare%20gli%20Essentials.%0A%0AProdotto%20(T-Shirt%20/%20Gerla%20Bag%20/%20Neck%20Warmer):%20%0AColore/Taglia:%20%0ANome:%20"
   }
