@@ -69,27 +69,51 @@ import brandProducts from '../brand_products.json';
         <div class="manifesto-quote-box font-mono-tech">
           "NON CERCHIAMO LA MONTAGNA PER EVADERE DALLA REALTÀ, MA PER RITROVARLA."
         </div>
-      <div class="brand-panel-content p-6" id="contacts-content">
-          <div class="mb-8 border-b border-[#222] pb-6">
-            <h3 class="font-syne text-sm uppercase tracking-widest text-[#555] mb-2">HEADQUARTER // CAMPO BASE</h3>
-            <h2 class="font-syne text-2xl font-bold tracking-tight text-[#111]">L'OSSERVATORIO IMLAND</h2>
-            <p class="font-mono-tech text-xs text-[#666] mt-2 tracking-wider">VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</p>
-            <p class="font-inter text-sm text-[#444] mt-4 leading-relaxed">
-              Il nostro campo base operativo nel cuore di Alagna. L'Atelier non vive solo nello spazio digitale: è uno studio di creazione e materia. È possibile visionare, toccare e provare fisicamente le collezioni direttamente in sede, esclusivamente su appuntamento.
+      <div class="brand-panel-content p-6" id="contacts-content" style="display: none;">
+          <!-- HEADER -->
+          <div class="mb-6 border-b border-[#222] pb-4">
+            <h3 class="font-syne text-[10px] uppercase tracking-widest text-[#888] mb-1">DUAL HUB ARCHITECTURE</h3>
+            <h2 class="font-syne text-xl font-bold tracking-tight text-[#111]">CONNETTI CON L'ATELIER</h2>
+          </div>
+
+          <!-- HUB 1: ALAGNA -->
+          <div class="mb-6 pb-4 border-b border-[#eee]">
+            <div class="flex justify-between items-baseline mb-1">
+              <span class="font-mono-tech text-xs font-bold text-[#111] tracking-wider">CAMPO BASE // ALAGNA</span>
+              <span class="font-mono-tech text-[10px] text-[#b3a082] uppercase tracking-wider">[ OSSERVATORIO & SHOWROOM ]</span>
+            </div>
+            <p class="font-mono-tech text-xs text-[#555] tracking-wide mb-2">VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</p>
+            <p class="font-inter text-xs text-[#666] leading-relaxed">
+              Sede operativa e prototipazione in quota. Test dei capi e archivio materiale. Visite e prove collezioni esclusivamente su appuntamento.
             </p>
           </div>
-          <div class="flex flex-col gap-4">
-            <div class="py-4 border-b border-[#ddd]">
-                <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex justify-between items-center hover:text-[#000] text-[#555] transition-colors text-decoration-none">
-                  <span class="font-mono-tech text-xs tracking-wider">VISITA L'ATELIER (SU APPUNTAMENTO) //</span>
-                  <span class="font-syne text-sm font-bold">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-                </a>
-                <p class="font-mono-tech text-[10px] text-[#888] mt-2 tracking-widest">SHOWROOM: VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</p>
+
+          <!-- HUB 2: MILANO -->
+          <div class="mb-6 pb-4 border-b border-[#eee]">
+            <div class="flex justify-between items-baseline mb-1">
+              <span class="font-mono-tech text-xs font-bold text-[#111] tracking-wider">CREATIVE LAB // MILANO</span>
+              <span class="font-mono-tech text-[10px] text-[#b3a082] uppercase tracking-wider">[ DESIGN STUDIO ]</span>
             </div>
-            <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="flex justify-between items-center py-4 border-b border-[#ddd] hover:text-[#000] text-[#555] transition-colors text-decoration-none">
-              <span class="font-mono-tech text-xs tracking-wider">COLLAB & PRESS //</span>
-              <span class="font-syne text-sm font-bold">INFO.IMLAND@GMAIL.COM ↗</span>
-            </a>
+            <p class="font-mono-tech text-xs text-[#555] tracking-wide mb-2">NAVIGLIO PAVESE 114, MILANO (MI)</p>
+            <p class="font-inter text-xs text-[#666] leading-relaxed">
+              Direzione artistica, ricerca tessile e laboratorio concettuale tra i canali urbani.
+            </p>
+          </div>
+
+          <!-- EMAIL DIRECT & CONTACTS -->
+          <div class="flex flex-col gap-4 pt-1">
+            <div>
+              <span class="font-mono-tech text-[10px] text-[#888] tracking-widest block mb-1">EMAIL DIRECT // PRE-ORDER & APPOINTMENTS</span>
+              <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info%20/%20Appuntamento%20Atelier" class="font-syne text-sm font-bold tracking-wide block">
+                IMLANDMOTEROSA@GMAIL.COM ↗
+              </a>
+            </div>
+            <div>
+              <span class="font-mono-tech text-[10px] text-[#888] tracking-widest block mb-1">PRESS & COLLAB // ATELIER NETWORK</span>
+              <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="font-syne text-sm font-bold tracking-wide block">
+                INFO.IMLAND@GMAIL.COM ↗
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -381,6 +405,17 @@ import brandProducts from '../brand_products.json';
   /* 2 Immagini (9s Loop) */
   .kburns-2 { animation: kb2 9s infinite linear; }
   @keyframes kb2 { 0% { opacity: 0; transform: scale(1); } 5% { opacity: 1; transform: scale(1.005); } 45% { opacity: 1; transform: scale(1.04); } 50%, 100% { opacity: 0; transform: scale(1.05); } }
+
+  /* IMLAND MINIMAL CONTACTS & SEPIA EMAIL LINKS */
+  #contacts-content a {
+    color: #b3a082 !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease, opacity 0.3s ease;
+  }
+  #contacts-content a:hover {
+    color: #111111 !important;
+    opacity: 0.8;
+  }
 </style>
 
 <script>
