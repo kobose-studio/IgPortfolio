@@ -1,35 +1,38 @@
 [
   {
-    "id": "gear-01",
-    "title": "IMLAND / MONTE ROSA ALPINIST HOODIE",
-    "subtitle": "HEAVYWEIGHT ORGANIC COTTON // 480 GSM",
+    "id": "gear_01",
+    "title": "IMLAND / MONTEROSA ALPINIST HOODIE",
     "category": "OUTDOOR OUTFIT",
-    "price": "€ 130,00",
-    "status": "PRE-ORDER / LIMITED EDITION",
-    "description": "Progettata tra le pareti rigide di Alagna. Tessuto ad alta densità per resistere ai venti alpini. Ricamo Sepia Gold sul petto e coordinate geografiche sul cappuccio.",
-    "tag": "ALAGNA APPROVED",
-    "image": "/brand/gear-hoodie.jpg"
+    "tag": "LIMITED EDITION // 50 PCS",
+    "subtitle": "Cotone Organico Pesante 480 GSM & Fibra Minerale",
+    "description": "Felpa tecnica ad alta grammatura testata sotto le raffiche del Colle del Lys. Cuciture rinforzate a tre punti, cappuccio anatomico e isolamento termico naturale per la massima protezione in quota.",
+    "price": "€ 170.00",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
+    "image": "/brand/gear-hoodie.jpg",
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20IMLAND%20ALPINIST%20HOODIE&body=Desidero%20riservare%20un%20capo%20dell%27Atelier%20IMLAND%20MONTEROSA.%0A%0AProdotto:%20IMLAND%20ALPINIST%20HOODIE%0ATaglia%20desiderata:%20[S%20/%20M%20/%20L%20/%20XL]%0ANome%20e%20Cognome:%20%0AIndirizzo%20di%20spedizione:%20"
   },
   {
-    "id": "gear-02",
+    "id": "gear_02",
     "title": "IMLAND / ANTRACITE TECHNICAL SHELL",
-    "subtitle": "3-LAYER WATERPROOF & BREATHABLE MEMBRANE",
-    "category": "TECHNICAL GEAR",
-    "price": "€ 290,00",
-    "status": "COMING SOON 2026",
-    "description": "Guscio tecnico impermeabile con cuciture nastrate a caldo. Taglio ergonomico studiato per lo sci alpinismo ed esplorazioni ad alta quota.",
-    "tag": "HARDCORE OUTDOOR",
-    "image": "/brand/gear-shell.jpg"
+    "category": "OUTDOOR GEAR",
+    "tag": "ATELIER ALAGNA // PROTOTYPE",
+    "subtitle": "Guscio 3 Layer Membrana Impermeabile 20.000mm",
+    "description": "Guscio protettivo traspirante e antivento progettato per l'alpinismo invernale. Taglio ergonomico, termosaldature strutturali e resistenza estreme sulle pareti di roccia e ghiaccio.",
+    "price": "€ 320.00",
+    "status": "[ INQUIRE DISPONIBILITÀ ]",
+    "image": "/brand/gear-shell.jpg",
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=INQUIRY%20//%20ANTRACITE%20TECHNICAL%20SHELL&body=Richiesta%20informazioni%20e%20disponibilit%C3%A0%20per%20ANTRACITE%20TECHNICAL%20SHELL.%0A%0ANome:%20%0ANote:%20"
   },
   {
-    "id": "gear-03",
+    "id": "gear_03",
     "title": "IMLAND / ALPINE MINERAL BEANIE",
-    "subtitle": "MERINO WOOL & RECYCLED FIBERS",
-    "category": "HEADWEAR",
-    "price": "€ 45,00",
-    "status": "AVAILABLE IN ATELIER",
-    "description": "Berretto in pura lana Merino e fibre minerali rigenerate. Risvolto tattico con patch gommata IMLAND Monte Rosa.",
-    "tag": "ESSENTIAL",
-    "image": "/brand/gear-beanie.jpg"
+    "category": "ACCESSORIES",
+    "tag": "RAW WOOL // 100% MERINO",
+    "subtitle": "Lana Merino Vergine Filata a Mano in Valsesia",
+    "description": "Berretto in lana termica ad altissima densità. Mantiene la temperatura corporea costante ed elimina l'umidità anche durante le ascensioni più impegnative.",
+    "price": "€ 45.00",
+    "status": "[ PRE-ORDER VIA EMAIL ]",
+    "image": "/brand/gear-beanie.jpg",
+    "mailto": "mailto:imlandmoterosa@gmail.com?subject=PRE-ORDER%20//%20ALPINE%20MINERAL%20BEANIE&body=Desidero%20riservare%20un%20berretto%20IMLAND%20ALPINE%20MINERAL%20BEANIE.%0A%0AColore/Variante:%20[Nero%20Antracite%20/%20Sabbia%20Minerale]%0ANome:%20"
   }
 ]
