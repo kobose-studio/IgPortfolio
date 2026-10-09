@@ -385,30 +385,39 @@ import brandProducts from '../brand_products.json';
   }
 
   
-  /* IMLAND VERTICAL LEFT NAVIGATION */
+  
+  /* IMLAND ORIGINAL LEFT AXIS (NO GLITCH) */
   header, nav, .nav-container, #main-nav {
     position: fixed !important;
-    left: 1.25rem !important;
+    left: -120px !important; /* Regola lo spostamento a sinistra */
     top: 50% !important;
-    transform: translateY(-50%) !important;
-    flex-direction: column !important;
-    writing-mode: vertical-rl !important;
-    rotate: 180deg !important;
+    transform: translateY(-50%) rotate(-90deg) !important;
+    transform-origin: center center !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
     z-index: 9999 !important;
-    background: transparent !important;
-    border: none !important;
+    background: transparent !important; /* Niente sfondo grigio */
+    border: none !important; /* Niente box bianco */
+    box-shadow: none !important;
     width: auto !important;
     height: auto !important;
-    margin: 0 !important;
     padding: 0 !important;
+    margin: 0 !important;
   }
 
-  /* Styling dei singoli link dentro la barra verticale */
+  /* I link tornano orizzontali all'interno del box ruotato */
   header a, nav a, .nav-container a {
     display: inline-block !important;
-    margin: 0.5rem 0 !important;
+    margin: 0 1rem !important;
     letter-spacing: 0.15em !important;
     white-space: nowrap !important;
+    color: #111 !important; /* Testo nero */
+  }
+  
+  header a:hover, nav a:hover, .nav-container a:hover {
+    color: #b3a082 !important; /* Hover Seppia */
   }
 </style>
 
