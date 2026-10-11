@@ -155,7 +155,7 @@ import brandProducts from '../brand_products.json';
 
     <!-- Riga 2: INSTAGRAM (Forzato a capo dal flex-direction: column) -->
     <a href="https://instagram.com/imlandmonterosa" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eee; text-decoration: none; color: #111;">
-      <span style="font-family: monospace; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.05em;">INSTAGRAM DIRECT //</span>
+      <span style="font-family: monospace; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.05em;"><br><br>INSTAGRAM DIRECT //</span>
       <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111; text-transform: uppercase;">@IMLANDMONTEROSA ↗</span>
     </a>
 
@@ -180,9 +180,9 @@ import brandProducts from '../brand_products.json';
       <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase text-left md:text-right group-hover:text-[#b3a082] transition-colors">IMLANDMOTEROSA@GMAIL.COM ↗</span>
     </a>
 
-    <!-- Row 2: INSTAGRAM DIRECT -->
+    <!-- Row 2: <br><br>INSTAGRAM DIRECT -->
     <a href="https://instagram.com/imlandmonterosa" target="_blank" rel="noopener" class="flex flex-col md:flex-row justify-between items-start md:items-center py-5 group no-underline">
-      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111] transition-colors">INSTAGRAM DIRECT //</span>
+      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111] transition-colors"><br><br>INSTAGRAM DIRECT //</span>
       <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase text-left md:text-right group-hover:text-[#b3a082] transition-colors">@IMLANDMONTEROSA ↗</span>
     </a>
 
@@ -445,6 +445,13 @@ import brandProducts from '../brand_products.json';
 
   #contacts-content a { color: #111111 !important; text-decoration: none !important; }
   #contacts-content a:hover span { color: #b3a082 !important; }
+
+  /* IMLAND VERTICAL RHYTHM SHIELD */
+  #contacts-content a, #contacts-content span {
+    display: block !important;
+    margin-bottom: 0.8rem !important;
+    line-height: 1.4 !important;
+  }
 </style>
 
 <script>
