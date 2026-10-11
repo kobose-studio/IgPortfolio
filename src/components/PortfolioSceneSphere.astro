@@ -92,10 +92,9 @@ import brandProducts from '../brand_products.json';
               <div class="product-img-container">
                 {prod.images ? (
                   <div class="carousel-wrapper">
-                    {prod.images.map((img, i) => {
-                      const delay = prod.images.length === 5 ? i * 4 : (prod.images.length === 3 ? i * 4.33 : i * 4.5);
-                      return <img src={img} alt={prod.title} class={`product-img kburns-${prod.images.length}`} style={`animation-delay: ${delay}s;`} />
-                    })}
+                    {prod.images.map((img, i) => (
+                      <img src={img} alt={prod.title} class={`product-img kburns-${prod.images.length}`} style={`animation-delay: ${i * 6}s;`} />
+                    ))}
                   </div>
                 ) : (
                   <img src={prod.image} alt={prod.title} class="product-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
@@ -122,42 +121,7 @@ import brandProducts from '../brand_products.json';
             </div>
           ))}
         </div>
-      <div class="brand-panel-content p-6" id="contacts-content" style="display: none;">
-          <div class="mb-8 border-b border-[#222] pb-4">
-            <h2 class="font-syne text-xl font-bold tracking-tight text-[#111] uppercase">CONNETTITI CON L'ARCHIVIO</h2>
-          </div>
-          
-          <div class="flex flex-col gap-3 mb-6">
-            <!-- BOX 1: EMAIL DIRECT -->
-            <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa] hover:border-[#b3a082] transition-colors group text-decoration-none">
-              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111]">EMAIL DIRECT //</span>
-              <span class="font-mono-tech text-[10px] font-bold text-[#b3a082] uppercase group-hover:text-[#111]">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-            </a>
-
-            <!-- BOX 2: OSSERVATORIO -->
-            <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa] hover:border-[#b3a082] transition-colors group text-decoration-none">
-              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111]">OSSERVATORIO IMLAND //</span>
-              <span class="font-mono-tech text-[10px] font-bold text-[#b3a082] uppercase text-right md:text-left group-hover:text-[#111]">VIA DEI WALSER 23, ALAGNA (VC) ↗</span>
-            </a>
-
-            <!-- BOX 3: CREATIVE LAB -->
-            <div class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa]">
-              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0">CREATIVE LAB //</span>
-              <span class="font-mono-tech text-[10px] font-bold text-[#888] uppercase text-right md:text-left">NAVIGLIO PAVESE 114, MILANO (MI)</span>
-            </div>
-
-            <!-- BOX 4: COLLAB & PRESS -->
-            <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="flex flex-col md:flex-row justify-between items-center p-4 border border-[#eee] bg-[#fafafa] hover:border-[#b3a082] transition-colors group text-decoration-none">
-              <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111]">COLLAB & PRESS //</span>
-              <span class="font-mono-tech text-[10px] font-bold text-[#b3a082] uppercase group-hover:text-[#111]">INFO.IMLAND@GMAIL.COM ↗</span>
-            </a>
-          </div>
-
-          <!-- TESTO DESCRITTIVO SNELLITO -->
-          <p class="font-inter text-xs text-[#444] leading-relaxed">
-            Il nostro campo base operativo nel cuore di Alagna. L'Atelier non vive solo nello spazio digitale: è uno studio di creazione e materia. È possibile visionare, toccare e provare fisicamente le collezioni direttamente in sede, esclusivamente su appuntamento.
-          </p>
-        </div>
+      
       </div>
     </div>
   </div>
@@ -180,29 +144,7 @@ import brandProducts from '../brand_products.json';
             <span class="link-value">IMLANDMOTEROSA@GMAIL.COM ↗</span>
           </a>
         </div>
-      <div class="brand-panel-content p-6" id="contacts-content">
-          <div class="mb-8 border-b border-[#222] pb-6">
-            <h3 class="font-syne text-sm uppercase tracking-widest text-[#555] mb-2">HEADQUARTER // CAMPO BASE</h3>
-            <h2 class="font-syne text-2xl font-bold tracking-tight text-[#111]">L'OSSERVATORIO IMLAND</h2>
-            <p class="font-mono-tech text-xs text-[#666] mt-2 tracking-wider">VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</p>
-            <p class="font-inter text-sm text-[#444] mt-4 leading-relaxed">
-              Il nostro campo base operativo nel cuore di Alagna. L'Atelier non vive solo nello spazio digitale: è uno studio di creazione e materia. È possibile visionare, toccare e provare fisicamente le collezioni direttamente in sede, esclusivamente su appuntamento.
-            </p>
-          </div>
-          <div class="flex flex-col gap-4">
-            <div class="py-4 border-b border-[#ddd]">
-                <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex justify-between items-center hover:text-[#000] text-[#555] transition-colors text-decoration-none">
-                  <span class="font-mono-tech text-xs tracking-wider">VISITA L'ATELIER (SU APPUNTAMENTO) //</span>
-                  <span class="font-syne text-sm font-bold">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-                </a>
-                <p class="font-mono-tech text-[10px] text-[#888] mt-2 tracking-widest">SHOWROOM: VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</p>
-            </div>
-            <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="flex justify-between items-center py-4 border-b border-[#ddd] hover:text-[#000] text-[#555] transition-colors text-decoration-none">
-              <span class="font-mono-tech text-xs tracking-wider">COLLAB & PRESS //</span>
-              <span class="font-syne text-sm font-bold">INFO.IMLAND@GMAIL.COM ↗</span>
-            </a>
-          </div>
-        </div>
+      
       </div>
     </div>
   </div>
@@ -349,77 +291,105 @@ import brandProducts from '../brand_products.json';
   
   
   
-  /* IMLAND ASYNC KEN BURNS CAROUSEL */
-  .carousel-wrapper { position: relative; width: 100%; height: 100%; background: #eaeaea; overflow: hidden; }
-  .carousel-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; object-fit: cover; transform-origin: center center; }
   
-  /* 7 Immagini (28s Loop) */
-  .kburns-7 { animation: kb7 28s infinite linear; }
-  @keyframes kb7 { 0% { opacity: 0; transform: scale(1); } 1.5% { opacity: 1; transform: scale(1.005); } 13% { opacity: 1; transform: scale(1.04); } 14.3%, 100% { opacity: 0; transform: scale(1.05); } }
-  
-  /* 5 Immagini (20s Loop) */
-  .kburns-5 { animation: kb5 20s infinite linear; }
-  @keyframes kb5 { 0% { opacity: 0; transform: scale(1); } 2% { opacity: 1; transform: scale(1.005); } 18% { opacity: 1; transform: scale(1.04); } 20%, 100% { opacity: 0; transform: scale(1.05); } }
-  
-  /* 4 Immagini (17s Loop) */
-  .kburns-4 { animation: kb4 17s infinite linear; }
-  @keyframes kb4 { 0% { opacity: 0; transform: scale(1); } 2.5% { opacity: 1; transform: scale(1.005); } 22.5% { opacity: 1; transform: scale(1.04); } 25%, 100% { opacity: 0; transform: scale(1.05); } }
-  
-  /* 3 Immagini (13s Loop) */
-  .kburns-3 { animation: kb3 13s infinite linear; }
-  @keyframes kb3 { 0% { opacity: 0; transform: scale(1); } 3% { opacity: 1; transform: scale(1.005); } 30% { opacity: 1; transform: scale(1.04); } 33.3%, 100% { opacity: 0; transform: scale(1.05); } }
-  
-  /* 2 Immagini (9s Loop) */
-  .kburns-2 { animation: kb2 9s infinite linear; }
-  @keyframes kb2 { 0% { opacity: 0; transform: scale(1); } 5% { opacity: 1; transform: scale(1.005); } 45% { opacity: 1; transform: scale(1.04); } 50%, 100% { opacity: 0; transform: scale(1.05); } }
-
-  /* IMLAND MINIMAL CONTACTS & SEPIA EMAIL LINKS */
-  #contacts-content a {
-    color: #b3a082 !important;
-    text-decoration: none !important;
-    transition: color 0.3s ease, opacity 0.3s ease;
-  }
-  #contacts-content a:hover {
-    color: #111111 !important;
-    opacity: 0.8;
-  }
-
-  
-  
-  
-  /* IMLAND ABSOLUTE LEFT AXIS (DESKTOP & MOBILE) */
+  /* IMLAND DYNAMIC AXIS SYSTEM */
   header, nav, .nav-container, #main-nav {
     position: fixed !important;
-    left: -120px !important;
-    top: 50% !important;
-    transform: translateY(-50%) rotate(-90deg) !important;
-    transform-origin: center center !important;
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
     z-index: 9999 !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    width: auto !important;
-    height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   header a, nav a, .nav-container a {
     display: inline-block !important;
-    margin: 0 1.25rem !important;
     letter-spacing: 0.15em !important;
     white-space: nowrap !important;
     color: #111 !important;
-    font-size: 11px !important;
     transition: color 0.3s ease !important;
   }
-  
+
   header a:hover, nav a:hover, .nav-container a:hover {
     color: #b3a082 !important;
+  }
+
+  /* DESKTOP (>=769px): Orizzontale al Centro in Alto */
+  @media (min-width: 769px) {
+    header, nav, .nav-container, #main-nav {
+      top: 3rem !important;
+      left: 50% !important;
+      transform: translateX(-50%) rotate(0deg) !important;
+      flex-direction: row !important;
+      width: auto !important;
+    }
+    header a, nav a, .nav-container a {
+      margin: 0 1.5rem !important;
+      font-size: 11px !important;
+    }
+  }
+
+  /* MOBILE (<=768px): Verticale Ancorato sul Margine Sinistro */
+  @media (max-width: 768px) {
+    header, nav, .nav-container, #main-nav {
+      top: 50% !important;
+      left: -120px !important;
+      transform: translateY(-50%) rotate(-90deg) !important;
+      transform-origin: center center !important;
+      width: auto !important;
+    }
+    header a, nav a, .nav-container a {
+      margin: 0 1rem !important;
+      font-size: 11px !important;
+    }
+  }
+
+  /* IMLAND SEAMLESS CROSSFADE CAROUSEL (Zero-Grey & Double Hold Duration) */
+  .carousel-wrapper { position: relative; width: 100%; height: 100%; background: #eaeaea; overflow: hidden; }
+  .carousel-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; object-fit: cover; transition: transform 0.8s ease-in-out; }
+  
+  /* 7 Immagini (42s Loop - 6s per foto) */
+  .kburns-7 { animation: kb7 42s infinite linear; }
+  @keyframes kb7 { 
+    0% { opacity: 0; transform: scale(1); }
+    2% { opacity: 1; transform: scale(1.01); }
+    14.28% { opacity: 1; transform: scale(1.04); }
+    16.28% { opacity: 0; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+
+  /* 5 Immagini (30s Loop - 6s per foto) */
+  .kburns-5 { animation: kb5 30s infinite linear; }
+  @keyframes kb5 { 
+    0% { opacity: 0; transform: scale(1); }
+    2.5% { opacity: 1; transform: scale(1.01); }
+    20% { opacity: 1; transform: scale(1.04); }
+    22.5% { opacity: 0; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+
+  /* 4 Immagini (24s Loop - 6s per foto) */
+  .kburns-4 { animation: kb4 24s infinite linear; }
+  @keyframes kb4 { 
+    0% { opacity: 0; transform: scale(1); }
+    3% { opacity: 1; transform: scale(1.01); }
+    25% { opacity: 1; transform: scale(1.04); }
+    28% { opacity: 0; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+
+  /* 2 Immagini (12s Loop - 6s per foto) */
+  .kburns-2 { animation: kb2 12s infinite linear; }
+  @keyframes kb2 { 
+    0% { opacity: 0; transform: scale(1); }
+    5% { opacity: 1; transform: scale(1.01); }
+    50% { opacity: 1; transform: scale(1.04); }
+    55% { opacity: 0; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1); }
   }
 </style>
 
