@@ -5,10 +5,10 @@ import brandProducts from '../brand_products.json';
 
 <div id="canvas-container">
   
-  
+  <audio id="bg-soundtrack" src="/brand/soundtrack.m4a" loop preload="auto"></audio>
 
-  
-  
+  <div class="bg-grain-overlay"></div>
+  <div class="top-vapour-mask"></div>
 
   <!-- BRAND HEADER GLOBALE -->
   <div id="global-brand-logo">
@@ -134,69 +134,18 @@ import brandProducts from '../brand_products.json';
         <button class="btn-close-drawer">[ CLOSE / ESC ]</button>
       </div>
       
-      <div class="brand-panel-content p-6 md:p-10 w-full max-w-2xl mx-auto" id="contacts-content">
-  <!-- Header Pannello -->
-  <div class="brand-panel-content p-6 md:p-10 w-full max-w-2xl mx-auto" id="contacts-content" style="width: 100%; max-width: 42rem; margin: 0 auto; color: #111;">
-  
-  <!-- Header -->
-  <div style="margin-bottom: 2rem; border-bottom: 1px solid #222; padding-bottom: 1rem;">
-    <span style="font-family: monospace; font-size: 9px; color: #b3a082; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">COMMUNICATION CHANNELS //</span>
-    <h2 class="font-syne text-[clamp(1.2rem,4vw,2.2rem)] font-black uppercase tracking-tighter text-[#111] transform scale-x-[1.15] origin-left" style="font-stretch: expanded;">CONNETTITI CON L'ARCHIVIO</h2>
-  </div>
-
-  <!-- Contenitore a Righe (Flexbox Forzato) -->
-  <div style="display: flex; flex-direction: column; width: 100%;">
-    
-    <!-- Riga 1: EMAIL -->
-    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eee; text-decoration: none; color: #111;">
-      <span style="font-family: monospace; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.05em;">EMAIL DIRECT //</span>
-      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111; text-transform: uppercase;">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-    </a>
-
-    <!-- Riga 2: INSTAGRAM (Forzato a capo dal flex-direction: column) -->
-    <a href="https://instagram.com/imlandmonterosa" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eee; text-decoration: none; color: #111;">
-      <span style="font-family: monospace; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.05em;"><br><br>INSTAGRAM DIRECT //</span>
-      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111; text-transform: uppercase;">@IMLANDMONTEROSA ↗</span>
-    </a>
-
-    <!-- Riga 3: OSSERVATORIO -->
-    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eee; text-decoration: none; color: #111;">
-      <div style="display: flex; flex-direction: column;">
-        <span style="font-family: monospace; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">OSSERVATORIO / SHOWROOM //</span>
-        <span style="font-family: monospace; font-size: 9px; color: #b3a082; font-weight: bold; text-transform: uppercase;">(SU APPUNTAMENTO)</span>
+      <div class="drawer-body">
+        <span class="editorial-tag font-mono-tech">COMMUNICATION CHANNEL</span>
+        <h2 class="editorial-heading font-syne">CONNETTITI CON L'ARCHIVIO</h2>
+        
+        <div class="contact-links-list font-mono-tech">
+          <a href="mailto:imlandmoterosa@gmail.com" class="contact-card-link">
+            <span class="link-label">EMAIL DIRECT //</span>
+            <span class="link-value">IMLANDMOTEROSA@GMAIL.COM ↗</span>
+          </a>
+        </div>
+      
       </div>
-      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111; text-transform: uppercase;">VIA DEI WALSER 23, 13021 ALAGNA VALSESIA (VC) ↗</span>
-    </a>
-
-  </div>
-</div>
-
-  <!-- Griglia a 3 Righe -->
-  <div class="flex flex-col w-full divide-y divide-[#eee]">
-    
-    <!-- Row 1: EMAIL DIRECT -->
-    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" class="flex flex-col md:flex-row justify-between items-start md:items-center py-5 group no-underline">
-      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111] transition-colors">EMAIL DIRECT //</span>
-      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase text-left md:text-right group-hover:text-[#b3a082] transition-colors">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-    </a>
-
-    <!-- Row 2: <br><br>INSTAGRAM DIRECT -->
-    <a href="https://instagram.com/imlandmonterosa" target="_blank" rel="noopener" class="flex flex-col md:flex-row justify-between items-start md:items-center py-5 group no-underline">
-      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 md:mb-0 group-hover:text-[#111] transition-colors"><br><br>INSTAGRAM DIRECT //</span>
-      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase text-left md:text-right group-hover:text-[#b3a082] transition-colors">@IMLANDMONTEROSA ↗</span>
-    </a>
-
-    <!-- Row 3: OSSERVATORIO / SHOWROOM -->
-    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex flex-col md:flex-row justify-between items-start md:items-center py-5 group no-underline">
-      <div class="flex flex-col">
-        <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase mb-1 group-hover:text-[#111] transition-colors">OSSERVATORIO / SHOWROOM //</span>
-        <span class="font-mono-tech text-[9px] text-[#b3a082] font-bold uppercase">(SU APPUNTAMENTO)</span>
-      </div>
-      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase text-left md:text-right group-hover:text-[#b3a082] transition-colors mt-2 md:mt-0">VIA DEI WALSER 23, 13021 ALAGNA VALSESIA (VC) ↗</span>
-    </a>
-
-  </div>
-</div>
     </div>
   </div>
 
@@ -205,7 +154,7 @@ import brandProducts from '../brand_products.json';
     <div id="editorial-card">
        <div class="card-meta-bar">
          <div class="status-box">
-           
+           <span class="status-dot"></span>
            <span id="modal-date" class="font-mono-tech">DATE // 00.00.0000</span>
          </div>
          <span id="modal-type" class="badge-type font-mono-tech">IMAGE</span>
@@ -225,7 +174,7 @@ import brandProducts from '../brand_products.json';
          <button id="btn-close" class="btn-secondary font-mono-tech">[ RESUME VORTEX / ESC ]</button>
        </div>
     </div>
-    
+    <div id="video-stage"></div>
   </div>
 </div>
 
@@ -443,14 +392,27 @@ import brandProducts from '../brand_products.json';
     100% { opacity: 0; transform: scale(1); }
   }
 
-  #contacts-content a { color: #111111 !important; text-decoration: none !important; }
+  /* IMLAND GLOBAL FIXES */
+  .carousel-wrapper img:first-child { opacity: 1 !important; }
+  #contacts-content a, #contacts-content a:visited { color: #111111 !important; text-decoration: none !important; }
   #contacts-content a:hover span { color: #b3a082 !important; }
-
-  /* IMLAND VERTICAL RHYTHM SHIELD */
-  #contacts-content a, #contacts-content span {
-    display: block !important;
-    margin-bottom: 0.8rem !important;
-    line-height: 1.4 !important;
+  
+  /* Responsive Panel Constraints */
+  @media (max-width: 768px) {
+    /* Impedisce al box descrittivo inferiore di strabordare e tagliare l'immagine */
+    .brand-panel-content, .info-panel {
+      width: 92vw !important;
+      left: 4vw !important;
+      right: 4vw !important;
+      box-sizing: border-box !important;
+    }
+    
+    /* Ridimensiona l'immagine WebGL o sposta il blocco testuale per non accavallarsi */
+    #image-info-panel {
+      max-height: 35vh; /* Limita l'altezza del testo */
+      overflow-y: auto; /* Aggiunge scroll se il testo è lungo */
+      bottom: 2vh !important; /* Dà aria rispetto al fondo */
+    }
   }
 </style>
 
