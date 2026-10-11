@@ -1,53 +1,98 @@
 import re
 
-file_path = 'src/components/PortfolioSceneSphere.astro'
-with open(file_path, 'r', encoding='utf-8') as f:
+target_file = 'src/components/PortfolioSceneSphere.astro'
+
+with open(target_file, 'r', encoding='utf-8') as f:
     content = f.read()
 
-# 1. FIX BOTTONI PRE-ORDER (Assicuriamoci che siano link e non bottoni inermi)
-old_btn = r'<button class="btn-product-action font-mono-tech".*?>\{prod\.status\}</button>'
-new_btn = r'<a href={prod.mailto} class="btn-product-action font-mono-tech" style="text-decoration:none; text-align:center; display:block; width:100%; transition: all 0.3s ease;">{prod.status}</a>'
-content = re.sub(old_btn, new_btn, content)
+# ESTRATTO HTML RIGOROSO A 4 BOX (INLINE STYLES ANTI-BLU)
+new_contacts_html = '''<div class="brand-panel-content p-6 md:p-10 w-full max-w-2xl mx-auto" id="contacts-content" style="color: #111111;">
+  <!-- Header Pannello -->
+  <div class="mb-6 border-b border-[#222] pb-4" style="border-bottom: 1px solid #222222; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+    <span class="font-mono-tech text-[9px] text-[#b3a082] tracking-widest uppercase block mb-2" style="font-family: monospace; font-size: 9px; color: #b3a082; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">COMMUNICATION CHANNELS //</span>
+    <h2 class="font-syne text-2xl md:text-3xl font-bold tracking-tight text-[#111] uppercase" style="font-size: 1.5rem; font-weight: bold; color: #111111; text-transform: uppercase; margin: 0;">CONNETTITI CON L'ARCHIVIO</h2>
+  </div>
 
-# 2. INIEZIONE DIRETTA DEL PANNELLO CONTATTI (Senza Regex complesse)
-# Cerchiamo l'inizio e la fine del div contacts-content
-start_marker = '<div class="brand-panel-content p-6" id="contacts-content" style="display: none;">'
-end_marker = '<!-- Aggiungi altri pannelli qui se necessario -->'
-
-if start_marker in content and end_marker in content:
-    # Dividiamo il file in tre parti: Prima dei contatti, i contatti, dopo i contatti
-    part1 = content.split(start_marker)[0]
-    part3 = content.split(end_marker)[1]
+  <!-- Griglia a 4 Righe con Bordi Puliti -->
+  <div class="flex flex-col w-full divide-y divide-[#eee]" style="display: flex; flex-direction: column; width: 100%;">
     
-    new_contacts = '''<div class="brand-panel-content p-6" id="contacts-content" style="display: none;">
-          <div class="mb-8 border-b border-[#222] pb-6">
-            <h3 class="font-syne text-sm uppercase tracking-widest text-[#555] mb-2">HEADQUARTER // CAMPO BASE</h3>
-            <h2 class="font-syne text-2xl font-bold tracking-tight text-[#111]">L'OSSERVATORIO IMLAND</h2>
-            <p class="font-mono-tech text-xs text-[#666] mt-2 tracking-wider">VIA DEI WALSER 23, ALAGNA VALSESIA, 13021 (VC)</p>
-            <p class="font-inter text-sm text-[#444] mt-4 leading-relaxed">
-              Il nostro campo base operativo nel cuore di Alagna. L'Atelier non vive solo nello spazio digitale: è uno studio di creazione e materia. È possibile visionare, toccare e provare fisicamente le collezioni direttamente in sede, esclusivamente su appuntamento.
-            </p>
-          </div>
-          <div class="flex flex-col gap-4">
-            <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" class="flex justify-between items-center py-4 border-b border-[#ddd] hover:text-[#000] text-[#555] transition-colors text-decoration-none">
-              <span class="font-mono-tech text-xs tracking-wider">VISITA L'ATELIER (SU APPUNTAMENTO) //</span>
-              <span class="font-syne text-sm font-bold">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-            </a>
-            <a href="mailto:info.imland@gmail.com?subject=Richiesta%20Collaborazione/Press" class="flex justify-between items-center py-4 border-b border-[#ddd] hover:text-[#000] text-[#555] transition-colors text-decoration-none">
-              <span class="font-mono-tech text-xs tracking-wider">COLLAB & PRESS //</span>
-              <span class="font-syne text-sm font-bold">INFO.IMLAND@GMAIL.COM ↗</span>
-            </a>
-          </div>
-        </div>
-        
-        ''' + end_marker
-        
-    # Ricuciamo il file
-    content = part1 + new_contacts + part3
-    print("✅ Pannello Contatti aggiornato con Iniezione Diretta!")
-else:
-    print("⚠️ Impossibile trovare i marker per il pannello contatti.")
+    <!-- Row 1: EMAIL DIRECT -->
+    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" class="flex flex-col md:flex-row justify-between items-start md:items-center py-4 border-b border-[#eee] group" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eeeeee; text-decoration: none !important; color: #111111 !important;">
+      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase" style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">EMAIL DIRECT //</span>
+      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase group-hover:text-[#b3a082]" style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">IMLANDMOTEROSA@GMAIL.COM ↗</span>
+    </a>
 
-with open(file_path, 'w', encoding='utf-8') as f:
+    <!-- Row 2: INSTAGRAM DIRECT -->
+    <a href="https://instagram.com/imland.monterosa" target="_blank" rel="noopener" class="flex flex-col md:flex-row justify-between items-start md:items-center py-4 border-b border-[#eee] group" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eeeeee; text-decoration: none !important; color: #111111 !important;">
+      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase" style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">INSTAGRAM DIRECT //</span>
+      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase group-hover:text-[#b3a082]" style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">@IMLAND.MONTEROSA ↗</span>
+    </a>
+
+    <!-- Row 3: PRESS & PR -->
+    <a href="mailto:info.imland@gmail.com?subject=Press%20%26%20PR" class="flex flex-col md:flex-row justify-between items-start md:items-center py-4 border-b border-[#eee] group" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eeeeee; text-decoration: none !important; color: #111111 !important;">
+      <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase" style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">PRESS & PR //</span>
+      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase group-hover:text-[#b3a082]" style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">INFO.IMLAND@GMAIL.COM ↗</span>
+    </a>
+
+    <!-- Row 4: SHOWROOM / HEADQUARTER -->
+    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Showroom" class="flex flex-col md:flex-row justify-between items-start md:items-center py-4 border-b border-[#eee] group" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #eeeeee; text-decoration: none !important; color: #111111 !important;">
+      <div style="display: flex; flex-direction: column;">
+        <span class="font-mono-tech text-[10px] tracking-wider text-[#555] uppercase" style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">SHOWROOM / HEADQUARTER //</span>
+        <span class="font-mono-tech text-[9px] text-[#b3a082] font-bold uppercase" style="font-family: monospace; font-size: 9px; color: #b3a082; font-weight: bold; text-transform: uppercase;">(SU APPUNTAMENTO)</span>
+      </div>
+      <span class="font-mono-tech text-[10px] font-bold text-[#111] uppercase" style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase; margin-top: 0.25rem;">VIA DEI WALSER 23, 13021 ALAGNA VALSESIA (VC) ↗</span>
+    </a>
+
+  </div>
+</div>'''
+
+# Troviamo l'ancora madre e sostituiamo con conteggio di profondità
+pos = content.find("CONNETTITI CON L'ARCHIVIO")
+if pos != -1:
+    start = content.rfind('<div class="brand-panel-content"', 0, pos)
+    if start == -1:
+        start = content.rfind('<div id="contacts-content"', 0, pos)
+    if start == -1:
+        start = content.rfind('<div', 0, pos)
+
+    if start != -1:
+        depth = 0
+        i = start
+        end = -1
+        while i < len(content):
+            if content.startswith('<div', i):
+                depth += 1
+                i += 4
+            elif content.startswith('</div', i):
+                depth -= 1
+                if depth == 0:
+                    end = i + 6
+                    break
+                i += 6
+            else:
+                i += 1
+
+        if end != -1:
+            content = content[:start] + new_contacts_html + content[end:]
+            print("✅ Contatti sostituiti con successo.")
+
+# Iniezione Regola Anti-Blu nello Style Scoped
+anti_blue_css = '''
+  /* OVERRIDE DEFINITIVO ANTI-BLU LINK */
+  #contacts-content a, #contacts-content a:visited, #contacts-content a:hover, #contacts-content a:active {
+    color: #111111 !important;
+    text-decoration: none !important;
+  }
+  #contacts-content a:hover span:last-child {
+    color: #b3a082 !important;
+  }
+</style>'''
+
+if '</style>' in content:
+    idx_style = content.rfind('</style>')
+    content = content[:idx_style] + anti_blue_css + content[idx_style+8:]
+
+with open(target_file, 'w', encoding='utf-8') as f:
     f.write(content)
 
+print("🚀 Sostituzione conclusa.")
