@@ -134,18 +134,35 @@ import brandProducts from '../brand_products.json';
         <button class="btn-close-drawer">[ CLOSE / ESC ]</button>
       </div>
       
-      <div class="drawer-body">
-        <span class="editorial-tag font-mono-tech">COMMUNICATION CHANNEL</span>
-        <h2 class="editorial-heading font-syne">CONNETTITI CON L'ARCHIVIO</h2>
-        
-        <div class="contact-links-list font-mono-tech">
-          <a href="mailto:imlandmoterosa@gmail.com" class="contact-card-link">
-            <span class="link-label">EMAIL DIRECT //</span>
-            <span class="link-value">IMLANDMOTEROSA@GMAIL.COM ↗</span>
-          </a>
-        </div>
-      
+      <div class="brand-panel-content p-6 md:p-10 w-full max-w-2xl mx-auto" id="contacts-content" style="display: block !important; width: 100% !important; box-sizing: border-box !important;">
+  <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #222222; padding-bottom: 1rem;">
+    <span style="font-family: monospace; font-size: 9px; color: #b3a082; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">COMMUNICATION CHANNELS //</span>
+    <h2 style="font-size: 1.6rem; font-weight: 900; color: #111111; text-transform: uppercase; margin: 0; letter-spacing: -0.02em;">CONNETTITI CON L'ARCHIVIO</h2>
+  </div>
+
+  <div style="display: flex !important; flex-direction: column !important; width: 100% !important; gap: 0.25rem !important;">
+    <!-- ROW 1: EMAIL DIRECT -->
+    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
+      <span style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">EMAIL DIRECT //</span>
+      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">IMLANDMOTEROSA@GMAIL.COM ↗</span>
+    </a>
+
+    <!-- ROW 2: INSTAGRAM DIRECT -->
+    <a href="https://instagram.com/imlandmonterosa" target="_blank" rel="noopener noreferrer" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
+      <span style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">INSTAGRAM DIRECT //</span>
+      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">@IMLANDMONTEROSA ↗</span>
+    </a>
+
+    <!-- ROW 3: OSSERVATORIO / SHOWROOM -->
+    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
+      <div style="display: flex; flex-direction: column;">
+        <span style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">OSSERVATORIO / SHOWROOM //</span>
+        <span style="font-family: monospace; font-size: 9px; color: #b3a082; font-weight: bold; text-transform: uppercase;">(SU APPUNTAMENTO)</span>
       </div>
+      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">VIA DEI WALSER 23, 13021 ALAGNA VALSESIA (VC) ↗</span>
+    </a>
+  </div>
+</div>
     </div>
   </div>
 
@@ -392,26 +409,22 @@ import brandProducts from '../brand_products.json';
     100% { opacity: 0; transform: scale(1); }
   }
 
-  /* IMLAND GLOBAL FIXES */
-  .carousel-wrapper img:first-child { opacity: 1 !important; }
-  #contacts-content a, #contacts-content a:visited { color: #111111 !important; text-decoration: none !important; }
+  /* OVERRIDE DEFINITIVO LINK CONTATTI */
   #contacts-content a:hover span { color: #b3a082 !important; }
-  
-  /* Responsive Panel Constraints */
+
+  /* ELEVAZIONE IMMAGINE 3D SU MOBILE PER EVITARE SOVRAPPOSIZIONE CARD */
   @media (max-width: 768px) {
-    /* Impedisce al box descrittivo inferiore di strabordare e tagliare l'immagine */
-    .brand-panel-content, .info-panel {
-      width: 92vw !important;
-      left: 4vw !important;
-      right: 4vw !important;
-      box-sizing: border-box !important;
+    /* Quando un'immagine viene aperta nel dettaglio, trasliamo il Canvas WebGL verso l'alto */
+    canvas {
+      transform: translateY(-8vh) !important;
+      transition: transform 0.4s ease-out !important;
     }
-    
-    /* Ridimensiona l'immagine WebGL o sposta il blocco testuale per non accavallarsi */
-    #image-info-panel {
-      max-height: 35vh; /* Limita l'altezza del testo */
-      overflow-y: auto; /* Aggiunge scroll se il testo è lungo */
-      bottom: 2vh !important; /* Dà aria rispetto al fondo */
+
+    /* Manteniamo la card info compatta e ancorata in basso */
+    #image-info-panel, .info-panel {
+      max-height: 38vh !important;
+      bottom: 1.5vh !important;
+      overflow-y: auto !important;
     }
   }
 </style>
