@@ -1,3 +1,33 @@
+
+<!-- IMLAND FULLSCREEN LOADING CURTAIN -->
+<div id="imland-loader" style="position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; background-color: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: auto;">
+  <div style="text-align: center; padding: 0 24px; max-width: 400px;">
+    <h1 style="font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 0.25em; text-transform: uppercase; color: #111111; margin-bottom: 20px; animation: loaderPulse 2s infinite;">
+      MATERIALIZING ARCHIVE...
+    </h1>
+    <p style="font-family: monospace; font-size: 10px; letter-spacing: 0.15em; color: #b3a082; text-transform: uppercase; line-height: 1.8; margin: 0;">
+      For the deepest visual journey,<br><br>the Desktop experience is highly recommended.
+    </p>
+  </div>
+</div>
+
+<style>
+  @keyframes loaderPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+</style>
+
+<script>
+  window.addEventListener('load', () => {
+    // Garantisce che il 3D sia completamente renderizzato prima di sollevare il sipario
+    setTimeout(() => {
+      const loader = document.getElementById('imland-loader');
+      if (loader) {
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+        setTimeout(() => loader.remove(), 1500);
+      }
+    }, 2000);
+  });
+</script>
 ---
 import portfolioData from '../portfolio_cache.json';
 import brandProducts from '../brand_products.json';
@@ -454,6 +484,37 @@ import brandProducts from '../brand_products.json';
       transform: translateY(-22vh) !important;
       transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
+  }
+
+  /* RESPONSIVE ELEVATION & VIDEO MEMORY SHIELD */
+  @media (max-width: 768px) {
+    /* Nascondiamo il menu desktop laterale per attivare il panino /// */
+    .vertical-nav, #axis-nav, [class*="nav-container"] {
+      display: none !important;
+    }
+
+    /* Solleviamo il Canvas WebGL mantenendo il logo IMLAND in alto totalmente libero */
+    canvas {
+      transform: translateY(-18vh) scale(0.88) !important;
+      transform-origin: center top !important;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* Compatta la scheda informativa in basso */
+    #image-info-panel, .info-panel {
+      max-height: 35vh !important;
+      bottom: 12px !important;
+      left: 4vw !important;
+      right: 4vw !important;
+      width: 92vw !important;
+      overflow-y: auto !important;
+    }
+  }
+
+  /* VIDEO PREVENT BLACK BOX */
+  video {
+    object-fit: cover !important;
+    background-color: #000000;
   }
 </style>
 
