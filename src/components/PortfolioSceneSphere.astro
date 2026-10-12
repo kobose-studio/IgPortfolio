@@ -142,9 +142,9 @@ import brandProducts from '../brand_products.json';
 
   <div style="display: flex !important; flex-direction: column !important; width: 100% !important; gap: 0.25rem !important;">
     <!-- ROW 1: EMAIL DIRECT -->
-    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Info" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
+    <a href="mailto:imlandmonterosa@gmail.com?subject=Richiesta%20Info" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
       <span style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">EMAIL DIRECT //</span>
-      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">IMLANDMOTEROSA@GMAIL.COM ↗</span>
+      <span style="font-family: monospace; font-size: 10px; font-weight: bold; color: #111111; text-transform: uppercase;">IMLANDMONTEROSA@GMAIL.COM ↗</span>
     </a>
 
     <!-- ROW 2: INSTAGRAM DIRECT -->
@@ -154,7 +154,7 @@ import brandProducts from '../brand_products.json';
     </a>
 
     <!-- ROW 3: OSSERVATORIO / SHOWROOM -->
-    <a href="mailto:imlandmoterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
+    <a href="mailto:imlandmonterosa@gmail.com?subject=Richiesta%20Appuntamento%20Osservatorio" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 1.1rem 0 !important; border-bottom: 1px solid #eeeeee !important; text-decoration: none !important; color: #111111 !important;">
       <div style="display: flex; flex-direction: column;">
         <span style="font-family: monospace; font-size: 10px; color: #555555; text-transform: uppercase;">OSSERVATORIO / SHOWROOM //</span>
         <span style="font-family: monospace; font-size: 9px; color: #b3a082; font-weight: bold; text-transform: uppercase;">(SU APPUNTAMENTO)</span>
@@ -445,6 +445,14 @@ import brandProducts from '../brand_products.json';
       max-height: 38vh !important;
       bottom: 1.5vh !important;
       overflow-y: auto !important;
+    }
+  }
+
+  /* Y-OFFSET SHIELD FOR MOBILE IMAGES */
+  @media (max-width: 768px) {
+    canvas {
+      transform: translateY(-22vh) !important;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
   }
 </style>
