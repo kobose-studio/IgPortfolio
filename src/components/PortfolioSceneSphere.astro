@@ -13,6 +13,53 @@
 
 <style>
   @keyframes loaderPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* CAROUSEL STACKING FIX: Sovrappone le immagini invece di affiancarle */
+  .carousel-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    height: 220px !important;
+    overflow: hidden !important;
+    display: block !important;
+  }
+
+  .carousel-wrapper img, .carousel-wrapper video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* CENTRATURA MODALE & RISOLUZIONE TAGLIO DESTRO MOBILE */
+  .brand-panel-content, #brand-modal, [class*="brand-panel"] {
+    box-sizing: border-box !important;
+  }
+
+  @media (min-width: 769px) {
+    .brand-panel-content {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      max-width: 860px !important;
+      width: 90vw !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .brand-panel-content, #brand-modal {
+      position: relative !important;
+      width: 92vw !important;
+      max-width: 92vw !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      left: 0 !important;
+      right: 0 !important;
+      box-sizing: border-box !important;
+      padding: 16px !important;
+      overflow-x: hidden !important;
+    }
+  }
 </style>
 
 <script>
@@ -515,6 +562,53 @@ import brandProducts from '../brand_products.json';
   video {
     object-fit: cover !important;
     background-color: #000000;
+  }
+
+  /* CAROUSEL STACKING FIX: Sovrappone le immagini invece di affiancarle */
+  .carousel-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    height: 220px !important;
+    overflow: hidden !important;
+    display: block !important;
+  }
+
+  .carousel-wrapper img, .carousel-wrapper video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* CENTRATURA MODALE & RISOLUZIONE TAGLIO DESTRO MOBILE */
+  .brand-panel-content, #brand-modal, [class*="brand-panel"] {
+    box-sizing: border-box !important;
+  }
+
+  @media (min-width: 769px) {
+    .brand-panel-content {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      max-width: 860px !important;
+      width: 90vw !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .brand-panel-content, #brand-modal {
+      position: relative !important;
+      width: 92vw !important;
+      max-width: 92vw !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      left: 0 !important;
+      right: 0 !important;
+      box-sizing: border-box !important;
+      padding: 16px !important;
+      overflow-x: hidden !important;
+    }
   }
 </style>
 
