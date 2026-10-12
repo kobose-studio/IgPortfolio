@@ -1516,12 +1516,15 @@ import brandProducts from '../brand_products.json';
 </script>
 
 
+
+
+
 <style is:global>
-  /* 1. CAROUSEL STACKING: Immagini sovrapposte per il Poliritmo */
+  /* 1. STACKING CAROSELLO: Sovrappone le immagini invece di affiancarle */
   .carousel-wrapper {
     position: relative !important;
     width: 100% !important;
-    height: 240px !important;
+    height: 220px !important;
     overflow: hidden !important;
     display: block !important;
   }
@@ -1536,37 +1539,42 @@ import brandProducts from '../brand_products.json';
 
   /* 2. MOBILE LAYOUT: Centratura assoluta e distruzione menu laterale */
   @media (max-width: 768px) {
-    /* Uccide il menu che spinge il layout */
-    .vertical-nav, #axis-nav, [class*="nav-container"] {
+    .vertical-nav, #axis-nav, [class*="nav-container"], .sidebar-nav {
       display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
-    /* Centra il box e lo rende più compatto per far respirare il 3D */
-    .brand-panel-content, #brand-modal, .info-panel {
+    .brand-panel-content, #brand-modal, .info-panel, [class*="brand-panel"] {
       position: fixed !important;
-      bottom: 2vh !important;
-      left: 4vw !important;
-      width: 92vw !important;
-      max-width: 92vw !important;
-      max-height: 42vh !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: 90vw !important;
+      max-width: 90vw !important;
+      max-height: 82vh !important;
       overflow-y: auto !important;
       margin: 0 !important;
+      padding: 18px !important;
       box-sizing: border-box !important;
-      z-index: 9999 !important;
+      z-index: 99999 !important;
     }
-    /* Solleva la foto 3D per non toccare il box testuale */
     canvas {
-      transform: translateY(-22vh) scale(0.85) !important;
+      transform: translateY(-18vh) scale(0.85) !important;
     }
   }
 
-  /* 3. DESKTOP CENTERING: Modale perfettamente al centro */
+  /* 3. DESKTOP CENTERING: Modale esattamente al centro dello schermo */
   @media (min-width: 769px) {
-    .brand-panel-content {
-      margin: 0 auto !important;
-      left: 0 !important;
-      right: 0 !important;
-      position: absolute !important;
-      max-width: 860px !important;
+    .brand-panel-content, #brand-modal {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      max-width: 880px !important;
+      width: 85vw !important;
+      margin: 0 !important;
+      box-sizing: border-box !important;
     }
   }
 </style>
