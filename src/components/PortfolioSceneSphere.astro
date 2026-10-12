@@ -427,6 +427,26 @@ import brandProducts from '../brand_products.json';
       overflow-y: auto !important;
     }
   }
+/* IMLAND MOBILE HAMBURGER & 3D ELEVATION */
+  @media (max-width: 768px) {
+    /* Nascondiamo il menu desktop originale per fare spazio all'hamburger */
+    .vertical-nav, #axis-nav, [class*="nav-container"] {
+      display: none !important;
+    }
+
+    /* Elevazione 3D Canvas intatta per non tagliare le foto in primo piano */
+    canvas {
+      transform: translateY(-12vh) !important;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* Scheda info compatta in basso */
+    #image-info-panel, .info-panel {
+      max-height: 38vh !important;
+      bottom: 1.5vh !important;
+      overflow-y: auto !important;
+    }
+  }
 </style>
 
 <script>
