@@ -4,12 +4,12 @@ import brandProducts from '../brand_products.json';
 ---
 <script is:inline>
 (function() {
-  if (window.__IMLAND_FEATHERWEIGHT_V5) return;
-  window.__IMLAND_FEATHERWEIGHT_V5 = true;
+  if (window.__IMLAND_FEATHERWEIGHT_V6) return;
+  window.__IMLAND_FEATHERWEIGHT_V6 = true;
 
   const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // 1. PIXEL RATIO SHIELD: 1.0x su Mobile per evitare saturazione VRAM iOS, 1.25x su Desktop
+  // 1. PIXEL RATIO SHIELD: 1.0x su Mobile (risparmia 75% RAM GPU), 1.25x su Desktop
   const maxDPR = isMobile ? 1.0 : 1.25;
   const nativeDPR = window.devicePixelRatio || 1;
   try {
@@ -18,39 +18,154 @@ import brandProducts from '../brand_products.json';
     });
   } catch (e) {}
 
-  // 2. OTTIMIZZAZIONE WEBGL MOBILE (Low-power + no antialias pesante)
+  // 2. CONTESTO WEBGL MOBILE LEGGERO (Zero blocco watchdog Android "UI non risponde")
   if (isMobile) {
     const origGetContext = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function(type, attrs) {
       if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
-        attrs = Object.assign({}, attrs, { antialias: false, powerPreference: 'low-power' });
+        attrs = Object.assign({}, attrs, {
+          antialias: false,
+          powerPreference: 'low-power',
+          precision: 'mediump'
+        });
       }
       return origGetContext.call(this, type, attrs);
     };
+
+    // Limita la galassia mobile a 60 nodi per mantenere la RAM sempre leggera
+    const origParse = JSON.parse;
+    JSON.parse = function(text, reviver) {
+      const res = origParse.call(this, text, reviver);
+      if (res && Array.isArray(res.data) && res.data.length > 60) {
+        res.data = res.data.slice(0, 60);
+      } else if (Array.isArray(res) && res.length > 60 && res[0] && (res[0].media_url || res[0].id)) {
+        return res.slice(0, 60);
+      }
+      return res;
+    };
   }
 
-  // 3. GUARDIA DOM IMWEAR: Assicura al volo che le 3 colonne abbiano sempre 9, 3 e 5 foto esatte
-  function syncImwearCarousels() {
-    const sets = [
-      ['/brand/hoodie-1.jpg', '/brand/hoodie-2.jpg', '/brand/hoodie-3.jpg', '/brand/hoodie-4.jpg', '/brand/hoodie-5.jpg', '/brand/hoodie-6.jpg', '/brand/hoodie-7.jpg', '/brand/hoodie-8.jpg', '/brand/hoodie-9.jpg'],
-      ['/brand/hoodie_zip-1.jpg', '/brand/hoodie_zip-2.jpg', '/brand/hoodie_zip-3.jpg'],
-      ['/brand/tee-1.jpg', '/brand/tee-2.jpg', '/brand/tee-3.jpg', '/brand/tee-4.jpg', '/brand/tee-5.jpg']
-    ];
-    const wrappers = document.querySelectorAll('.carousel-wrapper');
-    wrappers.forEach((wrap, colIdx) => {
-      if (!sets[colIdx]) return;
-      const imgs = wrap.querySelectorAll('img');
-      if (imgs.length !== sets[colIdx].length || (imgs[0] && !imgs[0].getAttribute('src').includes(sets[colIdx][0]))) {
-        wrap.innerHTML = sets[colIdx].map((src, i) =>
-          `<img src="${src}" alt="IMLAND ${colIdx+1}-${i+1}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:${i===0?1:0};transition:opacity 0.9s ease;" />`
-        ).join('');
-      }
+  // 3. DRIP-FEED ASYNC QUEUE (Cede respiro al thread UI Android ogni 30ms)
+  const MAX_CONCURRENT = isMobile ? 3 : 8;
+  let activeLoads = 0;
+  const loadQueue = [];
+  const rawSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+
+  function pumpQueue() {
+    while (activeLoads < MAX_CONCURRENT && loadQueue.length > 0) {
+      const task = loadQueue.shift();
+      activeLoads++;
+      let released = false;
+
+      const release = () => {
+        if (released) return;
+        released = true;
+        activeLoads = Math.max(0, activeLoads - 1);
+        setTimeout(pumpQueue, isMobile ? 30 : 8);
+      };
+
+      task.img.addEventListener('load', release, { once: true });
+      task.img.addEventListener('error', release, { once: true });
+      setTimeout(release, 3500);
+
+      rawSrcDescriptor.set.call(task.img, task.url);
+    }
+  }
+
+  if (rawSrcDescriptor && rawSrcDescriptor.set) {
+    Object.defineProperty(HTMLImageElement.prototype, 'src', {
+      get: rawSrcDescriptor.get,
+      set: function(url) {
+        this.decoding = 'async';
+        if (!url || typeof url !== 'string' || url.startsWith('data:') || url.startsWith('blob:') || url.includes('/brand/')) {
+          rawSrcDescriptor.set.call(this, url);
+          return;
+        }
+        loadQueue.push({ img: this, url: url });
+        setTimeout(pumpQueue, 0);
+      },
+      configurable: true
     });
   }
-  window.addEventListener('DOMContentLoaded', syncImwearCarousels);
-  setTimeout(syncImwearCarousels, 800);
 
-  // 4. DISCRIMINATORE TATTILE SWIPE VS TAP (Evita aperture accidentali durante lo scroll)
+  // 4. GUARDIANO CAROSELLI IMWEAR (Forza le 3 collezioni esatte 9-3-5 contro ogni sovrascrittura)
+  const CATALOG_SETS = {
+    classic: ['/brand/hoodie-1.jpg', '/brand/hoodie-2.jpg', '/brand/hoodie-3.jpg', '/brand/hoodie-4.jpg', '/brand/hoodie-5.jpg', '/brand/hoodie-6.jpg', '/brand/hoodie-7.jpg', '/brand/hoodie-8.jpg', '/brand/hoodie-9.jpg'],
+    zip: ['/brand/hoodie_zip-1.jpg', '/brand/hoodie_zip-2.jpg', '/brand/hoodie_zip-3.jpg'],
+    essentials: ['/brand/tee-1.jpg', '/brand/tee-2.jpg', '/brand/tee-3.jpg', '/brand/tee-4.jpg', '/brand/tee-5.jpg']
+  };
+  const slideIndexes = { classic: 0, zip: 0, essentials: 0 };
+
+  function enforceImwearCatalog(advanceSlide) {
+    const modal = document.getElementById('brand-modal') || document.querySelector('[class*="brand-panel"]');
+    if (!modal) return;
+
+    // Cerca le 3 card prodotto tramite il loro titolo
+    const cards = modal.querySelectorAll('article, .product-card, [class*="card"], [class*="col"]');
+    let matchedAny = false;
+
+    cards.forEach((card) => {
+      const txt = (card.textContent || '').toUpperCase();
+      let key = null;
+      if (txt.includes('FULL-ZIP')) key = 'zip';
+      else if (txt.includes('CLASSIC HOODIE')) key = 'classic';
+      else if (txt.includes('ESSENTIALS')) key = 'essentials';
+
+      if (!key) return;
+      const imgs = card.querySelectorAll('img');
+      if (imgs.length === 0) return;
+      matchedAny = true;
+
+      const list = CATALOG_SETS[key];
+      if (advanceSlide) {
+        slideIndexes[key] = (slideIndexes[key] + 1) % list.length;
+      }
+      const targetSrc = list[slideIndexes[key]];
+
+      // Se c'e' una sola <img> dinamica, aggiorna direttamente il suo src
+      if (imgs.length === 1) {
+        if (!imgs[0].getAttribute('src')?.endsWith(targetSrc)) {
+          rawSrcDescriptor.set.call(imgs[0], targetSrc);
+        }
+      } else {
+        // Se ci sono piu' <img> sovrapposte, allinea gli src e gestisce la dissolvenza
+        imgs.forEach((imgEl, idx) => {
+          const expected = list[idx % list.length];
+          if (!imgEl.getAttribute('src')?.endsWith(expected)) {
+            rawSrcDescriptor.set.call(imgEl, expected);
+          }
+          imgEl.style.opacity = (idx === slideIndexes[key]) ? '1' : '0';
+          imgEl.style.transition = 'opacity 0.85s ease';
+        });
+      }
+    });
+
+    // Fallback posizionale sui primi 3 .carousel-wrapper se i titoli non sono nello stesso nodo
+    if (!matchedAny) {
+      const wrappers = modal.querySelectorAll('.carousel-wrapper');
+      const keys = ['classic', 'zip', 'essentials'];
+      wrappers.forEach((wrap, i) => {
+        const key = keys[i];
+        if (!key) return;
+        const list = CATALOG_SETS[key];
+        if (advanceSlide) slideIndexes[key] = (slideIndexes[key] + 1) % list.length;
+        const imgs = wrap.querySelectorAll('img');
+        imgs.forEach((imgEl, idx) => {
+          const expected = list[idx % list.length];
+          if (!imgEl.getAttribute('src')?.endsWith(expected)) {
+            rawSrcDescriptor.set.call(imgEl, expected);
+          }
+          imgEl.style.opacity = (idx === slideIndexes[key]) ? '1' : '0';
+        });
+      });
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => enforceImwearCatalog(false));
+  setInterval(() => enforceImwearCatalog(true), 3200);
+  document.addEventListener('click', () => setTimeout(() => enforceImwearCatalog(false), 60));
+
+  // 5. DISCRIMINATORE TATTILE SWIPE VS TAP & STATO ISOLAMENTO MOBILE
   if (isMobile) {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -81,9 +196,16 @@ import brandProducts from '../brand_products.json';
         movedBeyondThreshold = false;
       }
     }, { capture: true });
+
+    // Monitora se una foto e' isolata per nascondere il menu laterale ed evitare sovrapposizioni
+    setInterval(() => {
+      const stage = document.getElementById('editorial-stage');
+      const isIsolated = stage && (stage.classList.contains('is-active') || getComputedStyle(stage).opacity === '1' && getComputedStyle(stage).pointerEvents !== 'none');
+      document.body.classList.toggle('mobile-artwork-isolated', Boolean(isIsolated));
+    }, 150);
   }
 
-  // 5. GPU HIBERNATION & THERMAL FRAME PACING
+  // 6. GPU HIBERNATION & THERMAL FRAME PACING (30 FPS Mobile / Pausa a modale aperta)
   const nativeRAF = window.requestAnimationFrame.bind(window);
   let lastFrameTime = 0;
   const targetInterval = isMobile ? 33 : 16;
@@ -95,9 +217,12 @@ import brandProducts from '../brand_products.json';
         return;
       }
       const modalOpen = document.querySelector('#brand-modal[style*="block"], #brand-modal[style*="flex"], #contacts-modal[style*="block"], #contacts-modal[style*="flex"], #manifesto-modal[style*="block"], #manifesto-modal[style*="flex"]');
-      const minDelta = modalOpen ? 250 : targetInterval;
+      if (modalOpen) {
+        setTimeout(() => nativeRAF(callback), 400);
+        return;
+      }
 
-      if (timestamp - lastFrameTime < minDelta) {
+      if (timestamp - lastFrameTime < targetInterval) {
         nativeRAF(callback);
         return;
       }
@@ -107,6 +232,8 @@ import brandProducts from '../brand_products.json';
   };
 })();
 </script>
+
+
 
 
 
@@ -1569,10 +1696,12 @@ import brandProducts from '../brand_products.json';
 
 
 
+
+
+
 <style is:global>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
 
-  /* 1. BLOCCO RIMBALZO ELASTICO E PULL-TO-REFRESH SU TELA 3D */
   html, body {
     overscroll-behavior: none !important;
     -webkit-tap-highlight-color: transparent !important;
@@ -1584,7 +1713,7 @@ import brandProducts from '../brand_products.json';
     -webkit-user-select: none !important;
   }
 
-  /* 2. CAROUSEL STACKING: Sovrappone le immagini IMWEAR nello stesso riquadro */
+  /* 1. CAROUSEL STACKING */
   .carousel-wrapper {
     position: relative !important;
     width: 100% !important;
@@ -1601,7 +1730,7 @@ import brandProducts from '../brand_products.json';
     object-fit: cover !important;
   }
 
-  /* 3. FOGLIO MODALE PURO SENZA FRAME NERO (IMWEAR, CONTACTS, MANIFESTO) */
+  /* 2. FOGLIO MODALE PURO SENZA FRAME NERO (IMWEAR, CONTACTS, MANIFESTO) */
   #brand-modal, #contacts-modal, #manifesto-modal {
     box-sizing: border-box !important;
   }
@@ -1626,7 +1755,6 @@ import brandProducts from '../brand_products.json';
     padding: 36px !important;
   }
 
-  /* 4. TITOLI MONUMENTALI IN SYNE EXTRABOLD SU TUTTE LE SCHEDE */
   .brand-panel-content h1, .brand-panel-content h2,
   .contacts-panel-content h1, .contacts-panel-content h2,
   .manifesto-panel-content h1, .manifesto-panel-content h2,
@@ -1638,7 +1766,6 @@ import brandProducts from '../brand_products.json';
     line-height: 1.05 !important;
   }
 
-  /* 5. GABBIA EDITORIALE COERENTE PER TESTI E RIGHE */
   .brand-panel-content p, .contacts-panel-content p, .manifesto-panel-content p,
   .brand-panel-content div, .contacts-panel-content div, .manifesto-panel-content div {
     max-width: 680px !important;
@@ -1651,51 +1778,64 @@ import brandProducts from '../brand_products.json';
     max-width: 100% !important;
   }
 
-  /* 6. ERGONOMIA THUMB-ZONE & SAFE-AREA PER SMARTPHONE */
+  /* 3. SIMMETRIA SPECULARE & FIX POSIZIONAMENTO SMARTPHONE */
   @media (max-width: 768px) {
-    .vertical-nav, #axis-nav, .sidebar-nav {
-      display: none !important;
+    /* Riporta il menu verticale sinistro a filo bordo, speculare a "ARCHIVE 2026" a destra */
+    nav, .vertical-nav, #axis-nav, .sidebar-nav, [class*="left-nav"] {
+      position: fixed !important;
+      left: 10px !important;
+      right: auto !important;
+      top: 50% !important;
+      transform: translateY(-50%) rotate(-90deg) !important;
+      transform-origin: left center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      width: auto !important;
+      height: auto !important;
+      z-index: 40 !important;
+      transition: opacity 0.25s ease !important;
     }
 
-    /* Barra superiore con Safe-Area Notch e target tattili ampi */
-    nav, header, [class*="top-nav"], [class*="hud-top"] {
-      padding-top: max(12px, env(safe-area-inset-top)) !important;
-      padding-left: 12px !important;
-      padding-right: 12px !important;
+    /* Quando una foto e' isolata, dissolve il menu sinistro per non coprire foto e pulsanti */
+    body.mobile-artwork-isolated nav,
+    body.mobile-artwork-isolated .vertical-nav,
+    body.mobile-artwork-isolated #axis-nav,
+    body.mobile-artwork-isolated .sidebar-nav {
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
 
-    nav button, nav a, header button, header a {
-      min-height: 40px !important;
-      padding: 8px 10px !important;
-      font-size: 11px !important;
+    /* Ripristina pulsanti inline compatti su una sola riga (niente testi spezzati su 3 righe) */
+    button, a {
+      white-space: nowrap !important;
       touch-action: manipulation !important;
     }
 
-    /* Pulsanti chiusura e controllo slide dimensionati per il pollice (44px standard) */
-    button, [role="button"], [class*="close"], [id*="close"] {
-      min-height: 44px !important;
-      min-width: 44px !important;
-      touch-action: manipulation !important;
+    /* Centra perfettamente l'opera isolata e la scheda didattica in basso */
+    #editorial-stage > div, [class*="editorial-card"], [class*="info-card"] {
+      position: fixed !important;
+      left: 4vw !important;
+      right: 4vw !important;
+      width: 92vw !important;
+      max-width: 92vw !important;
+      bottom: max(14px, env(safe-area-inset-bottom)) !important;
+      margin: 0 !important;
+      max-height: 38vh !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      z-index: 60 !important;
     }
 
-    /* Modali più compatte e scorrevoli su schermo verticale */
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
       width: 94vw !important;
       max-width: 94vw !important;
       max-height: 82vh !important;
       padding: 22px 18px !important;
-    }
-
-    /* Scheda opera isolata ancorata in basso senza invadere la foto */
-    #editorial-stage > div, [class*="editorial-card"], [class*="info-card"] {
-      width: 92vw !important;
-      max-width: 92vw !important;
-      left: 4vw !important;
-      right: 4vw !important;
-      bottom: max(14px, env(safe-area-inset-bottom)) !important;
-      max-height: 40vh !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
     }
   }
 </style>
