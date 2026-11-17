@@ -34,10 +34,10 @@ import brandProducts from '../brand_products.json';
     const origParse = JSON.parse;
     JSON.parse = function(text, reviver) {
       const res = origParse.call(this, text, reviver);
-      if (res && Array.isArray(res.data) && res.data.length > 90) {
-        res.data = res.data.slice(0, 90);
+      if (res && Array.isArray(res.data) && res.data.length > 150) {
+        res.data = res.data.slice(0, 150);
       } else if (Array.isArray(res) && res.length > 100 && res[0] && (res[0].media_url || res[0].id)) {
-        return res.slice(0, 90);
+        return res.slice(0, 150);
       }
       return res;
     };
@@ -1592,28 +1592,13 @@ import brandProducts from '../brand_products.json';
 
 
 
-<style is:global>
-  /* 1. CAROUSEL STACKING */
-  .carousel-wrapper {
-    position: relative !important;
-    width: 100% !important;
-    height: 220px !important;
-    overflow: hidden !important;
-    display: block !important;
-  }
-  .carousel-wrapper img, .carousel-wrapper video {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-  }
 
-  /* 2. RIUNIFICAZIONE SCHEDA CONTATTI / IMWEAR / MANIFESTO (Zero spaccature) */
+
+
+<style is:global>
+  /* Uniforma l'impostazione editoriale di tutte le modali (IMWEAR, CONTACTS, MANIFESTO) */
   #brand-modal, #contacts-modal, #manifesto-modal {
     box-sizing: border-box !important;
-    padding: 16px !important;
   }
 
   .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
@@ -1628,18 +1613,29 @@ import brandProducts from '../brand_products.json';
     max-width: min(92vw, 880px) !important;
     max-height: 85vh !important;
     overflow-y: auto !important;
-    box-sizing: border-box !important;
     background: #ffffff !important;
     border: 1px solid #111111 !important;
+    padding: 32px !important;
   }
 
-  /* 3. PULIZIA MOBILE MENU LATERALE */
+  /* Gabbia di testo identica per paragrafi e descrizioni interne */
+  .brand-panel-content p, .contacts-panel-content p, .manifesto-panel-content p,
+  .brand-panel-content div, .contacts-panel-content div, .manifesto-panel-content div {
+    max-width: 680px !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Eccezione: resetta la larghezza delle intestazioni principali per i flex container */
+  .brand-panel-content header, .contacts-panel-content header, .manifesto-panel-content header {
+    max-width: 100% !important;
+  }
+
+  /* Ottimizzazione margini su smartphone */
   @media (max-width: 768px) {
-    .vertical-nav, #axis-nav, .sidebar-nav {
-      display: none !important;
-    }
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
-      padding: 18px !important;
+      padding: 24px !important;
     }
   }
 </style>
