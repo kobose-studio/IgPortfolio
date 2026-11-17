@@ -4,12 +4,12 @@ import brandProducts from '../brand_products.json';
 ---
 <script is:inline>
 (function() {
-  if (window.__IMLAND_FEATHERWEIGHT_V2) return;
-  window.__IMLAND_FEATHERWEIGHT_V2 = true;
+  if (window.__IMLAND_FEATHERWEIGHT_V4) return;
+  window.__IMLAND_FEATHERWEIGHT_V4 = true;
 
   const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // 1. PIXEL RATIO SHIELD
+  // 1. PIXEL RATIO SHIELD: 1.0x su Mobile per zero crash VRAM, 1.25x su Desktop 4K/Retina
   const maxDPR = isMobile ? 1.0 : 1.25;
   const nativeDPR = window.devicePixelRatio || 1;
   try {
@@ -18,7 +18,7 @@ import brandProducts from '../brand_products.json';
     });
   } catch (e) {}
 
-  // 2. DISABILITA ANTIALIASING PESANTE SU MOBILE
+  // 2. OTTIMIZZAZIONE CONTESTO WEBGL MOBILE (Preserva tutte le texture senza antialiasing pesante)
   if (isMobile) {
     const origGetContext = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function(type, attrs) {
@@ -29,57 +29,25 @@ import brandProducts from '../brand_products.json';
     };
   }
 
-  // 3. RIDUCE A 90 NODI SU MOBILE (Salva 80% di VRAM mantendo il vortice pieno)
+  // 3. CALIBRAZIONE ORBITA MOBILE A 120 NODI (Fluida, densa, sotto la soglia critica iOS)
   if (isMobile) {
     const origParse = JSON.parse;
     JSON.parse = function(text, reviver) {
       const res = origParse.call(this, text, reviver);
-      if (res && Array.isArray(res.data) && res.data.length > 150) {
-        res.data = res.data.slice(0, 150);
-      } else if (Array.isArray(res) && res.length > 100 && res[0] && (res[0].media_url || res[0].id)) {
-        return res.slice(0, 150);
+      if (res && Array.isArray(res.data) && res.data.length > 120) {
+        res.data = res.data.slice(0, 120);
+      } else if (Array.isArray(res) && res.length > 120 && res[0] && (res[0].media_url || res[0].id)) {
+        return res.slice(0, 120);
       }
       return res;
     };
   }
 
-  // 4. ASYNC QUEUE + MOBILE TEXTURE DOWNSAMPLER (Max 512px su smartphone)
+  // 4. DIRECT NATIVE ASYNC QUEUE (Zero Canvas 2D offscreen -> Texture sempre visibili su Safari)
   const MAX_CONCURRENT = isMobile ? 4 : 8;
   let activeLoads = 0;
   const loadQueue = [];
   const rawSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-
-  function downscaleForMobile(img, url, release) {
-    const proxy = new Image();
-    proxy.crossOrigin = 'anonymous';
-    proxy.onload = () => {
-      try {
-        const MAX_DIM = 512;
-        let w = proxy.naturalWidth || 512;
-        let h = proxy.naturalHeight || 512;
-        if (w > MAX_DIM || h > MAX_DIM) {
-          const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
-          w = Math.round(w * ratio);
-          h = Math.round(h * ratio);
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(proxy, 0, 0, w, h);
-        const smallDataUrl = canvas.toDataURL('image/jpeg', 0.78);
-        rawSrcDescriptor.set.call(img, smallDataUrl);
-      } catch (err) {
-        rawSrcDescriptor.set.call(img, url);
-      }
-      release();
-    };
-    proxy.onerror = () => {
-      rawSrcDescriptor.set.call(img, url);
-      release();
-    };
-    proxy.src = url;
-  }
 
   function pumpQueue() {
     while (activeLoads < MAX_CONCURRENT && loadQueue.length > 0) {
@@ -91,18 +59,14 @@ import brandProducts from '../brand_products.json';
         if (released) return;
         released = true;
         activeLoads = Math.max(0, activeLoads - 1);
-        setTimeout(pumpQueue, 10);
+        setTimeout(pumpQueue, 12);
       };
 
-      setTimeout(release, 5000);
+      task.img.addEventListener('load', release, { once: true });
+      task.img.addEventListener('error', release, { once: true });
+      setTimeout(release, 4000);
 
-      if (isMobile && !task.url.includes('/brand/')) {
-        downscaleForMobile(task.img, task.url, release);
-      } else {
-        task.img.addEventListener('load', release, { once: true });
-        task.img.addEventListener('error', release, { once: true });
-        rawSrcDescriptor.set.call(task.img, task.url);
-      }
+      rawSrcDescriptor.set.call(task.img, task.url);
     }
   }
 
@@ -122,7 +86,40 @@ import brandProducts from '../brand_products.json';
     });
   }
 
-  // 5. GPU HIBERNATION & THERMAL FRAME PACING
+  // 5. DISCRIMINATORE TATTILE SWIPE VS TAP (Evita aperture accidentali durante lo scroll su telefono)
+  if (isMobile) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let movedBeyondThreshold = false;
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        movedBeyondThreshold = false;
+      }
+    }, { passive: true, capture: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        if (Math.hypot(dx, dy) > 12) {
+          movedBeyondThreshold = true;
+        }
+      }
+    }, { passive: true, capture: true });
+
+    window.addEventListener('click', (e) => {
+      if (movedBeyondThreshold && e.target && e.target.tagName === 'CANVAS') {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        movedBeyondThreshold = false;
+      }
+    }, { capture: true });
+  }
+
+  // 6. GPU HIBERNATION & THERMAL FRAME PACING
   const nativeRAF = window.requestAnimationFrame.bind(window);
   let lastFrameTime = 0;
   const targetInterval = isMobile ? 33 : 16;
@@ -133,7 +130,7 @@ import brandProducts from '../brand_products.json';
         setTimeout(() => nativeRAF(callback), 500);
         return;
       }
-      const modalOpen = document.querySelector('#brand-modal[style*="block"], #brand-modal[style*="flex"], #contacts-modal[style*="block"], #contacts-modal[style*="flex"]');
+      const modalOpen = document.querySelector('#brand-modal[style*="block"], #brand-modal[style*="flex"], #contacts-modal[style*="block"], #contacts-modal[style*="flex"], #manifesto-modal[style*="block"], #manifesto-modal[style*="flex"]');
       const minDelta = modalOpen ? 250 : targetInterval;
 
       if (timestamp - lastFrameTime < minDelta) {
@@ -146,6 +143,8 @@ import brandProducts from '../brand_products.json';
   };
 })();
 </script>
+
+
 
 
 
@@ -1601,10 +1600,25 @@ import brandProducts from '../brand_products.json';
 
 
 
+
+
+
 <style is:global>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
 
-  /* 1. CAROUSEL STACKING: Sovrappone le immagini IMWEAR nello stesso riquadro */
+  /* 1. BLOCCO RIMBALZO ELASTICO E PULL-TO-REFRESH SU TELA 3D */
+  html, body {
+    overscroll-behavior: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  canvas {
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
+  /* 2. CAROUSEL STACKING: Sovrappone le immagini IMWEAR nello stesso riquadro */
   .carousel-wrapper {
     position: relative !important;
     width: 100% !important;
@@ -1621,7 +1635,7 @@ import brandProducts from '../brand_products.json';
     object-fit: cover !important;
   }
 
-  /* 2. FOGLIO MODALE PURO SENZA FRAME NERO (IMWEAR, CONTACTS, MANIFESTO) */
+  /* 3. FOGLIO MODALE PURO SENZA FRAME NERO (IMWEAR, CONTACTS, MANIFESTO) */
   #brand-modal, #contacts-modal, #manifesto-modal {
     box-sizing: border-box !important;
   }
@@ -1638,6 +1652,7 @@ import brandProducts from '../brand_products.json';
     max-width: min(92vw, 880px) !important;
     max-height: 85vh !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     background: #ffffff !important;
     border: none !important;
     outline: none !important;
@@ -1645,7 +1660,7 @@ import brandProducts from '../brand_products.json';
     padding: 36px !important;
   }
 
-  /* 3. TITOLI MONUMENTALI IN SYNE EXTRABOLD SU TUTTE LE SCHEDE */
+  /* 4. TITOLI MONUMENTALI IN SYNE EXTRABOLD SU TUTTE LE SCHEDE */
   .brand-panel-content h1, .brand-panel-content h2,
   .contacts-panel-content h1, .contacts-panel-content h2,
   .manifesto-panel-content h1, .manifesto-panel-content h2,
@@ -1657,7 +1672,7 @@ import brandProducts from '../brand_products.json';
     line-height: 1.05 !important;
   }
 
-  /* 4. GABBIA EDITORIALE COERENTE PER TESTI E RIGHE */
+  /* 5. GABBIA EDITORIALE COERENTE PER TESTI E RIGHE */
   .brand-panel-content p, .contacts-panel-content p, .manifesto-panel-content p,
   .brand-panel-content div, .contacts-panel-content div, .manifesto-panel-content div {
     max-width: 680px !important;
@@ -1670,13 +1685,51 @@ import brandProducts from '../brand_products.json';
     max-width: 100% !important;
   }
 
-  /* 5. PULIZIA MOBILE */
+  /* 6. ERGONOMIA THUMB-ZONE & SAFE-AREA PER SMARTPHONE */
   @media (max-width: 768px) {
     .vertical-nav, #axis-nav, .sidebar-nav {
       display: none !important;
     }
+
+    /* Barra superiore con Safe-Area Notch e target tattili ampi */
+    nav, header, [class*="top-nav"], [class*="hud-top"] {
+      padding-top: max(12px, env(safe-area-inset-top)) !important;
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    nav button, nav a, header button, header a {
+      min-height: 40px !important;
+      padding: 8px 10px !important;
+      font-size: 11px !important;
+      touch-action: manipulation !important;
+    }
+
+    /* Pulsanti chiusura e controllo slide dimensionati per il pollice (44px standard) */
+    button, [role="button"], [class*="close"], [id*="close"] {
+      min-height: 44px !important;
+      min-width: 44px !important;
+      touch-action: manipulation !important;
+    }
+
+    /* Modali più compatte e scorrevoli su schermo verticale */
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
-      padding: 24px !important;
+      width: 94vw !important;
+      max-width: 94vw !important;
+      max-height: 82vh !important;
+      padding: 22px 18px !important;
+    }
+
+    /* Scheda opera isolata ancorata in basso senza invadere la foto */
+    #editorial-stage > div, [class*="editorial-card"], [class*="info-card"] {
+      width: 92vw !important;
+      max-width: 92vw !important;
+      left: 4vw !important;
+      right: 4vw !important;
+      bottom: max(14px, env(safe-area-inset-bottom)) !important;
+      max-height: 40vh !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
     }
   }
 </style>
