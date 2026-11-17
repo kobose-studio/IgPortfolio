@@ -4,12 +4,12 @@ import brandProducts from '../brand_products.json';
 ---
 <script is:inline>
 (function() {
-  if (window.__IMLAND_FEATHERWEIGHT_V61) return;
-  window.__IMLAND_FEATHERWEIGHT_V61 = true;
+  if (window.__IMLAND_FEATHERWEIGHT_V7) return;
+  window.__IMLAND_FEATHERWEIGHT_V7 = true;
 
   const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // 1. PIXEL RATIO SHIELD
+  // 1. PIXEL RATIO SHIELD: 1.0x su Mobile (risparmia 75% RAM GPU), 1.25x su Desktop
   const maxDPR = isMobile ? 1.0 : 1.25;
   const nativeDPR = window.devicePixelRatio || 1;
   try {
@@ -18,7 +18,7 @@ import brandProducts from '../brand_products.json';
     });
   } catch (e) {}
 
-  // 2. OTTIMIZZAZIONE WEBGL MOBILE & CAP A 60 NODI (Previene "UI non risponde" su Android)
+  // 2. CONTESTO WEBGL MOBILE LEGGERO (Zero blocco watchdog Android "UI non risponde")
   if (isMobile) {
     const origGetContext = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function(type, attrs) {
@@ -44,7 +44,7 @@ import brandProducts from '../brand_products.json';
     };
   }
 
-  // 3. DRIP-FEED ASYNC QUEUE
+  // 3. DRIP-FEED ASYNC QUEUE (Cede respiro al thread UI Android)
   const MAX_CONCURRENT = isMobile ? 3 : 8;
   let activeLoads = 0;
   const loadQueue = [];
@@ -87,7 +87,7 @@ import brandProducts from '../brand_products.json';
     });
   }
 
-  // 4. GUARDIANO CAROSELLI IMWEAR (Colonna 1: Classic | Colonna 2: Tutti i ZIP | Colonna 3: Essentials)
+  // 4. MOTORE CAROSELLI IMWEAR BLINDATO (Con *zip* nella colonna 2 e self-healing su errore)
   const CATALOG_SETS = {
     classic: ["/brand/hoodie-1.jpg", "/brand/hoodie-2.jpg", "/brand/hoodie-3.jpg", "/brand/hoodie-4.jpg", "/brand/hoodie-5.jpg", "/brand/hoodie-6.jpg", "/brand/hoodie-7.jpg", "/brand/hoodie-8.jpg", "/brand/hoodie-9.jpg", "/brand/hoodie-A.jpg"],
     zip: ["/brand/hoodie_zip-1.jpg", "/brand/hoodie_zip-2.jpg", "/brand/hoodie_zip-3.jpg", "/brand/zip-hoodie.jpg"],
@@ -99,42 +99,58 @@ import brandProducts from '../brand_products.json';
     const modal = document.getElementById('brand-modal') || document.querySelector('[class*="brand-panel"]');
     if (!modal) return;
 
-    const wrappers = modal.querySelectorAll('.carousel-wrapper');
-    const keys = ['classic', 'zip', 'essentials'];
+    // Individua solo le 3 card foglia (che contengono 1 solo titolo H2/H3 ciascuna)
+    const headings = modal.querySelectorAll('h2, h3, h4');
+    headings.forEach((h) => {
+      const titleTxt = (h.textContent || '').toUpperCase();
+      let key = null;
+      if (titleTxt.includes('FULL-ZIP')) key = 'zip';
+      else if (titleTxt.includes('CLASSIC HOODIE')) key = 'classic';
+      else if (titleTxt.includes('ESSENTIALS')) key = 'essentials';
+      if (!key) return;
 
-    wrappers.forEach((wrap, i) => {
-      const key = keys[i];
-      if (!key || !CATALOG_SETS[key] || CATALOG_SETS[key].length === 0) return;
+      // Risale al contenitore della singola colonna (che non contiene altri titoli)
+      let card = h.parentElement;
+      while (card && card !== modal && card.querySelectorAll('h2, h3, h4').length === 1 && card.querySelectorAll('img').length === 0) {
+        card = card.parentElement;
+      }
+      if (!card || card === modal) return;
+
       const list = CATALOG_SETS[key];
+      if (!list || list.length === 0) return;
 
       if (advanceSlide) {
         slideIndexes[key] = (slideIndexes[key] + 1) % list.length;
       }
+      const targetSrc = list[slideIndexes[key]];
 
-      let imgs = wrap.querySelectorAll('img');
-      if (imgs.length !== list.length) {
-        wrap.innerHTML = list.map((src, idx) =>
-          `<img src="${src}" alt="" onerror="this.src='${list[0]}'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:${idx === slideIndexes[key] ? 1 : 0};transition:opacity 0.85s ease;" />`
-        ).join('');
-      } else {
-        imgs.forEach((imgEl, idx) => {
-          const expected = list[idx];
-          if (!imgEl.getAttribute('src')?.endsWith(expected)) {
-            rawSrcDescriptor.set.call(imgEl, expected);
-          }
-          imgEl.onerror = () => { rawSrcDescriptor.set.call(imgEl, list[0]); };
+      const imgs = card.querySelectorAll('img');
+      imgs.forEach((imgEl, idx) => {
+        const desired = imgs.length === 1 ? targetSrc : list[idx % list.length];
+        const currentAttr = imgEl.getAttribute('src') || '';
+        if (currentAttr !== desired) {
+          rawSrcDescriptor.set.call(imgEl, desired);
+        }
+        // Auto-guarigione: se un'immagine fallisce, passa subito alla successiva
+        imgEl.onerror = function() {
+          slideIndexes[key] = (slideIndexes[key] + 1) % list.length;
+          rawSrcDescriptor.set.call(this, list[slideIndexes[key]]);
+        };
+        if (imgs.length > 1) {
           imgEl.style.opacity = (idx === slideIndexes[key]) ? '1' : '0';
           imgEl.style.transition = 'opacity 0.85s ease';
-        });
-      }
+        } else {
+          imgEl.style.opacity = '1';
+        }
+      });
     });
   }
 
   window.addEventListener('DOMContentLoaded', () => enforceImwearCatalog(false));
-  setInterval(() => enforceImwearCatalog(true), 3200);
+  setInterval(() => enforceImwearCatalog(true), 3000);
   document.addEventListener('click', () => setTimeout(() => enforceImwearCatalog(false), 50));
 
-  // 5. SPECULARITA' MILLIMETRICA MENU SINISTRO MOBILE & SWIPE GUARD
+  // 5. CALIBRATORE GEOMETRICO SPECULARE MOBILE + GUARDIA SWIPE/TAP
   if (isMobile) {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -166,49 +182,58 @@ import brandProducts from '../brand_products.json';
       }
     }, { capture: true });
 
-    // Calibra al pixel l'offset sinistro del menu per renderlo identico al margine destro di ARCHIVE 2026
-    function alignMobileRailsSymmetry() {
-      const candidates = Array.from(document.querySelectorAll('nav, div, aside, ul'));
-      const leftRail = candidates.find(el =>
-        el.children.length > 0 &&
-        /MANIFESTO/i.test(el.textContent || '') &&
-        /IMWEAR/i.test(el.textContent || '') &&
-        !/ARCHIVE 2026/i.test(el.textContent || '')
-      );
-      const rightRail = candidates.find(el =>
-        /ARCHIVE 2026/i.test(el.textContent || '') &&
-        !/MANIFESTO/i.test(el.textContent || '')
-      );
-
-      if (!leftRail) return;
-      leftRail.setAttribute('data-imland-left-rail', 'true');
-
-      // Target di margine dal bordo sinistro identico al binario destro (circa 12-16px)
-      let targetEdgeGap = 14;
-      if (rightRail) {
-        const rRect = rightRail.getBoundingClientRect();
-        const rightGap = Math.max(8, Math.min(28, window.innerWidth - rRect.right));
-        targetEdgeGap = rightGap;
+    function alignMobileSymmetricRails() {
+      // Trova il binario sinistro (MANIFESTO / IMWEAR) e il binario destro (ARCHIVE 2026)
+      let leftRail = null;
+      let rightRail = null;
+      const candidates = document.querySelectorAll('nav, aside, header, div');
+      for (const el of candidates) {
+        const txt = (el.textContent || '').trim();
+        if (!leftRail && txt.includes('MANIFESTO') && txt.includes('IMWEAR') && txt.length < 120) {
+          leftRail = el;
+        }
+        if (!rightRail && txt.includes('ARCHIVE 2026') && txt.length < 120) {
+          rightRail = el;
+        }
       }
 
-      const lRect = leftRail.getBoundingClientRect();
-      const deltaX = targetEdgeGap - lRect.left;
-      if (Math.abs(deltaX) > 1.5) {
-        const currentShift = parseFloat(leftRail.getAttribute('data-shift-x') || '0');
-        const nextShift = currentShift + deltaX;
-        leftRail.setAttribute('data-shift-x', String(nextShift));
-        leftRail.style.setProperty('margin-left', `${nextShift}px`, 'important');
+      if (leftRail) {
+        // Calcola l'offset esatto dal bordo destro (es. 14px) per replicarlo a sinistra al sub-pixel
+        let targetMargin = 14;
+        if (rightRail) {
+          const rRect = rightRail.getBoundingClientRect();
+          const rightGap = window.innerWidth - rRect.right;
+          if (rightGap >= 6 && rightGap <= 40) {
+            targetMargin = Math.round(rightGap);
+          }
+        }
+
+        leftRail.style.setProperty('position', 'fixed', 'important');
+        leftRail.style.setProperty('top', '50%', 'important');
+        leftRail.style.setProperty('left', targetMargin + 'px', 'important');
+        leftRail.style.setProperty('right', 'auto', 'important');
+        leftRail.style.setProperty('transform-origin', 'left top', 'important');
+        leftRail.style.setProperty('transform', 'rotate(-90deg) translateX(-50%)', 'important');
+        leftRail.style.setProperty('background', 'transparent', 'important');
+        leftRail.style.setProperty('backdrop-filter', 'none', 'important');
+        leftRail.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+        leftRail.style.setProperty('box-shadow', 'none', 'important');
+        leftRail.style.setProperty('border', 'none', 'important');
+        leftRail.style.setProperty('padding', '0', 'important');
+        leftRail.style.setProperty('margin', '0', 'important');
+        leftRail.style.setProperty('width', 'max-content', 'important');
+        leftRail.style.setProperty('z-index', '40', 'important');
       }
 
-      // Nasconde il menu sinistro quando un'opera e' isolata al centro
+      // Nasconde la barra sinistra quando un'opera è isolata
       const stage = document.getElementById('editorial-stage');
       const isIsolated = stage && (stage.classList.contains('is-active') || (getComputedStyle(stage).opacity === '1' && getComputedStyle(stage).pointerEvents !== 'none'));
       document.body.classList.toggle('mobile-artwork-isolated', Boolean(isIsolated));
     }
 
-    window.addEventListener('DOMContentLoaded', alignMobileRailsSymmetry);
-    window.addEventListener('resize', alignMobileRailsSymmetry);
-    setInterval(alignMobileRailsSymmetry, 250);
+    window.addEventListener('DOMContentLoaded', alignMobileSymmetricRails);
+    window.addEventListener('resize', alignMobileSymmetricRails);
+    setInterval(alignMobileSymmetricRails, 250);
   }
 
   // 6. GPU HIBERNATION & THERMAL FRAME PACING
@@ -227,7 +252,6 @@ import brandProducts from '../brand_products.json';
         setTimeout(() => nativeRAF(callback), 400);
         return;
       }
-
       if (timestamp - lastFrameTime < targetInterval) {
         nativeRAF(callback);
         return;
@@ -238,6 +262,8 @@ import brandProducts from '../brand_products.json';
   };
 })();
 </script>
+
+
 
 
 
@@ -1710,6 +1736,9 @@ import brandProducts from '../brand_products.json';
 
 
 
+
+
+
 <style is:global>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
 
@@ -1741,7 +1770,7 @@ import brandProducts from '../brand_products.json';
     object-fit: cover !important;
   }
 
-  /* 2. FOGLIO MODALE PURO SENZA FRAME NERO (IMWEAR, CONTACTS, MANIFESTO) */
+  /* 2. FOGLIO MODALE PURO SENZA FRAME NERO */
   #brand-modal, #contacts-modal, #manifesto-modal {
     box-sizing: border-box !important;
   }
@@ -1789,19 +1818,12 @@ import brandProducts from '../brand_products.json';
     max-width: 100% !important;
   }
 
-  /* 3. SPECULARITA' BINARIO SINISTRO MOBILE */
+  /* 3. SIMMETRIA SPECULARE & PULIZIA MOBILE */
   @media (max-width: 768px) {
-    [data-imland-left-rail="true"],
-    [data-imland-left-rail="true"] * {
-      background: transparent !important;
-      background-color: transparent !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-
-    body.mobile-artwork-isolated [data-imland-left-rail="true"] {
+    body.mobile-artwork-isolated nav,
+    body.mobile-artwork-isolated .vertical-nav,
+    body.mobile-artwork-isolated #axis-nav,
+    body.mobile-artwork-isolated .sidebar-nav {
       opacity: 0 !important;
       pointer-events: none !important;
     }
