@@ -1856,128 +1856,7 @@ import brandProducts from '../brand_products.json';
   }
 </style>
 
-<script is:inline>
-(function() {
-  if (window.__IMLAND_MOBILE_FRAMING_V8) return;
-  window.__IMLAND_MOBILE_FRAMING_V8 = true;
 
-  const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (!isMobile) return;
-
-  // 1. ALLINEAMENTO SPECULARE A CICLO CHIUSO DEL BINARIO SINISTRO
-  function syncMirrorRails() {
-    let leftRail = null;
-    let rightRail = null;
-
-    const allEls = document.querySelectorAll('nav, aside, header, div');
-    for (const el of allEls) {
-      const txt = (el.textContent || '').trim();
-      if (!leftRail && txt.includes('MANIFESTO') && txt.includes('IMWEAR') && txt.length < 130) {
-        leftRail = el;
-      }
-      if (!rightRail && txt.includes('ARCHIVE 2026') && txt.length < 130) {
-        rightRail = el;
-      }
-    }
-
-    if (leftRail) {
-      // Misura il margine esatto del binario destro (es. 12px) per replicarlo a sinistra
-      let targetGap = 12;
-      if (rightRail) {
-        const rRect = rightRail.getBoundingClientRect();
-        const rightMargin = window.innerWidth - rRect.right;
-        if (rightMargin >= 4 && rightMargin <= 36) {
-          targetGap = Math.round(rightMargin);
-        }
-      }
-
-      leftRail.style.setProperty('position', 'fixed', 'important');
-      leftRail.style.setProperty('top', '50%', 'important');
-      leftRail.style.setProperty('right', 'auto', 'important');
-      leftRail.style.setProperty('writing-mode', 'vertical-rl', 'important');
-      leftRail.style.setProperty('transform', 'translateY(-50%) rotate(180deg)', 'important');
-      leftRail.style.setProperty('background', 'transparent', 'important');
-      leftRail.style.setProperty('backdrop-filter', 'none', 'important');
-      leftRail.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-      leftRail.style.setProperty('border', 'none', 'important');
-      leftRail.style.setProperty('box-shadow', 'none', 'important');
-      leftRail.style.setProperty('padding', '0', 'important');
-      leftRail.style.setProperty('margin', '0', 'important');
-      leftRail.style.setProperty('width', 'auto', 'important');
-      leftRail.style.setProperty('height', 'auto', 'important');
-      leftRail.style.setProperty('z-index', '40', 'important');
-
-      // Correzione sub-pixel basata sul bounding box reale post-rotazione
-      leftRail.style.setProperty('left', targetGap + 'px', 'important');
-      const lRect = leftRail.getBoundingClientRect();
-      if (Math.abs(lRect.left - targetGap) > 1) {
-        const correctedLeft = targetGap + (targetGap - lRect.left);
-        leftRail.style.setProperty('left', Math.max(4, correctedLeft) + 'px', 'important');
-      }
-    }
-
-    // Rileva isolamento opera per dissolvere il menu sinistro ed evitare sovrapposizioni sulla foto
-    const stage = document.getElementById('editorial-stage');
-    const isIsolated = stage && (
-      stage.classList.contains('is-active') ||
-      (getComputedStyle(stage).opacity !== '0' && getComputedStyle(stage).pointerEvents !== 'none')
-    );
-    document.body.classList.toggle('mobile-artwork-isolated', Boolean(isIsolated));
-
-    // Ancora la barra slide del carosello subito sopra il bordo del box bianco inferiore
-    if (isIsolated) {
-      const card = stage.querySelector('div');
-      const slideBar = document.querySelector('[class*="slide"], [id*="slide"], [class*="carousel-nav"]');
-      if (card && slideBar && !card.contains(slideBar)) {
-        const cardRect = card.getBoundingClientRect();
-        if (cardRect.top > 120) {
-          slideBar.style.setProperty('position', 'fixed', 'important');
-          slideBar.style.setProperty('top', 'auto', 'important');
-          slideBar.style.setProperty('bottom', (window.innerHeight - cardRect.top + 8) + 'px', 'important');
-          slideBar.style.setProperty('left', '50%', 'important');
-          slideBar.style.setProperty('transform', 'translateX(-50%)', 'important');
-          slideBar.style.setProperty('z-index', '65', 'important');
-        }
-      }
-    }
-  }
-
-  // 2. GESTURE SWIPE ORIZZONTALE PER SFOGLIARE LE SLIDE DEL CAROSELLO CON IL POLLICE
-  let swipeStartX = 0;
-  let swipeStartY = 0;
-
-  window.addEventListener('touchstart', (e) => {
-    if (e.touches && e.touches.length === 1) {
-      swipeStartX = e.touches[0].clientX;
-      swipeStartY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
-  window.addEventListener('touchend', (e) => {
-    if (!document.body.classList.contains('mobile-artwork-isolated')) return;
-    if (!e.changedTouches || e.changedTouches.length === 0) return;
-
-    const dx = e.changedTouches[0].clientX - swipeStartX;
-    const dy = e.changedTouches[0].clientY - swipeStartY;
-
-    // Se il gesto è prevalentemente orizzontale (> 42px), attiva Prev o Next Slide
-    if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-      const buttons = Array.from(document.querySelectorAll('button'));
-      if (dx < 0) {
-        const nextBtn = buttons.find(b => /NEXT\s*SLIDE/i.test(b.textContent || ''));
-        if (nextBtn) nextBtn.click();
-      } else {
-        const prevBtn = buttons.find(b => /PREV\s*SLIDE/i.test(b.textContent || ''));
-        if (prevBtn) prevBtn.click();
-      }
-    }
-  }, { passive: true });
-
-  window.addEventListener('DOMContentLoaded', syncMirrorRails);
-  window.addEventListener('resize', syncMirrorRails);
-  setInterval(syncMirrorRails, 180);
-})();
-</script>
 
 
 <style is:global>
@@ -2035,6 +1914,147 @@ import brandProducts from '../brand_products.json';
       padding: 14px 16px !important;
       max-height: 31vh !important;
       overflow-y: auto !important;
+    }
+  }
+</style>
+
+<script is:inline>
+(function() {
+  if (window.__IMLAND_MOBILE_PRECISION_V9) return;
+  window.__IMLAND_MOBILE_PRECISION_V9 = true;
+
+  const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile) return;
+
+  // Risale al vero contenitore posizionato (fixed/absolute) di un nodo testuale
+  function getPositionedWrapper(el) {
+    let curr = el;
+    while (curr && curr !== document.body) {
+      const pos = getComputedStyle(curr).position;
+      if (pos === 'fixed' || pos === 'absolute') return curr;
+      curr = curr.parentElement;
+    }
+    return el;
+  }
+
+  function calibrateMobileGeometry() {
+    // 1. ALLINEAMENTO SPECULARE AL MILLIMETRO DEL BINARIO SINISTRO
+    let leftTextNode = null;
+    let rightTextNode = null;
+
+    const nodes = document.querySelectorAll('nav, aside, header, div, span');
+    for (const el of nodes) {
+      const txt = (el.textContent || '').trim();
+      if (!leftTextNode && txt.includes('MANIFESTO') && txt.includes('IMWEAR') && txt.length < 130) {
+        leftTextNode = el;
+      }
+      if (!rightTextNode && txt.includes('ARCHIVE 2026') && txt.length < 130) {
+        rightTextNode = el;
+      }
+    }
+
+    if (leftTextNode) {
+      const leftRail = getPositionedWrapper(leftTextNode);
+      const rightRail = rightTextNode ? getPositionedWrapper(rightTextNode) : null;
+
+      // Legge la distanza reale dal bordo destro di "ARCHIVE 2026" (es. 12px)
+      let mirrorGap = 12;
+      if (rightRail) {
+        const rRect = rightRail.getBoundingClientRect();
+        const rightDist = window.innerWidth - rRect.right;
+        if (rightDist >= 4 && rightDist <= 32) {
+          mirrorGap = Math.round(rightDist);
+        }
+      }
+
+      // Ripulisce sfondi satinati e ombre sia sul contenitore che sui figli
+      [leftRail, leftTextNode].forEach((targetEl) => {
+        targetEl.style.setProperty('background', 'transparent', 'important');
+        targetEl.style.setProperty('background-color', 'transparent', 'important');
+        targetEl.style.setProperty('backdrop-filter', 'none', 'important');
+        targetEl.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+        targetEl.style.setProperty('box-shadow', 'none', 'important');
+        targetEl.style.setProperty('border', 'none', 'important');
+        targetEl.style.setProperty('padding', '0', 'important');
+      });
+
+      // Ancora il binario sinistro a filo bordo con lo stesso identico offset del destro
+      leftRail.style.setProperty('position', 'fixed', 'important');
+      leftRail.style.setProperty('top', '50%', 'important');
+      leftRail.style.setProperty('right', 'auto', 'important');
+      leftRail.style.setProperty('margin', '0', 'important');
+      leftRail.style.setProperty('width', 'auto', 'important');
+      leftRail.style.setProperty('height', 'auto', 'important');
+      leftRail.style.setProperty('writing-mode', 'vertical-rl', 'important');
+      leftRail.style.setProperty('transform', 'translateY(-50%) rotate(180deg)', 'important');
+      leftRail.style.setProperty('z-index', '45', 'important');
+
+      leftRail.style.setProperty('left', mirrorGap + 'px', 'important');
+      const lRect = leftRail.getBoundingClientRect();
+      if (Math.abs(lRect.left - mirrorGap) > 0.5) {
+        const delta = mirrorGap - lRect.left;
+        leftRail.style.setProperty('left', Math.max(4, mirrorGap + delta) + 'px', 'important');
+      }
+    }
+
+    // 2. POSIZIONAMENTO BARRA CAROSELLO SOPRA LA FOTO (Sotto il logo IMLAND)
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const prevSlideBtn = buttons.find(b => /PREV\s*SLIDE/i.test(b.textContent || ''));
+
+    if (prevSlideBtn) {
+      const carouselBar = getPositionedWrapper(prevSlideBtn) || prevSlideBtn.parentElement;
+      // Calcola il margine inferiore del logo IMLAND in alto
+      const logoEl = document.querySelector('header img, img[alt*="IMLAND" i], a img');
+      let topAnchor = 148;
+      if (logoEl) {
+        const logoRect = logoEl.getBoundingClientRect();
+        if (logoRect.bottom > 40 && logoRect.bottom < 190) {
+          topAnchor = Math.round(logoRect.bottom + 14);
+        }
+      }
+
+      if (carouselBar) {
+        carouselBar.style.setProperty('position', 'fixed', 'important');
+        carouselBar.style.setProperty('top', topAnchor + 'px', 'important');
+        carouselBar.style.setProperty('bottom', 'auto', 'important');
+        carouselBar.style.setProperty('left', '50%', 'important');
+        carouselBar.style.setProperty('right', 'auto', 'important');
+        carouselBar.style.setProperty('transform', 'translateX(-50%)', 'important');
+        carouselBar.style.setProperty('z-index', '65', 'important');
+        carouselBar.style.setProperty('display', 'inline-flex', 'important');
+        carouselBar.style.setProperty('flex-direction', 'row', 'important');
+        carouselBar.style.setProperty('align-items', 'center', 'important');
+        carouselBar.style.setProperty('justify-content', 'center', 'important');
+        carouselBar.style.setProperty('gap', '12px', 'important');
+        carouselBar.style.setProperty('padding', '6px 14px', 'important');
+        carouselBar.style.setProperty('white-space', 'nowrap', 'important');
+        carouselBar.style.setProperty('width', 'auto', 'important');
+        carouselBar.style.setProperty('max-width', '92vw', 'important');
+      }
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', calibrateMobileGeometry);
+  window.addEventListener('resize', calibrateMobileGeometry);
+  setInterval(calibrateMobileGeometry, 160);
+})();
+</script>
+
+
+<style id="imland-mobile-precision-css" is:global>
+  @media (max-width: 768px) {
+    /* Mantieni sempre visibili e speculari entrambi i binari verticali ai bordi */
+    body.mobile-artwork-isolated nav,
+    body.mobile-artwork-isolated .vertical-nav,
+    body.mobile-artwork-isolated #axis-nav,
+    body.mobile-artwork-isolated .sidebar-nav {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    /* Compatta i testi della barra carosello superiore su una singola riga */
+    button {
+      white-space: nowrap !important;
     }
   }
 </style>
