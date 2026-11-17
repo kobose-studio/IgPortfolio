@@ -4,12 +4,12 @@ import brandProducts from '../brand_products.json';
 ---
 <script is:inline>
 (function() {
-  if (window.__IMLAND_FEATHERWEIGHT_V4) return;
-  window.__IMLAND_FEATHERWEIGHT_V4 = true;
+  if (window.__IMLAND_FEATHERWEIGHT_V5) return;
+  window.__IMLAND_FEATHERWEIGHT_V5 = true;
 
   const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // 1. PIXEL RATIO SHIELD: 1.0x su Mobile per zero crash VRAM, 1.25x su Desktop 4K/Retina
+  // 1. PIXEL RATIO SHIELD: 1.0x su Mobile per evitare saturazione VRAM iOS, 1.25x su Desktop
   const maxDPR = isMobile ? 1.0 : 1.25;
   const nativeDPR = window.devicePixelRatio || 1;
   try {
@@ -18,7 +18,7 @@ import brandProducts from '../brand_products.json';
     });
   } catch (e) {}
 
-  // 2. OTTIMIZZAZIONE CONTESTO WEBGL MOBILE (Preserva tutte le texture senza antialiasing pesante)
+  // 2. OTTIMIZZAZIONE WEBGL MOBILE (Low-power + no antialias pesante)
   if (isMobile) {
     const origGetContext = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function(type, attrs) {
@@ -29,64 +29,28 @@ import brandProducts from '../brand_products.json';
     };
   }
 
-  // 3. CALIBRAZIONE ORBITA MOBILE A 120 NODI (Fluida, densa, sotto la soglia critica iOS)
-  if (isMobile) {
-    const origParse = JSON.parse;
-    JSON.parse = function(text, reviver) {
-      const res = origParse.call(this, text, reviver);
-      if (res && Array.isArray(res.data) && res.data.length > 120) {
-        res.data = res.data.slice(0, 120);
-      } else if (Array.isArray(res) && res.length > 120 && res[0] && (res[0].media_url || res[0].id)) {
-        return res.slice(0, 120);
+  // 3. GUARDIA DOM IMWEAR: Assicura al volo che le 3 colonne abbiano sempre 9, 3 e 5 foto esatte
+  function syncImwearCarousels() {
+    const sets = [
+      ['/brand/hoodie-1.jpg', '/brand/hoodie-2.jpg', '/brand/hoodie-3.jpg', '/brand/hoodie-4.jpg', '/brand/hoodie-5.jpg', '/brand/hoodie-6.jpg', '/brand/hoodie-7.jpg', '/brand/hoodie-8.jpg', '/brand/hoodie-9.jpg'],
+      ['/brand/hoodie_zip-1.jpg', '/brand/hoodie_zip-2.jpg', '/brand/hoodie_zip-3.jpg'],
+      ['/brand/tee-1.jpg', '/brand/tee-2.jpg', '/brand/tee-3.jpg', '/brand/tee-4.jpg', '/brand/tee-5.jpg']
+    ];
+    const wrappers = document.querySelectorAll('.carousel-wrapper');
+    wrappers.forEach((wrap, colIdx) => {
+      if (!sets[colIdx]) return;
+      const imgs = wrap.querySelectorAll('img');
+      if (imgs.length !== sets[colIdx].length || (imgs[0] && !imgs[0].getAttribute('src').includes(sets[colIdx][0]))) {
+        wrap.innerHTML = sets[colIdx].map((src, i) =>
+          `<img src="${src}" alt="IMLAND ${colIdx+1}-${i+1}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:${i===0?1:0};transition:opacity 0.9s ease;" />`
+        ).join('');
       }
-      return res;
-    };
-  }
-
-  // 4. DIRECT NATIVE ASYNC QUEUE (Zero Canvas 2D offscreen -> Texture sempre visibili su Safari)
-  const MAX_CONCURRENT = isMobile ? 4 : 8;
-  let activeLoads = 0;
-  const loadQueue = [];
-  const rawSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-
-  function pumpQueue() {
-    while (activeLoads < MAX_CONCURRENT && loadQueue.length > 0) {
-      const task = loadQueue.shift();
-      activeLoads++;
-      let released = false;
-
-      const release = () => {
-        if (released) return;
-        released = true;
-        activeLoads = Math.max(0, activeLoads - 1);
-        setTimeout(pumpQueue, 12);
-      };
-
-      task.img.addEventListener('load', release, { once: true });
-      task.img.addEventListener('error', release, { once: true });
-      setTimeout(release, 4000);
-
-      rawSrcDescriptor.set.call(task.img, task.url);
-    }
-  }
-
-  if (rawSrcDescriptor && rawSrcDescriptor.set) {
-    Object.defineProperty(HTMLImageElement.prototype, 'src', {
-      get: rawSrcDescriptor.get,
-      set: function(url) {
-        this.decoding = 'async';
-        if (!url || typeof url !== 'string' || url.startsWith('data:') || url.startsWith('blob:')) {
-          rawSrcDescriptor.set.call(this, url);
-          return;
-        }
-        loadQueue.push({ img: this, url: url });
-        setTimeout(pumpQueue, 0);
-      },
-      configurable: true
     });
   }
+  window.addEventListener('DOMContentLoaded', syncImwearCarousels);
+  setTimeout(syncImwearCarousels, 800);
 
-  // 5. DISCRIMINATORE TATTILE SWIPE VS TAP (Evita aperture accidentali durante lo scroll su telefono)
+  // 4. DISCRIMINATORE TATTILE SWIPE VS TAP (Evita aperture accidentali durante lo scroll)
   if (isMobile) {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -119,7 +83,7 @@ import brandProducts from '../brand_products.json';
     }, { capture: true });
   }
 
-  // 6. GPU HIBERNATION & THERMAL FRAME PACING
+  // 5. GPU HIBERNATION & THERMAL FRAME PACING
   const nativeRAF = window.requestAnimationFrame.bind(window);
   let lastFrameTime = 0;
   const targetInterval = isMobile ? 33 : 16;
@@ -143,6 +107,8 @@ import brandProducts from '../brand_products.json';
   };
 })();
 </script>
+
+
 
 
 
@@ -1038,7 +1004,7 @@ import brandProducts from '../brand_products.json';
     `;
 
     const textureLoader = new THREE.TextureLoader();
-    const mediaItems = rawData.data || []; 
+    const mediaItems = (typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || [])); 
 
     const materials: THREE.ShaderMaterial[] = [];
     const meshes: THREE.Mesh[] = [];
@@ -1070,9 +1036,9 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
-      const texture = textureLoader.load(
+      const texture = ((t) => { if (typeof window !== "undefined" && window.innerWidth <= 768) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; })(textureLoader.load(
         initialUrl, 
-        (tex) => {
+        (tex)) => {
           if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
           material.uniforms.uTexture.value = tex;
           mesh.userData.isLoaded = true;
@@ -1217,7 +1183,7 @@ import brandProducts from '../brand_products.json';
       const data = activeMesh.userData;
 
       if (data.media_url) {
-        textureLoader.load(data.media_url, (highResTex) => {
+        ((t) => { if (typeof window !== "undefined" && window.innerWidth <= 768) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; })(textureLoader.load(data.media_url, (highResTex)) => {
           if (activeMesh === mesh) {
             activeMesh.material.uniforms.uTexture.value = highResTex;
             if (highResTex.image) activeMesh.material.uniforms.uTexAspect.value = highResTex.image.width / highResTex.image.height;
@@ -1250,7 +1216,7 @@ import brandProducts from '../brand_products.json';
         } else if (data.media_type === 'CAROUSEL_ALBUM') {
           const children = data.children || []; let slideIndex = 0;
           const slides = children.length > 0 ? children.map((c: any) => c.media_url || c.thumbnail_url) : [data.media_url];
-          const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
+          const slideTextures = slides.map(url => ((t) => { if (typeof window !== "undefined" && window.innerWidth <= 768) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; })(textureLoader.load(url, (tex)) => {
             if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
           }));
 
