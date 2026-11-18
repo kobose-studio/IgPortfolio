@@ -302,7 +302,7 @@ import brandProducts from '../brand_products.json';
   <!-- 🎯 HUD RIGHT VERTICAL -->
   <div id="hud-right-vertical" class="hud-element font-mono-tech">
     <span>ARCHIVE 2026 //</span>
-    <button id="btn-filter-mix" class="filter-btn font-mono-tech">[ VIDEO / CAROUSEL ]</button>
+    <span class="imland-colophon" style="pointer-events:none;cursor:default;">© IMLAND.IT</span>
   </div>
   
   <!-- HUD Hover Target -->
@@ -332,13 +332,9 @@ import brandProducts from '../brand_products.json';
         <span class="editorial-tag font-mono-tech">EST. ALAGNA MONTE ROSA // 45° 51' N, 7° 56' E</span>
         <h2 class="editorial-heading font-syne">IMLAND, DOVE L'UNICA RISPOSTA È NATURA.</h2>
         
-        <p class="editorial-prose font-sans">IMLAND nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina.</p>
-<p class="editorial-prose font-sans">Progettiamo <strong>outfit outdoor ad alte prestazioni</strong> per chi vive la montagna con rispetto, silenzio e radici profonde. In un mondo saturo di rumore digitale, Alagna e le sue valli da scoprire rimangono la nostra unica bussola esistenziale.</p>
-<p class="editorial-prose font-sans">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
-<p class="editorial-prose font-sans">Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.</p>
-<p class="editorial-prose font-sans">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
-<p style="margin-top:1.1rem;max-width:680px;line-height:1.65;">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
-          <p style="margin-top: 1.15rem;">Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.</p>
+        <p class="editorial-prose font-sans" style="max-width: 680px; line-height: 1.65;">IMLAND nasce all’ombra imponente della parete est del Monte Rosa. Non crea capi per il consumo di massa né per le passerelle cittadine, ma progetta abbigliamento outdoor ad alte prestazioni per chi vive la montagna con rispetto, discrezione e radici profonde.</p>
+    <p class="editorial-prose font-sans" style="margin-top: 1.15rem; max-width: 680px; line-height: 1.65;">In un mondo saturo di rumore digitale, Alagna e le sue valli restano la nostra bussola. Accanto al rigore dell’equipaggiamento alpino, scegliamo la fotografia come forma di ascolto lento e come espressione di un legame intimo con il territorio.</p>
+    <p class="editorial-prose font-sans" style="margin-top: 1.15rem; max-width: 680px; line-height: 1.65;">Così, nel flusso delle immagini, ogni scatto diventa più di un semplice post: è un indizio silenzioso tra le pieghe della valle, capace di rivelarne sfumature e storie a chi sa fermarsi a guardare. Un senso di appartenenza visivo, immersivo e profondamente romantico.</p>
 
         <div class="manifesto-quote-box font-mono-tech">
           "NON CERCHIAMO LA MONTAGNA PER EVADERE DALLA REALTÀ, MA PER RITROVARLA."
@@ -1372,47 +1368,35 @@ import brandProducts from '../brand_products.json';
       if (videoStage) {
         videoStage.innerHTML = '';
         if (data.media_type === 'VIDEO') {
+  if (activeMesh) {
+    activeMesh.visible = true;
+    const coverTex = activeMesh.userData && activeMesh.userData.coverTexture;
+    if (coverTex && coverTex.image && coverTex.image.width > 0) {
+      activeMesh.material.uniforms.uTexture.value = coverTex;
+      activeMesh.material.uniforms.uTexAspect.value = coverTex.image.width / coverTex.image.height;
+    } else if (data.id) {
+      textureLoader.load(`/archive_media/${data.id}.jpg`, (t) => {
+        if (activeMesh && t && t.image) {
+          activeMesh.visible = true;
+          activeMesh.material.uniforms.uTexture.value = t;
+          activeMesh.material.uniforms.uTexAspect.value = t.image.width / t.image.height;
+        }
+      });
+    }
+  }
   videoStage.innerHTML = '';
   videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:115;';
-  const localMp4 = data.id ? `/archive_media/${data.id}.mp4` : '';
-  const candidateMp4 = localMp4 || data.media_url || '';
-  const probeVid = document.createElement('video');
-  probeVid.crossOrigin = 'anonymous';
-  probeVid.muted = true;
-  probeVid.loop = true;
-  probeVid.playsInline = true;
-  probeVid.setAttribute('playsinline', '');
-  probeVid.src = candidateMp4;
-
-  const renderPoeticIgLink = () => {
-    videoStage.innerHTML = '';
-    const link = document.createElement('a');
-    link.href = data.permalink || 'https://www.instagram.com/imlandmonterosa/';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.innerText = '[ ▶ GUARDA REEL SU INSTAGRAM ↗ ]';
-    link.style.cssText = 'position:fixed;bottom:92px;left:50%;transform:translateX(-50%);' +
-      'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
-      'padding:8px 18px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
-      'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
-      'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
-    videoStage.appendChild(link);
-  };
-
-  probeVid.onloadeddata = () => {
-    probeVid.play().catch(() => {});
-    if (activeMesh && window.THREE) {
-      const vTex = new THREE.VideoTexture(probeVid);
-      vTex.minFilter = THREE.LinearFilter;
-      vTex.magFilter = THREE.LinearFilter;
-      activeMesh.material.uniforms.uTexture.value = vTex;
-      if (probeVid.videoWidth > 0 && probeVid.videoHeight > 0) {
-        activeMesh.material.uniforms.uTexAspect.value = probeVid.videoWidth / probeVid.videoHeight;
-      }
-    }
-  };
-  probeVid.onerror = renderPoeticIgLink;
-  renderPoeticIgLink();
+  const link = document.createElement('a');
+  link.href = data.permalink || 'https://www.instagram.com/imlandmonterosa/';
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.innerText = '[ ▶ GUARDA REEL SU INSTAGRAM ↗ ]';
+  link.style.cssText = 'position:fixed;bottom:88px;left:50%;transform:translateX(-50%);' +
+    'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
+    'padding:8px 18px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
+    'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
+    'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
+  videoStage.appendChild(link);
 } else if (data.media_type === 'CAROUSEL_ALBUM') {
           const children = data.children || []; let slideIndex = 0;
           const slideItems = children.length > 0 ? children : [{ id: data.id, media_type: 'IMAGE', media_url: data.media_url, thumbnail_url: data.thumbnail_url }];
@@ -1437,7 +1421,13 @@ const slides = slideItems.map((c: any) => {
   slideIndex = (newIdx + slides.length) % slides.length;
   const itemSlide = slideItems[slideIndex] || {};
   const tex = slideTextures[slideIndex];
+
+  if (controlsBox && controlsBox.parentElement !== document.body) {
+    document.body.appendChild(controlsBox);
+  }
+
   if (activeMesh) {
+    activeMesh.visible = true;
     const validTex = (tex && tex.image && tex.image.width > 0) ? tex : (activeMesh.userData.coverTexture || tex);
     if (validTex) {
       activeMesh.material.uniforms.uTexture.value = validTex;
@@ -1446,6 +1436,7 @@ const slides = slideItems.map((c: any) => {
       }
     }
   }
+
   videoStage.innerHTML = '';
   if (itemSlide.media_type === 'VIDEO') {
     videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:115;';
@@ -1454,19 +1445,20 @@ const slides = slideItems.map((c: any) => {
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.innerText = '[ ▶ GUARDA VIDEO SLIDE SU INSTAGRAM ↗ ]';
-    link.style.cssText = 'position:fixed;bottom:136px;left:50%;transform:translateX(-50%);' +
+    link.style.cssText = 'position:fixed;bottom:138px;left:50%;transform:translateX(-50%);' +
       'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
       'padding:7px 16px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
       'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
       'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
     videoStage.appendChild(link);
   }
+
   if (controlsBox) {
-    controlsBox.style.display = 'flex';
-    controlsBox.style.opacity = '1';
-    controlsBox.style.visibility = 'visible';
-    controlsBox.style.pointerEvents = 'auto';
-    controlsBox.style.zIndex = '135';
+    controlsBox.id = 'imland-carousel-controls';
+    controlsBox.style.cssText = 'position:fixed;bottom:84px;left:50%;transform:translateX(-50%);' +
+      'display:flex;align-items:center;gap:16px;background:rgba(17,17,17,0.92);backdrop-filter:blur(12px);' +
+      'border:1px solid rgba(200,158,90,0.65);padding:8px 20px;border-radius:999px;color:#fff;' +
+      'font-family:"Space Mono",monospace;font-size:10px;z-index:140;pointer-events:auto;opacity:1;visibility:visible;';
   }
   counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
 }
@@ -1474,7 +1466,7 @@ const slides = slideItems.map((c: any) => {
           btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
           btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
           controls.appendChild(btnPrev); controls.appendChild(counter); controls.appendChild(btnNext); controlsBox.appendChild(controls);
-          if (slides.length > 1) videoStage.appendChild(controlsBox);
+          if (slides.length > 1) controlsBox.id = "imland-carousel-controls"; document.body.appendChild(controlsBox);
         }
       }
 
@@ -2143,7 +2135,11 @@ const slides = slideItems.map((c: any) => {
 
 
 
-<style id="imland-v16-css" is:global>
+
+
+
+
+<style id="imland-v19-css" is:global>
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
     inset: 0 !important;
@@ -2186,10 +2182,10 @@ const slides = slideItems.map((c: any) => {
     }
   }
 </style>
-<script id="imland-v16-js" is:inline>
+<script id="imland-v19-js" is:inline>
 (function() {
-  if (window.__V16) return;
-  window.__V16 = 1;
+  if (window.__V19) return;
+  window.__V19 = 1;
   const isMob = window.innerWidth <= 768;
   const CAT = {
     c1: [
@@ -2202,7 +2198,6 @@ const slides = slideItems.map((c: any) => {
   const idx = { c1: 0, c2: 0, c3: 0 };
 
   function syncUI(adv) {
-    // A. IMWEAR 3 Colonne
     const m = document.getElementById('brand-modal') || document.body;
     const t = { c1: null, c2: null, c3: null };
     m.querySelectorAll('article, div, section').forEach((el) => {
@@ -2228,37 +2223,14 @@ const slides = slideItems.map((c: any) => {
         'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
     });
 
-    // B. Uniforma stile tipografico di TUTTI i 4 paragrafi del Manifesto alle prime due righe + rimuove duplicati
-    const manModal = document.getElementById('manifesto-modal');
-    if (manModal) {
-      const ps = Array.from(manModal.querySelectorAll('p'));
-      const firstP = ps.find((p) => p.textContent && p.textContent.includes('IMLAND nasce sotto'));
-      if (firstP && firstP.parentElement) {
-        const seen = new Set();
-        const cs = getComputedStyle(firstP);
-        Array.from(firstP.parentElement.querySelectorAll('p')).forEach((p, i) => {
-          const sig = (p.textContent || '').trim().slice(0, 45);
-          if (seen.has(sig)) {
-            p.remove();
-            return;
-          }
-          seen.add(sig);
-          if (i > 0) {
-            p.className = firstP.className;
-            p.style.fontFamily = cs.fontFamily;
-            p.style.fontSize = cs.fontSize;
-            p.style.fontWeight = cs.fontWeight;
-            p.style.lineHeight = cs.lineHeight;
-            p.style.letterSpacing = cs.letterSpacing;
-            p.style.color = cs.color;
-            p.style.marginTop = '1.1rem';
-            p.style.maxWidth = '680px';
-          }
-        });
+    document.querySelectorAll('button, span, div, aside').forEach((el) => {
+      if (el.children.length === 0 && el.textContent && el.textContent.includes('VIDEO / CAROUSEL')) {
+        el.textContent = el.textContent.replace(/\[\s*VIDEO\s*\/\s*CAROUSEL\s*\]/gi, '© IMLAND.IT');
+        el.style.pointerEvents = 'none';
+        el.style.cursor = 'default';
       }
-    }
+    });
 
-    // C. Centratura Modali su document.body
     ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
       const o = document.querySelector(q);
       if (!o) return;
@@ -2278,7 +2250,12 @@ const slides = slideItems.map((c: any) => {
       }
     });
 
-    // D. Simmetria Binario Sinistro Mobile
+    const stage = document.getElementById('editorial-stage');
+    const cBox = document.getElementById('imland-carousel-controls');
+    if (cBox && stage && !stage.classList.contains('is-active')) {
+      cBox.remove();
+    }
+
     if (isMob) {
       let l = null, r = null;
       document.querySelectorAll('nav, aside, header, div').forEach((el) => {
@@ -2318,6 +2295,12 @@ const slides = slideItems.map((c: any) => {
 
   window.addEventListener('DOMContentLoaded', () => syncUI(false));
   document.addEventListener('click', () => setTimeout(() => syncUI(false), 30));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const cBox = document.getElementById('imland-carousel-controls');
+      if (cBox) cBox.remove();
+    }
+  });
   setInterval(() => syncUI(true), 2800);
 })();
 </script>
