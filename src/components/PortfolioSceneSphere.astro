@@ -1545,7 +1545,7 @@ const slides = slideItems.map((c: any) => {
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.innerText = '[ ▶ GUARDA VIDEO SLIDE SU INSTAGRAM ↗ ]';
-    link.style.cssText = 'position:fixed;bottom:136px;left:50%;transform:translateX(-50%);' +
+    link.style.cssText = 'position:fixed;bottom:148px;left:50%;transform:translateX(-50%);' +
       'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
       'padding:7px 16px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
       'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;z-index:145;' +
@@ -1560,10 +1560,11 @@ const slides = slideItems.map((c: any) => {
       document.body.appendChild(controlsBox);
     }
     shieldInteractivePill(controlsBox);
-    controlsBox.style.cssText = 'position:fixed;bottom:84px;left:50%;transform:translateX(-50%);' +
-      'display:flex;align-items:center;gap:16px;background:rgba(17,17,17,0.92);backdrop-filter:blur(12px);' +
-      'border:1px solid rgba(200,158,90,0.65);padding:8px 20px;border-radius:999px;color:#fff;' +
-      'font-family:"Space Mono",monospace;font-size:10px;z-index:150;pointer-events:auto;opacity:1;visibility:visible;';
+    controlsBox.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);' +
+      'display:flex;align-items:center;justify-content:center;background:transparent;border:none;padding:0;' +
+      'z-index:150;pointer-events:auto;opacity:1;visibility:visible;';
+    if (btnPrev) { btnPrev.style.outline = 'none'; btnPrev.blur(); }
+    if (btnNext) { btnNext.style.outline = 'none'; btnNext.blur(); }
   }
   counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
 }
@@ -2249,6 +2250,15 @@ const slides = slideItems.map((c: any) => {
 
 
 <style id="imland-v20-css" is:global>
+  #imland-carousel-controls, #imland-carousel-controls * {
+    outline: none !important;
+  }
+  #imland-carousel-controls button:focus,
+  #imland-carousel-controls button:focus-visible,
+  #imland-carousel-controls button:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
     inset: 0 !important;

@@ -1,19 +1,22 @@
-# IMLAND MATRIX — MASTER BLUEPRINT v1.6 [90% BETA COMPLETA]
+# IMLAND MATRIX — MASTER BLUEPRINT v1.1 [DEMO RELEASE CANDIDATE]
 
-## 1. L'Architettura Globale (Lo Stack)
-* **Frontend Framework**: Astro SSG + Vite Rollup (Build statica verificata in ~1.4s).
-* **3D Engine & Shaders**: Three.js + WebGL Nativo con Custom GLSL Liquid Distortion Shaders.
-* **Data Pipeline**: Cache locale Instagram (`src/portfolio_cache.json` + `/archive_media/`) e Lookbook statico/ibrido IMWEAR (`/brand/`).
-* **Identity & Typography**: Fashion Brutalism / Swiss Typography (`Syne ExtraBold 800`, `Inter`, `Space Mono`).
-* **Mobile Performance Shield**: Capping automatico a **45 nodi** e `devicePixelRatio: 1.0x` su schermi mobili (`<= 768px` / iOS WebKit / Android).
+## 1. L'Architettura (Lo Stack)
+* **Frontend & SSG**: Astro + Vite Rollup (compilazione statica verificata < 1.2s).
+* **3D Engine & Shaders**: Three.js + Custom GLSL Liquid Distortion Shaders con riflessione inerziale al puntatore.
+* **Procedural WebGL Darkroom Plates**: Generatore dinamico `THREE.CanvasTexture` (720x900, fondo ossidiana, cornice `#C89E5A`) per i Reel e le slide video privi di cover statica locale, eliminando ogni nodo fantasma.
+* **Data & Assets Pipeline**: Cache Instagram locale (`src/portfolio_cache.json` + `/archive_media/`) e Lookbook IMWEAR (`/brand/`).
+* **Mobile Performance Shield**: Capping automatico a **45 nodi** e `devicePixelRatio: 1.0x` su schermi mobili (`<= 768px` / iOS WebKit / Android) per zero crash di memoria.
 
-## 2. Traguardi Completati & Collaudati (90% Milestone)
-* **3D Matrix & Liquid Shaders**: Matrice inerziale *Wrap-Around*, *Velocity Tilt* e rifrazione liquida fluida su foto e copertine video.
-* **Precision Raycasting & Focus**: Isolamento centrale dell'opera con *Ghosting Background* sullo sfondo.
-* **Boutique IMWEAR (8-3-5 Lookbook)**: Colonna 1 (`hoodie-2..9`), Colonna 2 (`hoodie_zip-1..3`), Colonna 3 (`tee-1..5`), con bonifica dei file corrotti.
-* **Manifesto Poetico Uniformato**: Quattro capoversi coerenti dedicati alla montagna e all'ascolto fotografico lento della valle, con tipografia uniforme e modali centrate.
-* **Hybrid Carousel & Video Waving Stage**: Copertine video ondeggianti nello shader WebGL senza riquadri neri, controlli `[ PREV SLIDE ] / [ NEXT SLIDE ]` persistenti e link poetico diretto ai Reel su Instagram.
-* **Mobile Stability & Symmetry**: Eliminati i crash di memoria su iOS Safari/Chrome e allineato specularmente il binario verticale sinistro mobile.
+## 2. Architettura Funzionale Consolidata (Demo v1.1)
+* **Spazio 3D & Focus Mode**: Galassia orbitante con isolamento centrale dell'opera, background ghosting e controllo carosello `[ PREV SLIDE ] / [ NEXT SLIDE ]` isolato dagli eventi canvas.
+* **Assi Tipografici Perimetrali**:
+  * **Header / Sinistra**: Navigazione sezioni (`MANIFESTO`, `IMWEAR`, `CONTACTS`).
+  * **Destra**: Colophon istituzionale fisso `ARCHIVE 2026 // © IMLAND.IT`.
+* **Schede Modali Centrate**:
+  * **MANIFESTO**: Testo definitivo a 3 movimenti poetici uniformati nella grana tipografica.
+  * **IMWEAR (8-3-5)**: Classic Hoodie (`hoodie-2..9`), Full-Zip Hoodie (`hoodie_zip-1..3`), Essentials & Gear (`tee-1..5`).
+  * **CONTACTS**: Canali diretti Atelier Alagna Valsesia.
 
-## 3. Ultimo 10% (Rifinitura Finale)
-* **Soundtrack & Micro-Interactions**: Calibrazione finale dell'audio ambientale (`SOUND: ON/OFF`) e controllo estetico su tutti i tagli di schermo.
+## 3. Roadmap verso Production v1.2
+* **Audio Ambientale**: Rifinitura micro-interazioni sonore (`SOUND: ON/OFF`).
+* **Custom Domain**: Collegamento DNS definitivo `imland.it` su Vercel Edge.
