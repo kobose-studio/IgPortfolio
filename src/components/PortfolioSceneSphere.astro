@@ -1162,6 +1162,83 @@ import brandProducts from '../brand_products.json';
     `;
 
     const textureLoader = new THREE.TextureLoader();
+
+function createArchivalPlateTexture(item: any) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 720;
+  canvas.height = 900;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const grad = ctx.createLinearGradient(0, 0, 720, 900);
+  grad.addColorStop(0, '#1a1917');
+  grad.addColorStop(1, '#0c0c0b');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 720, 900);
+
+  ctx.strokeStyle = 'rgba(200, 158, 90, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(36, 36, 648, 828);
+
+  ctx.fillStyle = '#C89E5A';
+  ctx.font = '600 18px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('IMLAND // MOTION ARCHIVE', 64, 88);
+
+  const rawDate = (item && item.timestamp) ? String(item.timestamp).slice(0, 10) : 'ALAGNA VALSESIA';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.font = '16px monospace';
+  ctx.fillText(rawDate, 64, 118);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.88)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(360, 420, 46, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(348, 400);
+  ctx.lineTo(382, 420);
+  ctx.lineTo(348, 440);
+  ctx.closePath();
+  ctx.fill();
+
+  const rawCap = (item && (item.caption || item.title)) ? String(item.caption || item.title) : 'IMLAND MONTEROSA // REEL';
+  const cleanCap = rawCap.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim().slice(0, 95);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+  ctx.font = '500 22px sans-serif';
+  const words = cleanCap.split(' ');
+  let line = '', y = 710;
+  for (const w of words) {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > 590 && line !== '') {
+      ctx.fillText(line.trim(), 64, y);
+      line = w + ' ';
+      y += 32;
+      if (y > 810) break;
+    } else {
+      line = test;
+    }
+  }
+  if (y <= 810 && line.trim()) ctx.fillText(line.trim(), 64, y);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function shieldInteractivePill(el: HTMLElement | null) {
+  if (!el) return;
+  ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'click'].forEach((evt) => {
+    el.addEventListener(evt, (e) => {
+      e.stopPropagation();
+    });
+  });
+}
+
     const mediaItems = (window.innerWidth <= 768 ? (((typeof window !== "undefined" && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))) ? ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))).slice(0, 48) : ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))))).slice(0, 45) : (((typeof window !== "undefined" && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))) ? ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))).slice(0, 48) : ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || [])))))); 
 
     const materials: THREE.ShaderMaterial[] = [];
@@ -1370,23 +1447,33 @@ import brandProducts from '../brand_products.json';
         if (data.media_type === 'VIDEO') {
   if (activeMesh) {
     activeMesh.visible = true;
-    const coverTex = activeMesh.userData && activeMesh.userData.coverTexture;
-    if (coverTex && coverTex.image && coverTex.image.width > 0) {
-      activeMesh.material.uniforms.uTexture.value = coverTex;
-      activeMesh.material.uniforms.uTexAspect.value = coverTex.image.width / coverTex.image.height;
-    } else if (data.id) {
-      textureLoader.load(`/archive_media/${data.id}.jpg`, (t) => {
-        if (activeMesh && t && t.image) {
-          activeMesh.visible = true;
-          activeMesh.material.uniforms.uTexture.value = t;
-          activeMesh.material.uniforms.uTexAspect.value = t.image.width / t.image.height;
-        }
-      });
+    const existingTex = activeMesh.userData && activeMesh.userData.coverTexture;
+    if (existingTex && existingTex.image && existingTex.image.width > 0) {
+      activeMesh.material.uniforms.uTexture.value = existingTex;
+      activeMesh.material.uniforms.uTexAspect.value = existingTex.image.width / existingTex.image.height;
+    } else {
+      const plate = createArchivalPlateTexture(data);
+      if (plate) {
+        activeMesh.userData.coverTexture = plate;
+        activeMesh.material.uniforms.uTexture.value = plate;
+        activeMesh.material.uniforms.uTexAspect.value = 0.8;
+      }
+      if (data.id) {
+        textureLoader.load(`/archive_media/${data.id}.jpg`, (t) => {
+          if (activeMesh && t && t.image && t.image.width > 0) {
+            activeMesh.userData.coverTexture = t;
+            activeMesh.material.uniforms.uTexture.value = t;
+            activeMesh.material.uniforms.uTexAspect.value = t.image.width / t.image.height;
+          }
+        });
+      }
     }
   }
+  const oldPill = document.getElementById('imland-video-pill');
+  if (oldPill) oldPill.remove();
   videoStage.innerHTML = '';
-  videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:115;';
   const link = document.createElement('a');
+  link.id = 'imland-video-pill';
   link.href = data.permalink || 'https://www.instagram.com/imlandmonterosa/';
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
@@ -1394,9 +1481,10 @@ import brandProducts from '../brand_products.json';
   link.style.cssText = 'position:fixed;bottom:88px;left:50%;transform:translateX(-50%);' +
     'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
     'padding:8px 18px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
-    'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
+    'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;z-index:145;' +
     'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
-  videoStage.appendChild(link);
+  shieldInteractivePill(link);
+  document.body.appendChild(link);
 } else if (data.media_type === 'CAROUSEL_ALBUM') {
           const children = data.children || []; let slideIndex = 0;
           const slideItems = children.length > 0 ? children : [{ id: data.id, media_type: 'IMAGE', media_url: data.media_url, thumbnail_url: data.thumbnail_url }];
@@ -1422,43 +1510,60 @@ const slides = slideItems.map((c: any) => {
   const itemSlide = slideItems[slideIndex] || {};
   const tex = slideTextures[slideIndex];
 
-  if (controlsBox && controlsBox.parentElement !== document.body) {
-    document.body.appendChild(controlsBox);
-  }
+  const oldPill = document.getElementById('imland-video-pill');
+  if (oldPill) oldPill.remove();
 
   if (activeMesh) {
     activeMesh.visible = true;
-    const validTex = (tex && tex.image && tex.image.width > 0) ? tex : (activeMesh.userData.coverTexture || tex);
-    if (validTex) {
-      activeMesh.material.uniforms.uTexture.value = validTex;
-      if (validTex.image && validTex.image.width > 0 && validTex.image.height > 0) {
-        activeMesh.material.uniforms.uTexAspect.value = validTex.image.width / validTex.image.height;
+    if (tex && tex.image && tex.image.width > 0) {
+      activeMesh.material.uniforms.uTexture.value = tex;
+      activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+    } else if (itemSlide.media_type === 'VIDEO') {
+      const slidePlate = createArchivalPlateTexture({
+        timestamp: data.timestamp,
+        caption: `${data.caption || data.title || 'IMLAND'} — SLIDE ${slideIndex + 1}/${slides.length}`
+      });
+      if (slidePlate) {
+        slideTextures[slideIndex] = slidePlate;
+        activeMesh.material.uniforms.uTexture.value = slidePlate;
+        activeMesh.material.uniforms.uTexAspect.value = 0.8;
+      }
+    } else if (activeMesh.userData && activeMesh.userData.coverTexture) {
+      const fallback = activeMesh.userData.coverTexture;
+      activeMesh.material.uniforms.uTexture.value = fallback;
+      if (fallback.image && fallback.image.width > 0) {
+        activeMesh.material.uniforms.uTexAspect.value = fallback.image.width / fallback.image.height;
       }
     }
   }
 
   videoStage.innerHTML = '';
   if (itemSlide.media_type === 'VIDEO') {
-    videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:115;';
     const link = document.createElement('a');
+    link.id = 'imland-video-pill';
     link.href = data.permalink || 'https://www.instagram.com/imlandmonterosa/';
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.innerText = '[ ▶ GUARDA VIDEO SLIDE SU INSTAGRAM ↗ ]';
-    link.style.cssText = 'position:fixed;bottom:138px;left:50%;transform:translateX(-50%);' +
+    link.style.cssText = 'position:fixed;bottom:136px;left:50%;transform:translateX(-50%);' +
       'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
       'padding:7px 16px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
-      'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
+      'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;z-index:145;' +
       'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
-    videoStage.appendChild(link);
+    shieldInteractivePill(link);
+    document.body.appendChild(link);
   }
 
   if (controlsBox) {
     controlsBox.id = 'imland-carousel-controls';
+    if (controlsBox.parentElement !== document.body) {
+      document.body.appendChild(controlsBox);
+    }
+    shieldInteractivePill(controlsBox);
     controlsBox.style.cssText = 'position:fixed;bottom:84px;left:50%;transform:translateX(-50%);' +
       'display:flex;align-items:center;gap:16px;background:rgba(17,17,17,0.92);backdrop-filter:blur(12px);' +
       'border:1px solid rgba(200,158,90,0.65);padding:8px 20px;border-radius:999px;color:#fff;' +
-      'font-family:"Space Mono",monospace;font-size:10px;z-index:140;pointer-events:auto;opacity:1;visibility:visible;';
+      'font-family:"Space Mono",monospace;font-size:10px;z-index:150;pointer-events:auto;opacity:1;visibility:visible;';
   }
   counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
 }
@@ -1466,7 +1571,7 @@ const slides = slideItems.map((c: any) => {
           btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
           btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
           controls.appendChild(btnPrev); controls.appendChild(counter); controls.appendChild(btnNext); controlsBox.appendChild(controls);
-          if (slides.length > 1) controlsBox.id = "imland-carousel-controls"; document.body.appendChild(controlsBox);
+          if (slides.length > 1) controlsBox.id = "imland-carousel-controls"; shieldInteractivePill(controlsBox); shieldInteractivePill(btnPrev); shieldInteractivePill(btnNext); document.body.appendChild(controlsBox);
         }
       }
 
@@ -2139,7 +2244,11 @@ const slides = slideItems.map((c: any) => {
 
 
 
-<style id="imland-v19-css" is:global>
+
+
+
+
+<style id="imland-v20-css" is:global>
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
     inset: 0 !important;
@@ -2182,10 +2291,10 @@ const slides = slideItems.map((c: any) => {
     }
   }
 </style>
-<script id="imland-v19-js" is:inline>
+<script id="imland-v20-js" is:inline>
 (function() {
-  if (window.__V19) return;
-  window.__V19 = 1;
+  if (window.__V20) return;
+  window.__V20 = 1;
   const isMob = window.innerWidth <= 768;
   const CAT = {
     c1: [
@@ -2197,7 +2306,19 @@ const slides = slideItems.map((c: any) => {
   };
   const idx = { c1: 0, c2: 0, c3: 0 };
 
+  function cleanupFloatingPillsIfClosed() {
+    const stage = document.getElementById('editorial-stage');
+    if (stage && !stage.classList.contains('is-active')) {
+      const cBox = document.getElementById('imland-carousel-controls');
+      if (cBox) cBox.remove();
+      const vPill = document.getElementById('imland-video-pill');
+      if (vPill) vPill.remove();
+    }
+  }
+
   function syncUI(adv) {
+    cleanupFloatingPillsIfClosed();
+
     const m = document.getElementById('brand-modal') || document.body;
     const t = { c1: null, c2: null, c3: null };
     m.querySelectorAll('article, div, section').forEach((el) => {
@@ -2223,14 +2344,6 @@ const slides = slideItems.map((c: any) => {
         'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
     });
 
-    document.querySelectorAll('button, span, div, aside').forEach((el) => {
-      if (el.children.length === 0 && el.textContent && el.textContent.includes('VIDEO / CAROUSEL')) {
-        el.textContent = el.textContent.replace(/\[\s*VIDEO\s*\/\s*CAROUSEL\s*\]/gi, '© IMLAND.IT');
-        el.style.pointerEvents = 'none';
-        el.style.cursor = 'default';
-      }
-    });
-
     ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
       const o = document.querySelector(q);
       if (!o) return;
@@ -2249,12 +2362,6 @@ const slides = slideItems.map((c: any) => {
         o.style.setProperty('justify-content', 'center', 'important');
       }
     });
-
-    const stage = document.getElementById('editorial-stage');
-    const cBox = document.getElementById('imland-carousel-controls');
-    if (cBox && stage && !stage.classList.contains('is-active')) {
-      cBox.remove();
-    }
 
     if (isMob) {
       let l = null, r = null;
@@ -2293,12 +2400,20 @@ const slides = slideItems.map((c: any) => {
     }
   }
 
-  window.addEventListener('DOMContentLoaded', () => syncUI(false));
-  document.addEventListener('click', () => setTimeout(() => syncUI(false), 30));
+  window.addEventListener('DOMContentLoaded', () => {
+    syncUI(false);
+    const stage = document.getElementById('editorial-stage');
+    if (stage) {
+      new MutationObserver(cleanupFloatingPillsIfClosed).observe(stage, { attributes: true, attributeFilter: ['class'] });
+    }
+  });
+  document.addEventListener('click', () => setTimeout(() => syncUI(false), 10));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const cBox = document.getElementById('imland-carousel-controls');
       if (cBox) cBox.remove();
+      const vPill = document.getElementById('imland-video-pill');
+      if (vPill) vPill.remove();
     }
   });
   setInterval(() => syncUI(true), 2800);
