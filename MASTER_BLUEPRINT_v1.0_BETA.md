@@ -1,37 +1,19 @@
-# 🏔️ IMLAND MATRIX — MASTER BLUEPRINT v1.0 [BETA COMPLETA]
+# IMLAND MATRIX — MASTER BLUEPRINT v1.6 [90% BETA COMPLETA]
 
-## 🏛️ 1. L'Architettura Globale (Lo Stack)
-* **Frontend Framework**: Astro (Generazione statica superveloce e routing).
-* **3D Engine**: Three.js + WebGL Nativo.
-* **Data Pipeline**: Node.js/Python (Instagram Graph API con paginazione ricorsiva e cache locale).
-* **Alchemical VFX**: Custom GLSL Shaders (Distorsione liquida basata sulla velocità di scroll).
-* **Identity & Typography**: Fashion Brutalism / Swiss Typography (Syne ExtraBold 800, Inter, Space Mono).
-* **Performance Engine**: Featherweight Engine v3 (Async Loading, GPU Hibernation, Native Streaming Mobile).
+## 1. L'Architettura Globale (Lo Stack)
+* **Frontend Framework**: Astro SSG + Vite Rollup (Build statica verificata in ~1.4s).
+* **3D Engine & Shaders**: Three.js + WebGL Nativo con Custom GLSL Liquid Distortion Shaders.
+* **Data Pipeline**: Cache locale Instagram (`src/portfolio_cache.json` + `/archive_media/`) e Lookbook statico/ibrido IMWEAR (`/brand/`).
+* **Identity & Typography**: Fashion Brutalism / Swiss Typography (`Syne ExtraBold 800`, `Inter`, `Space Mono`).
+* **Mobile Performance Shield**: Capping automatico a **45 nodi** e `devicePixelRatio: 1.0x` su schermi mobili (`<= 768px` / iOS WebKit / Android).
 
-## ⚙️ 2. Fasi Completate & Collaudate (Milestone 1.0)
-### Fase 1: Data Engine
-* Estrazione automatica e caching di 445 nodi da Instagram in `src/portfolio_cache.json`.
+## 2. Traguardi Completati & Collaudati (90% Milestone)
+* **3D Matrix & Liquid Shaders**: Matrice inerziale *Wrap-Around*, *Velocity Tilt* e rifrazione liquida fluida su foto e copertine video.
+* **Precision Raycasting & Focus**: Isolamento centrale dell'opera con *Ghosting Background* sullo sfondo.
+* **Boutique IMWEAR (8-3-5 Lookbook)**: Colonna 1 (`hoodie-2..9`), Colonna 2 (`hoodie_zip-1..3`), Colonna 3 (`tee-1..5`), con bonifica dei file corrotti.
+* **Manifesto Poetico Uniformato**: Quattro capoversi coerenti dedicati alla montagna e all'ascolto fotografico lento della valle, con tipografia uniforme e modali centrate.
+* **Hybrid Carousel & Video Waving Stage**: Copertine video ondeggianti nello shader WebGL senza riquadri neri, controlli `[ PREV SLIDE ] / [ NEXT SLIDE ]` persistenti e link poetico diretto ai Reel su Instagram.
+* **Mobile Stability & Symmetry**: Eliminati i crash di memoria su iOS Safari/Chrome e allineato specularmente il binario verticale sinistro mobile.
 
-### Fase 2: 3D Matrix & Liquid Shaders
-* **Matrice Inerziale**: Posizionamento continuo (*Wrap-Around*) per uno scrolling infinito.
-* **Velocity Tilt**: Inclinazione dinamica dell'intera galassia basata sulla velocità del mouse/scroll.
-* **Liquid Shaders**: Materiali custom con rifrazione fluida durante la navigazione.
-
-### Fase 3: Precision Interaction & Raycasting
-* **Focus Matematico**: Il click seleziona un'opera, disattiva il tilt, iberna lo shader di distorsione e porta la telecamera in posizione cinematografica esatta.
-* **Ghosting Background**: Le opere non selezionate sfumano nel grigio trasparente (effetto nebbia alpina).
-
-### Fase 4: Editorial UX (Mixed Media)
-* **Design Modale**: Fogli sospesi senza bordi, box shadow ambientale, testi a larghezza ottimizzata (`680px`) e titoli monumentali in *Syne*.
-* **Carousel Stacking**: Sovrapposizione assoluta dei caroselli (IMWEAR) per la logica poliritmica.
-* **Riunificazione Modali**: Layout coeso per IMWEAR, MANIFESTO e CONTACTS.
-
-### Fase 5: Featherweight Engine (Performance Suprema)
-* **Async Image Queue**: Code asincrone (8 Desktop / 4 Mobile) per azzerare il freeze della CPU al caricamento.
-* **GPU Hibernation**: Rallentamento dei frame (2 FPS) quando si aprono le modali, liberando RAM.
-* **Mobile VRAM Diet**: Stream nativo di 120 nodi su smartphone con limite al Pixel Ratio (`1.0x`), eliminando i crash di sistema su iOS Safari.
-
-## 📱 3. Prossima Frontiera: Mobile Usability (Fase 6)
-* **Touch Physics**: Migliorare l'attrito e l'inerzia dello swipe (scroll touch) su schermo.
-* **Hitbox Precision**: Calibrare l'area di "tap" per evitare selezioni involontarie durante lo scorrimento veloce sul telefono.
-* **UI Responsiveness**: Affinamento micro-interazioni (cross o esc posizionati ergonomicamente per i pollici).
+## 3. Ultimo 10% (Rifinitura Finale)
+* **Soundtrack & Micro-Interactions**: Calibrazione finale dell'audio ambientale (`SOUND: ON/OFF`) e controllo estetico su tutti i tagli di schermo.

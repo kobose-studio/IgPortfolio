@@ -335,6 +335,8 @@ import brandProducts from '../brand_products.json';
         <p class="editorial-prose font-sans">IMLAND nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina.</p>
 <p class="editorial-prose font-sans">Progettiamo <strong>outfit outdoor ad alte prestazioni</strong> per chi vive la montagna con rispetto, silenzio e radici profonde. In un mondo saturo di rumore digitale, Alagna e le sue valli da scoprire rimangono la nostra unica bussola esistenziale.</p>
 <p class="editorial-prose font-sans">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
+<p class="editorial-prose font-sans">Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.</p>
+<p class="editorial-prose font-sans">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
 <p style="margin-top:1.1rem;max-width:680px;line-height:1.65;">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
           <p style="margin-top: 1.15rem;">Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.</p>
 
@@ -1370,28 +1372,57 @@ import brandProducts from '../brand_products.json';
       if (videoStage) {
         videoStage.innerHTML = '';
         if (data.media_type === 'VIDEO') {
-  videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;z-index:115;pointer-events:none;';
-  const box = document.createElement('div');
-  box.style.cssText = 'width:min(88vw,440px);max-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto;margin:0 auto;';
-  const v = document.createElement('video');
-  v.src = data.media_url;
-  v.poster = data.thumbnail_url || '';
-  v.autoplay = true; v.loop = true; v.muted = true; v.controls = true; v.playsInline = true;
-  v.setAttribute('playsinline', '');
-  v.style.cssText = 'width:100%;height:auto;max-height:58vh;object-fit:contain;border-radius:4px;background:#0b0b0b;box-shadow:0 24px 50px rgba(0,0,0,0.18);';
-  v.onerror = () => {
-    if (!data.thumbnail_url) return;
-    box.innerHTML = '<a href="' + (data.permalink || '#') + '" target="_blank" rel="noopener noreferrer" ' +
-      'style="display:flex;flex-direction:column;align-items:center;text-decoration:none;">' +
-      '<img src="' + data.thumbnail_url + '" style="max-width:min(88vw,420px);max-height:54vh;object-fit:contain;border-radius:4px;box-shadow:0 24px 50px rgba(0,0,0,0.18);"/>' +
-      '<span style="margin-top:10px;font-family:monospace;font-size:10px;letter-spacing:0.1em;background:#111;color:#fff;padding:7px 14px;white-space:nowrap;">[ GUARDA VIDEO SU INSTAGRAM ↗ ]</span></a>';
+  videoStage.innerHTML = '';
+  videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:115;';
+  const localMp4 = data.id ? `/archive_media/${data.id}.mp4` : '';
+  const candidateMp4 = localMp4 || data.media_url || '';
+  const probeVid = document.createElement('video');
+  probeVid.crossOrigin = 'anonymous';
+  probeVid.muted = true;
+  probeVid.loop = true;
+  probeVid.playsInline = true;
+  probeVid.setAttribute('playsinline', '');
+  probeVid.src = candidateMp4;
+
+  const renderPoeticIgLink = () => {
+    videoStage.innerHTML = '';
+    const link = document.createElement('a');
+    link.href = data.permalink || 'https://www.instagram.com/imlandmonterosa/';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.innerText = '[ ▶ GUARDA REEL SU INSTAGRAM ↗ ]';
+    link.style.cssText = 'position:fixed;bottom:92px;left:50%;transform:translateX(-50%);' +
+      'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
+      'padding:8px 18px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
+      'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
+      'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
+    videoStage.appendChild(link);
   };
-  box.appendChild(v);
-  videoStage.appendChild(box);
+
+  probeVid.onloadeddata = () => {
+    probeVid.play().catch(() => {});
+    if (activeMesh && window.THREE) {
+      const vTex = new THREE.VideoTexture(probeVid);
+      vTex.minFilter = THREE.LinearFilter;
+      vTex.magFilter = THREE.LinearFilter;
+      activeMesh.material.uniforms.uTexture.value = vTex;
+      if (probeVid.videoWidth > 0 && probeVid.videoHeight > 0) {
+        activeMesh.material.uniforms.uTexAspect.value = probeVid.videoWidth / probeVid.videoHeight;
+      }
+    }
+  };
+  probeVid.onerror = renderPoeticIgLink;
+  renderPoeticIgLink();
 } else if (data.media_type === 'CAROUSEL_ALBUM') {
           const children = data.children || []; let slideIndex = 0;
-          const slideItems = children.length > 0 ? children : [{ media_type: 'IMAGE', media_url: data.media_url, thumbnail_url: data.thumbnail_url }];
-const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbnail_url || data.thumbnail_url || c.media_url) : (c.media_url || c.thumbnail_url)));
+          const slideItems = children.length > 0 ? children : [{ id: data.id, media_type: 'IMAGE', media_url: data.media_url, thumbnail_url: data.thumbnail_url }];
+const fallbackCoverUrl = (data.id ? `/archive_media/${data.id}.jpg` : '') || data.thumbnail_url || data.media_url;
+const slides = slideItems.map((c: any) => {
+  if (c.media_type === 'VIDEO') {
+    return (c.id ? `/archive_media/${c.id}.jpg` : '') || c.thumbnail_url || fallbackCoverUrl;
+  }
+  return (c.id ? `/archive_media/${c.id}.jpg` : '') || c.media_url || c.thumbnail_url || fallbackCoverUrl;
+});
           const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
             if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
           }));
@@ -1406,32 +1437,36 @@ const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbna
   slideIndex = (newIdx + slides.length) % slides.length;
   const itemSlide = slideItems[slideIndex] || {};
   const tex = slideTextures[slideIndex];
-  if (activeMesh && tex) {
-    activeMesh.material.uniforms.uTexture.value = tex;
-    if (tex.image && tex.image.width > 0 && tex.image.height > 0) {
-      activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+  if (activeMesh) {
+    const validTex = (tex && tex.image && tex.image.width > 0) ? tex : (activeMesh.userData.coverTexture || tex);
+    if (validTex) {
+      activeMesh.material.uniforms.uTexture.value = validTex;
+      if (validTex.image && validTex.image.width > 0 && validTex.image.height > 0) {
+        activeMesh.material.uniforms.uTexAspect.value = validTex.image.width / validTex.image.height;
+      }
     }
   }
   videoStage.innerHTML = '';
-  if (itemSlide.media_type === 'VIDEO' && itemSlide.media_url) {
-    videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;z-index:115;pointer-events:none;';
-    const box = document.createElement('div');
-    box.style.cssText = 'width:min(88vw,440px);max-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto;margin:0 auto;';
-    const v = document.createElement('video');
-    v.src = itemSlide.media_url;
-    v.poster = itemSlide.thumbnail_url || '';
-    v.autoplay = true; v.loop = true; v.muted = true; v.controls = true; v.playsInline = true;
-    v.setAttribute('playsinline', '');
-    v.style.cssText = 'width:100%;height:auto;max-height:58vh;object-fit:contain;border-radius:4px;background:#0b0b0b;box-shadow:0 24px 50px rgba(0,0,0,0.18);';
-    v.onerror = () => {
-      if (!itemSlide.thumbnail_url) return;
-      box.innerHTML = '<a href="' + (data.permalink || '#') + '" target="_blank" rel="noopener noreferrer" ' +
-        'style="display:flex;flex-direction:column;align-items:center;text-decoration:none;">' +
-        '<img src="' + itemSlide.thumbnail_url + '" style="max-width:min(88vw,420px);max-height:54vh;object-fit:contain;border-radius:4px;box-shadow:0 24px 50px rgba(0,0,0,0.18);"/>' +
-        '<span style="margin-top:10px;font-family:monospace;font-size:10px;letter-spacing:0.1em;background:#111;color:#fff;padding:7px 14px;white-space:nowrap;">[ GUARDA VIDEO SU INSTAGRAM ↗ ]</span></a>';
-    };
-    box.appendChild(v);
-    videoStage.appendChild(box);
+  if (itemSlide.media_type === 'VIDEO') {
+    videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none;z-index:115;';
+    const link = document.createElement('a');
+    link.href = data.permalink || 'https://www.instagram.com/imlandmonterosa/';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.innerText = '[ ▶ GUARDA VIDEO SLIDE SU INSTAGRAM ↗ ]';
+    link.style.cssText = 'position:fixed;bottom:136px;left:50%;transform:translateX(-50%);' +
+      'background:rgba(17,17,17,0.92);color:#fff;border:1px solid rgba(255,255,255,0.22);' +
+      'padding:7px 16px;border-radius:999px;font-family:"Space Mono",monospace;font-size:10px;' +
+      'letter-spacing:0.12em;text-decoration:none;pointer-events:auto;white-space:nowrap;' +
+      'box-shadow:0 10px 28px rgba(0,0,0,0.18);backdrop-filter:blur(8px);';
+    videoStage.appendChild(link);
+  }
+  if (controlsBox) {
+    controlsBox.style.display = 'flex';
+    controlsBox.style.opacity = '1';
+    controlsBox.style.visibility = 'visible';
+    controlsBox.style.pointerEvents = 'auto';
+    controlsBox.style.zIndex = '135';
   }
   counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
 }
@@ -2104,13 +2139,14 @@ const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbna
 
 
 
-<style id="imland-v15-css" is:global>
+
+
+
+
+<style id="imland-v16-css" is:global>
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
+    inset: 0 !important;
     width: 100vw !important;
     height: 100dvh !important;
     margin: 0 !important;
@@ -2123,10 +2159,7 @@ const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbna
   #brand-modal > div, #contacts-modal > div, #manifesto-modal > div,
   .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
     position: relative !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: auto !important;
+    inset: auto !important;
     transform: none !important;
     margin: 0 auto !important;
     width: min(92vw, 880px) !important;
@@ -2153,10 +2186,10 @@ const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbna
     }
   }
 </style>
-<script id="imland-v15-js" is:inline>
+<script id="imland-v16-js" is:inline>
 (function() {
-  if (window.__V15) return;
-  window.__V15 = 1;
+  if (window.__V16) return;
+  window.__V16 = 1;
   const isMob = window.innerWidth <= 768;
   const CAT = {
     c1: [
@@ -2195,19 +2228,21 @@ const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbna
         'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
     });
 
-    // B. Uniforma stile tipografico del Manifesto alle prime due righe ed elimina eventuali duplicati
+    // B. Uniforma stile tipografico di TUTTI i 4 paragrafi del Manifesto alle prime due righe + rimuove duplicati
     const manModal = document.getElementById('manifesto-modal');
     if (manModal) {
       const ps = Array.from(manModal.querySelectorAll('p'));
       const firstP = ps.find((p) => p.textContent && p.textContent.includes('IMLAND nasce sotto'));
       if (firstP && firstP.parentElement) {
-        const siblings = Array.from(firstP.parentElement.querySelectorAll('p'));
+        const seen = new Set();
         const cs = getComputedStyle(firstP);
-        siblings.forEach((p, i) => {
-          if (p.textContent && p.textContent.includes('Questo senso di appartenenza')) {
+        Array.from(firstP.parentElement.querySelectorAll('p')).forEach((p, i) => {
+          const sig = (p.textContent || '').trim().slice(0, 45);
+          if (seen.has(sig)) {
             p.remove();
             return;
           }
+          seen.add(sig);
           if (i > 0) {
             p.className = firstP.className;
             p.style.fontFamily = cs.fontFamily;
@@ -2223,13 +2258,11 @@ const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbna
       }
     }
 
-    // C. Reparent su document.body per eliminare offset di antenati trasformati e centrare al 100%
+    // C. Centratura Modali su document.body
     ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
       const o = document.querySelector(q);
       if (!o) return;
-      if (o.parentElement !== document.body) {
-        document.body.appendChild(o);
-      }
+      if (o.parentElement !== document.body) document.body.appendChild(o);
       if (getComputedStyle(o).display !== 'none') {
         o.style.setProperty('position', 'fixed', 'important');
         o.style.setProperty('top', '0', 'important');
