@@ -332,9 +332,9 @@ import brandProducts from '../brand_products.json';
         <span class="editorial-tag font-mono-tech">EST. ALAGNA MONTE ROSA // 45° 51' N, 7° 56' E</span>
         <h2 class="editorial-heading font-syne">IMLAND, DOVE L'UNICA RISPOSTA È NATURA.</h2>
         
-        <p class="editorial-prose font-sans">
-          IMLAND nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina.</p>
-<p style="margin-top:1.1rem;max-width:680px;line-height:1.65;">Progettiamo <strong>outfit outdoor ad alte prestazioni</strong> per chi vive la montagna con rispetto, silenzio e radici profonde. In un mondo saturo di rumore digitale, Alagna e le sue valli da scoprire rimangono la nostra unica bussola esistenziale.</p>
+        <p class="editorial-prose font-sans">IMLAND nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina.</p>
+<p class="editorial-prose font-sans">Progettiamo <strong>outfit outdoor ad alte prestazioni</strong> per chi vive la montagna con rispetto, silenzio e radici profonde. In un mondo saturo di rumore digitale, Alagna e le sue valli da scoprire rimangono la nostra unica bussola esistenziale.</p>
+<p class="editorial-prose font-sans">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
 <p style="margin-top:1.1rem;max-width:680px;line-height:1.65;">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
           <p style="margin-top: 1.15rem;">Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.</p>
 
@@ -1370,27 +1370,28 @@ import brandProducts from '../brand_products.json';
       if (videoStage) {
         videoStage.innerHTML = '';
         if (data.media_type === 'VIDEO') {
-  videoStage.style.cssText = 'display:flex;align-items:center;justify-content:center;' +
-    'width:min(88vw,440px);min-height:280px;max-height:62vh;margin:0 auto;pointer-events:auto;';
+  videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;z-index:115;pointer-events:none;';
+  const box = document.createElement('div');
+  box.style.cssText = 'width:min(88vw,440px);max-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto;margin:0 auto;';
   const v = document.createElement('video');
   v.src = data.media_url;
   v.poster = data.thumbnail_url || '';
   v.autoplay = true; v.loop = true; v.muted = true; v.controls = true; v.playsInline = true;
   v.setAttribute('playsinline', '');
-  v.style.cssText = 'width:100%;height:auto;max-height:62vh;object-fit:contain;' +
-    'border-radius:4px;background:#0b0b0b;pointer-events:auto;';
+  v.style.cssText = 'width:100%;height:auto;max-height:58vh;object-fit:contain;border-radius:4px;background:#0b0b0b;box-shadow:0 24px 50px rgba(0,0,0,0.18);';
   v.onerror = () => {
     if (!data.thumbnail_url) return;
-    videoStage.innerHTML = '<a href="' + (data.permalink || '#') + '" target="_blank" ' +
-      'style="display:block;width:100%;text-align:center;text-decoration:none;">' +
-      '<img src="' + data.thumbnail_url + '" style="max-height:56vh;margin:0 auto;border-radius:4px;"/>' +
-      '<div style="margin-top:8px;font-family:monospace;font-size:10px;background:#111;' +
-      'color:#fff;padding:6px 12px;display:inline-block;">[ GUARDA VIDEO SU INSTAGRAM ]</div></a>';
+    box.innerHTML = '<a href="' + (data.permalink || '#') + '" target="_blank" rel="noopener noreferrer" ' +
+      'style="display:flex;flex-direction:column;align-items:center;text-decoration:none;">' +
+      '<img src="' + data.thumbnail_url + '" style="max-width:min(88vw,420px);max-height:54vh;object-fit:contain;border-radius:4px;box-shadow:0 24px 50px rgba(0,0,0,0.18);"/>' +
+      '<span style="margin-top:10px;font-family:monospace;font-size:10px;letter-spacing:0.1em;background:#111;color:#fff;padding:7px 14px;white-space:nowrap;">[ GUARDA VIDEO SU INSTAGRAM ↗ ]</span></a>';
   };
-  videoStage.appendChild(v);
+  box.appendChild(v);
+  videoStage.appendChild(box);
 } else if (data.media_type === 'CAROUSEL_ALBUM') {
           const children = data.children || []; let slideIndex = 0;
-          const slides = children.length > 0 ? children.map((c: any) => c.media_url || c.thumbnail_url) : [data.media_url];
+          const slideItems = children.length > 0 ? children : [{ media_type: 'IMAGE', media_url: data.media_url, thumbnail_url: data.thumbnail_url }];
+const slides = slideItems.map((c: any) => (c.media_type === 'VIDEO' ? (c.thumbnail_url || data.thumbnail_url || c.media_url) : (c.media_url || c.thumbnail_url)));
           const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
             if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
           }));
@@ -1402,13 +1403,38 @@ import brandProducts from '../brand_products.json';
           const btnNext = document.createElement('button'); btnNext.innerText = '[ NEXT SLIDE ]'; btnNext.style.cssText = 'background:none; border:none; color:#C09E5A; cursor:pointer; font-family:inherit; font-size:10px; font-weight:bold;';
 
           function updateSlide(newIdx: number) {
-            slideIndex = (newIdx + slides.length) % slides.length;
-            if (activeMesh) {
-              const currentTex = slideTextures[slideIndex]; activeMesh.material.uniforms.uTexture.value = currentTex;
-              if (currentTex.image) activeMesh.material.uniforms.uTexAspect.value = currentTex.image.width / currentTex.image.height;
-            }
-            counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
-          }
+  slideIndex = (newIdx + slides.length) % slides.length;
+  const itemSlide = slideItems[slideIndex] || {};
+  const tex = slideTextures[slideIndex];
+  if (activeMesh && tex) {
+    activeMesh.material.uniforms.uTexture.value = tex;
+    if (tex.image && tex.image.width > 0 && tex.image.height > 0) {
+      activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+    }
+  }
+  videoStage.innerHTML = '';
+  if (itemSlide.media_type === 'VIDEO' && itemSlide.media_url) {
+    videoStage.style.cssText = 'position:fixed;inset:0;width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;z-index:115;pointer-events:none;';
+    const box = document.createElement('div');
+    box.style.cssText = 'width:min(88vw,440px);max-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto;margin:0 auto;';
+    const v = document.createElement('video');
+    v.src = itemSlide.media_url;
+    v.poster = itemSlide.thumbnail_url || '';
+    v.autoplay = true; v.loop = true; v.muted = true; v.controls = true; v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.style.cssText = 'width:100%;height:auto;max-height:58vh;object-fit:contain;border-radius:4px;background:#0b0b0b;box-shadow:0 24px 50px rgba(0,0,0,0.18);';
+    v.onerror = () => {
+      if (!itemSlide.thumbnail_url) return;
+      box.innerHTML = '<a href="' + (data.permalink || '#') + '" target="_blank" rel="noopener noreferrer" ' +
+        'style="display:flex;flex-direction:column;align-items:center;text-decoration:none;">' +
+        '<img src="' + itemSlide.thumbnail_url + '" style="max-width:min(88vw,420px);max-height:54vh;object-fit:contain;border-radius:4px;box-shadow:0 24px 50px rgba(0,0,0,0.18);"/>' +
+        '<span style="margin-top:10px;font-family:monospace;font-size:10px;letter-spacing:0.1em;background:#111;color:#fff;padding:7px 14px;white-space:nowrap;">[ GUARDA VIDEO SU INSTAGRAM ↗ ]</span></a>';
+    };
+    box.appendChild(v);
+    videoStage.appendChild(box);
+  }
+  counter.innerText = `${String(slideIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+}
 
           btnPrev.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex - 1); });
           btnNext.addEventListener('click', (e) => { e.stopPropagation(); updateSlide(slideIndex + 1); });
@@ -2074,22 +2100,33 @@ import brandProducts from '../brand_products.json';
 
 
 
-<style id="imland-v14-css" is:global>
+
+
+
+
+<style id="imland-v15-css" is:global>
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
-    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
     height: 100dvh !important;
     margin: 0 !important;
-    padding: 16px !important;
+    padding: 0 !important;
     transform: none !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
   }
+  #brand-modal > div, #contacts-modal > div, #manifesto-modal > div,
   .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
     position: relative !important;
-    inset: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: auto !important;
     transform: none !important;
     margin: 0 auto !important;
     width: min(92vw, 880px) !important;
@@ -2103,8 +2140,10 @@ import brandProducts from '../brand_products.json';
     box-sizing: border-box !important;
   }
   @media (max-width: 768px) {
+    #brand-modal > div, #contacts-modal > div, #manifesto-modal > div,
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
       width: 94vw !important;
+      max-width: 94vw !important;
       padding: 24px !important;
     }
     .brand-panel-content .grid, #brand-modal .grid {
@@ -2114,10 +2153,10 @@ import brandProducts from '../brand_products.json';
     }
   }
 </style>
-<script id="imland-v14-js" is:inline>
+<script id="imland-v15-js" is:inline>
 (function() {
-  if (window.__V14) return;
-  window.__V14 = 1;
+  if (window.__V15) return;
+  window.__V15 = 1;
   const isMob = window.innerWidth <= 768;
   const CAT = {
     c1: [
@@ -2130,6 +2169,7 @@ import brandProducts from '../brand_products.json';
   const idx = { c1: 0, c2: 0, c3: 0 };
 
   function syncUI(adv) {
+    // A. IMWEAR 3 Colonne
     const m = document.getElementById('brand-modal') || document.body;
     const t = { c1: null, c2: null, c3: null };
     m.querySelectorAll('article, div, section').forEach((el) => {
@@ -2154,14 +2194,58 @@ import brandProducts from '../brand_products.json';
       imgs[0].style.cssText = 'opacity:1!important;position:relative!important;' +
         'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
     });
+
+    // B. Uniforma stile tipografico del Manifesto alle prime due righe ed elimina eventuali duplicati
+    const manModal = document.getElementById('manifesto-modal');
+    if (manModal) {
+      const ps = Array.from(manModal.querySelectorAll('p'));
+      const firstP = ps.find((p) => p.textContent && p.textContent.includes('IMLAND nasce sotto'));
+      if (firstP && firstP.parentElement) {
+        const siblings = Array.from(firstP.parentElement.querySelectorAll('p'));
+        const cs = getComputedStyle(firstP);
+        siblings.forEach((p, i) => {
+          if (p.textContent && p.textContent.includes('Questo senso di appartenenza')) {
+            p.remove();
+            return;
+          }
+          if (i > 0) {
+            p.className = firstP.className;
+            p.style.fontFamily = cs.fontFamily;
+            p.style.fontSize = cs.fontSize;
+            p.style.fontWeight = cs.fontWeight;
+            p.style.lineHeight = cs.lineHeight;
+            p.style.letterSpacing = cs.letterSpacing;
+            p.style.color = cs.color;
+            p.style.marginTop = '1.1rem';
+            p.style.maxWidth = '680px';
+          }
+        });
+      }
+    }
+
+    // C. Reparent su document.body per eliminare offset di antenati trasformati e centrare al 100%
     ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
       const o = document.querySelector(q);
-      if (o && getComputedStyle(o).display !== 'none') {
-        o.style.display = 'flex';
-        o.style.alignItems = 'center';
-        o.style.justifyContent = 'center';
+      if (!o) return;
+      if (o.parentElement !== document.body) {
+        document.body.appendChild(o);
+      }
+      if (getComputedStyle(o).display !== 'none') {
+        o.style.setProperty('position', 'fixed', 'important');
+        o.style.setProperty('top', '0', 'important');
+        o.style.setProperty('left', '0', 'important');
+        o.style.setProperty('width', '100vw', 'important');
+        o.style.setProperty('height', '100dvh', 'important');
+        o.style.setProperty('padding', '0', 'important');
+        o.style.setProperty('margin', '0', 'important');
+        o.style.setProperty('transform', 'none', 'important');
+        o.style.setProperty('display', 'flex', 'important');
+        o.style.setProperty('align-items', 'center', 'important');
+        o.style.setProperty('justify-content', 'center', 'important');
       }
     });
+
+    // D. Simmetria Binario Sinistro Mobile
     if (isMob) {
       let l = null, r = null;
       document.querySelectorAll('nav, aside, header, div').forEach((el) => {
