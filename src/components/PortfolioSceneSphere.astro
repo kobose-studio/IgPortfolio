@@ -2249,16 +2249,12 @@ const slides = slideItems.map((c: any) => {
 
 
 
-<style id="imland-v20-css" is:global>
-  #imland-carousel-controls, #imland-carousel-controls * {
-    outline: none !important;
-  }
-  #imland-carousel-controls button:focus,
-  #imland-carousel-controls button:focus-visible,
-  #imland-carousel-controls button:active {
-    outline: none !important;
-    box-shadow: none !important;
-  }
+
+
+
+
+<style id="imland-v23-css" is:global>
+  /* Overlay modali centrati e sopra ogni elemento perimetrale */
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
     inset: 0 !important;
@@ -2270,7 +2266,9 @@ const slides = slideItems.map((c: any) => {
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
+    z-index: 120 !important;
   }
+
   #brand-modal > div, #contacts-modal > div, #manifesto-modal > div,
   .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
     position: relative !important;
@@ -2279,32 +2277,104 @@ const slides = slideItems.map((c: any) => {
     margin: 0 auto !important;
     width: min(92vw, 880px) !important;
     max-width: min(92vw, 880px) !important;
-    max-height: 85dvh !important;
+    max-height: 84dvh !important;
     padding: 36px !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     background: #ffffff !important;
     border: none !important;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.06) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.08) !important;
     box-sizing: border-box !important;
   }
+
+  /* Evita che l'overlay editoriale inattivo blocchi i tap sul canvas 3D */
+  #editorial-stage:not(.is-active) {
+    pointer-events: none !important;
+  }
+  #video-stage {
+    pointer-events: none !important;
+  }
+
   @media (max-width: 768px) {
+    /* Header mobile fisso in alto: cliccabile, stabile, zero rimbalzi */
+    #imland-mobile-top-nav {
+      position: fixed !important;
+      top: max(10px, env(safe-area-inset-top)) !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      padding: 6px 10px !important;
+      margin: 0 !important;
+      writing-mode: horizontal-tb !important;
+      transform: none !important;
+      background: rgba(246, 245, 242, 0.86) !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+      z-index: 70 !important;
+      pointer-events: auto !important;
+      box-sizing: border-box !important;
+    }
+    #imland-mobile-top-nav button,
+    #imland-mobile-top-nav a,
+    #imland-mobile-top-nav span {
+      font-size: 9.5px !important;
+      letter-spacing: 0.08em !important;
+      padding: 5px 4px !important;
+      white-space: nowrap !important;
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+    }
+
+    /* Spazio aria tra header alto e logo IMLAND */
+    #imland-mobile-logo {
+      top: calc(max(10px, env(safe-area-inset-top)) + 44px) !important;
+      z-index: 40 !important;
+      pointer-events: none !important;
+    }
+
+    /* Modali mobile simmetriche: zero tagli a destra su "EQUIPAGGIAMENTO" */
     #brand-modal > div, #contacts-modal > div, #manifesto-modal > div,
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
-      width: 94vw !important;
-      max-width: 94vw !important;
-      padding: 24px !important;
+      width: calc(100vw - 28px) !important;
+      max-width: calc(100vw - 28px) !important;
+      min-width: 0 !important;
+      max-height: 80dvh !important;
+      padding: 22px 18px !important;
+      margin: 0 auto !important;
+    }
+    #brand-modal > div *, #contacts-modal > div *, #manifesto-modal > div * {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    #brand-modal h1, #brand-modal h2,
+    #manifesto-modal h1, #manifesto-modal h2,
+    #contacts-modal h1, #contacts-modal h2 {
+      font-size: clamp(1.1rem, 5.1vw, 1.55rem) !important;
+      line-height: 1.15 !important;
+      letter-spacing: 0.01em !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
     }
     .brand-panel-content .grid, #brand-modal .grid {
       display: grid !important;
-      grid-template-columns: 1fr !important;
+      grid-template-columns: minmax(0, 1fr) !important;
       gap: 24px !important;
+      width: 100% !important;
     }
   }
 </style>
-<script id="imland-v20-js" is:inline>
+<script id="imland-v23-js" is:inline>
 (function() {
-  if (window.__V20) return;
-  window.__V20 = 1;
+  if (window.__V23) return;
+  window.__V23 = 1;
   const isMob = window.innerWidth <= 768;
   const CAT = {
     c1: [
@@ -2326,9 +2396,67 @@ const slides = slideItems.map((c: any) => {
     }
   }
 
+  function layoutMobileHeaderAndLogo() {
+    if (!isMob) return;
+
+    // 1. Ancora stabilmente il menu in alto (una sola volta, nessun rimbalzo!)
+    let navEl = document.getElementById('imland-mobile-top-nav');
+    if (!navEl) {
+      document.querySelectorAll('nav, header, aside, div').forEach((el) => {
+        if (navEl) return;
+        const tx = (el.textContent || '').trim();
+        if (tx.includes('MANIFESTO') && tx.includes('IMWEAR') && tx.includes('CONTACTS') && tx.length < 140) {
+          let box = el;
+          while (box.parentElement && box.parentElement !== document.body &&
+                 ['fixed', 'absolute'].includes(getComputedStyle(box.parentElement).position)) {
+            box = box.parentElement;
+          }
+          box.id = 'imland-mobile-top-nav';
+          navEl = box;
+        }
+      });
+    }
+
+    // 2. Dai respiro al logo IMLAND sotto l'header mobile
+    let logoEl = document.getElementById('imland-mobile-logo');
+    if (!logoEl) {
+      document.querySelectorAll('header, div, a').forEach((el) => {
+        if (logoEl) return;
+        const hasLogoImg = el.querySelector('img[src*="logo-imland"], svg');
+        const rect = el.getBoundingClientRect();
+        if (hasLogoImg && rect.top >= 0 && rect.top < 140 && rect.height > 20 && rect.height < 130) {
+          let box = el;
+          while (box.parentElement && box.parentElement !== document.body &&
+                 ['fixed', 'absolute'].includes(getComputedStyle(box.parentElement).position)) {
+            box = box.parentElement;
+          }
+          if (box.id !== 'imland-mobile-top-nav') {
+            box.id = 'imland-mobile-logo';
+            logoEl = box;
+          }
+        }
+      });
+    }
+
+    // 3. Assicura che il colophon destro resti sotto le modali (z-index: 30)
+    document.querySelectorAll('div, aside, span').forEach((el) => {
+      const tx = (el.textContent || '').trim();
+      if (tx.includes('ARCHIVE 2026') && tx.length < 80) {
+        let box = el;
+        while (box.parentElement && box.parentElement !== document.body &&
+               ['fixed', 'absolute'].includes(getComputedStyle(box.parentElement).position)) {
+          box = box.parentElement;
+        }
+        box.style.zIndex = '30';
+      }
+    });
+  }
+
   function syncUI(adv) {
     cleanupFloatingPillsIfClosed();
+    layoutMobileHeaderAndLogo();
 
+    // Aggiorna caroselli IMWEAR
     const m = document.getElementById('brand-modal') || document.body;
     const t = { c1: null, c2: null, c3: null };
     m.querySelectorAll('article, div, section').forEach((el) => {
@@ -2354,14 +2482,14 @@ const slides = slideItems.map((c: any) => {
         'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
     });
 
+    // Centra le modali su document.body
     ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
       const o = document.querySelector(q);
       if (!o) return;
       if (o.parentElement !== document.body) document.body.appendChild(o);
       if (getComputedStyle(o).display !== 'none') {
         o.style.setProperty('position', 'fixed', 'important');
-        o.style.setProperty('top', '0', 'important');
-        o.style.setProperty('left', '0', 'important');
+        o.style.setProperty('inset', '0', 'important');
         o.style.setProperty('width', '100vw', 'important');
         o.style.setProperty('height', '100dvh', 'important');
         o.style.setProperty('padding', '0', 'important');
@@ -2372,42 +2500,6 @@ const slides = slideItems.map((c: any) => {
         o.style.setProperty('justify-content', 'center', 'important');
       }
     });
-
-    if (isMob) {
-      let l = null, r = null;
-      document.querySelectorAll('nav, aside, header, div').forEach((el) => {
-        const tx = (el.textContent || '').trim();
-        if (!l && tx.includes('MANIFESTO') && tx.includes('IMWEAR') && tx.length < 140) l = el;
-        if (!r && tx.includes('ARCHIVE 2026') && tx.length < 140) r = el;
-      });
-      if (l) {
-        let b = l;
-        while (b.parentElement && b.parentElement !== document.body &&
-               ['fixed', 'absolute'].includes(getComputedStyle(b.parentElement).position)) {
-          b = b.parentElement;
-        }
-        let g = 10;
-        if (r) {
-          const d = window.innerWidth - r.getBoundingClientRect().right;
-          if (d >= 4 && d <= 28) g = Math.round(d);
-        }
-        [b, l].forEach((n) => {
-          n.style.background = 'transparent';
-          n.style.backdropFilter = 'none';
-          n.style.webkitBackdropFilter = 'none';
-          n.style.boxShadow = 'none';
-          n.style.border = 'none';
-          n.style.padding = '0';
-        });
-        b.style.position = 'fixed';
-        b.style.top = '50%';
-        b.style.left = g + 'px';
-        b.style.right = 'auto';
-        b.style.writingMode = 'vertical-rl';
-        b.style.transform = 'translateY(-50%) rotate(180deg)';
-        b.style.zIndex = '45';
-      }
-    }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -2417,7 +2509,7 @@ const slides = slideItems.map((c: any) => {
       new MutationObserver(cleanupFloatingPillsIfClosed).observe(stage, { attributes: true, attributeFilter: ['class'] });
     }
   });
-  document.addEventListener('click', () => setTimeout(() => syncUI(false), 10));
+  document.addEventListener('click', () => setTimeout(() => syncUI(false), 15));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const cBox = document.getElementById('imland-carousel-controls');
