@@ -1447,26 +1447,26 @@ function shieldInteractivePill(el: HTMLElement | null) {
         if (data.media_type === 'VIDEO') {
   if (activeMesh) {
     activeMesh.visible = true;
+    const plate = createArchivalPlateTexture(data);
     const existingTex = activeMesh.userData && activeMesh.userData.coverTexture;
-    if (existingTex && existingTex.image && existingTex.image.width > 0) {
-      activeMesh.material.uniforms.uTexture.value = existingTex;
-      activeMesh.material.uniforms.uTexAspect.value = existingTex.image.width / existingTex.image.height;
-    } else {
-      const plate = createArchivalPlateTexture(data);
-      if (plate) {
-        activeMesh.userData.coverTexture = plate;
-        activeMesh.material.uniforms.uTexture.value = plate;
-        activeMesh.material.uniforms.uTexAspect.value = 0.8;
-      }
-      if (data.id) {
-        textureLoader.load(`/archive_media/${data.id}.jpg`, (t) => {
-          if (activeMesh && t && t.image && t.image.width > 0) {
-            activeMesh.userData.coverTexture = t;
-            activeMesh.material.uniforms.uTexture.value = t;
-            activeMesh.material.uniforms.uTexAspect.value = t.image.width / t.image.height;
-          }
-        });
-      }
+    const initialTex = (existingTex && existingTex.image && existingTex.image.width > 0) ? existingTex : plate;
+    if (initialTex) {
+      activeMesh.userData.coverTexture = initialTex;
+      activeMesh.material.uniforms.uTexture.value = initialTex;
+      const asp = (initialTex.image && initialTex.image.width > 0 && initialTex.image.height > 0)
+        ? (initialTex.image.width / initialTex.image.height)
+        : 0.8;
+      activeMesh.material.uniforms.uTexAspect.value = asp;
+    }
+    if (data.id) {
+      textureLoader.load(`/archive_media/${data.id}.jpg`, (t) => {
+        if (activeMesh && t && t.image && t.image.width > 0) {
+          activeMesh.visible = true;
+          activeMesh.userData.coverTexture = t;
+          activeMesh.material.uniforms.uTexture.value = t;
+          activeMesh.material.uniforms.uTexAspect.value = t.image.width / t.image.height;
+        }
+      });
     }
   }
   const oldPill = document.getElementById('imland-video-pill');
@@ -1495,9 +1495,21 @@ const slides = slideItems.map((c: any) => {
   }
   return (c.id ? `/archive_media/${c.id}.jpg` : '') || c.media_url || c.thumbnail_url || fallbackCoverUrl;
 });
-          const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
-            if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
-          }));
+          const slideTextures = slideItems.map((c: any, sIdx: number) => {
+      if (c && c.media_type === 'VIDEO') {
+        return createArchivalPlateTexture({
+          timestamp: data.timestamp,
+          caption: `${data.caption || data.title || 'IMLAND'} - SLIDE ${sIdx + 1}/${slideItems.length}`
+        });
+      }
+      const imgUrl = (c && c.id ? `/archive_media/${c.id}.jpg` : '') || (c && (c.media_url || c.thumbnail_url)) || data.media_url;
+      return textureLoader.load(imgUrl, (tex) => {
+        if (tex.image && tex.image.width > 0 && activeMesh && slideIndex === sIdx) {
+          activeMesh.material.uniforms.uTexture.value = tex;
+          activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
+        }
+      });
+    });
 
           const controlsBox = document.createElement('div'); controlsBox.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); pointer-events:auto; z-index:120;';
           const controls = document.createElement('div'); controls.style.cssText = 'display:flex; align-items:center; gap:16px; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border:1px solid #C09E5A; padding:8px 22px; border-radius:20px; color:#ffffff; font-family:"Space Mono", monospace; font-size:11px; box-shadow:0 12px 32px rgba(0,0,0,0.25);';
@@ -2253,8 +2265,11 @@ const slides = slideItems.map((c: any) => {
 
 
 
-<style id="imland-v23-css" is:global>
-  /* Overlay modali centrati e sopra ogni elemento perimetrale */
+
+
+
+
+<style id="imland-v24-css" is:global>
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
     inset: 0 !important;
@@ -2287,59 +2302,78 @@ const slides = slideItems.map((c: any) => {
     box-sizing: border-box !important;
   }
 
-  /* Evita che l'overlay editoriale inattivo blocchi i tap sul canvas 3D */
-  #editorial-stage:not(.is-active) {
-    pointer-events: none !important;
+  /* Pillola carosello sempre in basso e senza riquadro bianco dietro su mobile */
+  #imland-carousel-controls {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 96px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    z-index: 150 !important;
   }
+
+  #editorial-stage:not(.is-active),
   #video-stage {
     pointer-events: none !important;
   }
 
   @media (max-width: 768px) {
-    /* Header mobile fisso in alto: cliccabile, stabile, zero rimbalzi */
-    #imland-mobile-top-nav {
+    /* Menu mobile: stessa identica posizione del desktop (centrato in alto, una sola riga, padding ridotto attorno a //) */
+    #imland-unified-top-nav {
       position: fixed !important;
-      top: max(10px, env(safe-area-inset-top)) !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100vw !important;
+      top: max(12px, env(safe-area-inset-top)) !important;
+      bottom: auto !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      width: max-content !important;
+      max-width: 98vw !important;
       display: flex !important;
       flex-direction: row !important;
       flex-wrap: nowrap !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 6px !important;
-      padding: 6px 10px !important;
+      gap: 2px !important;
+      padding: 4px 6px !important;
       margin: 0 !important;
       writing-mode: horizontal-tb !important;
-      transform: none !important;
-      background: rgba(246, 245, 242, 0.86) !important;
-      backdrop-filter: blur(8px) !important;
-      -webkit-backdrop-filter: blur(8px) !important;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-      z-index: 70 !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 80 !important;
       pointer-events: auto !important;
-      box-sizing: border-box !important;
     }
-    #imland-mobile-top-nav button,
-    #imland-mobile-top-nav a,
-    #imland-mobile-top-nav span {
-      font-size: 9.5px !important;
-      letter-spacing: 0.08em !important;
-      padding: 5px 4px !important;
+
+    #imland-unified-top-nav button,
+    #imland-unified-top-nav a {
+      font-size: clamp(8.5px, 2.45vw, 10px) !important;
+      letter-spacing: 0.04em !important;
+      padding: 4px 3px !important;
+      margin: 0 !important;
       white-space: nowrap !important;
       pointer-events: auto !important;
       touch-action: manipulation !important;
     }
 
-    /* Spazio aria tra header alto e logo IMLAND */
-    #imland-mobile-logo {
-      top: calc(max(10px, env(safe-area-inset-top)) + 44px) !important;
-      z-index: 40 !important;
-      pointer-events: none !important;
+    #imland-unified-top-nav span {
+      font-size: clamp(8px, 2.2vw, 9.5px) !important;
+      padding: 0 2px !important;
+      margin: 0 !important;
+      white-space: nowrap !important;
     }
 
-    /* Modali mobile simmetriche: zero tagli a destra su "EQUIPAGGIAMENTO" */
+    /* Giusta distanza tra menu in alto e logo IMLAND */
+    #imland-unified-logo {
+      top: calc(max(12px, env(safe-area-inset-top)) + 34px) !important;
+      z-index: 40 !important;
+    }
+
     #brand-modal > div, #contacts-modal > div, #manifesto-modal > div,
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
       width: calc(100vw - 28px) !important;
@@ -2359,7 +2393,6 @@ const slides = slideItems.map((c: any) => {
     #contacts-modal h1, #contacts-modal h2 {
       font-size: clamp(1.1rem, 5.1vw, 1.55rem) !important;
       line-height: 1.15 !important;
-      letter-spacing: 0.01em !important;
       overflow-wrap: break-word !important;
       word-break: break-word !important;
     }
@@ -2371,11 +2404,10 @@ const slides = slideItems.map((c: any) => {
     }
   }
 </style>
-<script id="imland-v23-js" is:inline>
+<script id="imland-v24-js" is:inline>
 (function() {
-  if (window.__V23) return;
-  window.__V23 = 1;
-  const isMob = window.innerWidth <= 768;
+  if (window.__V24) return;
+  window.__V24 = 1;
   const CAT = {
     c1: [
       '/brand/hoodie-2.jpg', '/brand/hoodie-3.jpg', '/brand/hoodie-4.jpg', '/brand/hoodie-5.jpg',
@@ -2386,59 +2418,44 @@ const slides = slideItems.map((c: any) => {
   };
   const idx = { c1: 0, c2: 0, c3: 0 };
 
-  function cleanupFloatingPillsIfClosed() {
-    const stage = document.getElementById('editorial-stage');
-    if (stage && !stage.classList.contains('is-active')) {
-      const cBox = document.getElementById('imland-carousel-controls');
-      if (cBox) cBox.remove();
-      const vPill = document.getElementById('imland-video-pill');
-      if (vPill) vPill.remove();
-    }
-  }
-
-  function layoutMobileHeaderAndLogo() {
-    if (!isMob) return;
-
-    // 1. Ancora stabilmente il menu in alto (una sola volta, nessun rimbalzo!)
-    let navEl = document.getElementById('imland-mobile-top-nav');
-    if (!navEl) {
-      document.querySelectorAll('nav, header, aside, div').forEach((el) => {
-        if (navEl) return;
+  function tagTopNavAndLogoOnce() {
+    if (!document.getElementById('imland-unified-top-nav')) {
+      const candidates = Array.from(document.querySelectorAll('nav, header, div'));
+      for (const el of candidates) {
         const tx = (el.textContent || '').trim();
-        if (tx.includes('MANIFESTO') && tx.includes('IMWEAR') && tx.includes('CONTACTS') && tx.length < 140) {
+        if (tx.includes('MANIFESTO') && tx.includes('IMWEAR') && tx.includes('CONTACTS') && tx.length < 120) {
           let box = el;
           while (box.parentElement && box.parentElement !== document.body &&
                  ['fixed', 'absolute'].includes(getComputedStyle(box.parentElement).position)) {
             box = box.parentElement;
           }
-          box.id = 'imland-mobile-top-nav';
-          navEl = box;
+          box.id = 'imland-unified-top-nav';
+          break;
         }
-      });
+      }
     }
 
-    // 2. Dai respiro al logo IMLAND sotto l'header mobile
-    let logoEl = document.getElementById('imland-mobile-logo');
-    if (!logoEl) {
-      document.querySelectorAll('header, div, a').forEach((el) => {
-        if (logoEl) return;
-        const hasLogoImg = el.querySelector('img[src*="logo-imland"], svg');
-        const rect = el.getBoundingClientRect();
-        if (hasLogoImg && rect.top >= 0 && rect.top < 140 && rect.height > 20 && rect.height < 130) {
+    if (!document.getElementById('imland-unified-logo')) {
+      const candidates = Array.from(document.querySelectorAll('header, div, a'));
+      for (const el of candidates) {
+        const topNav = document.getElementById('imland-unified-top-nav');
+        if (el.id === 'imland-unified-top-nav' || (topNav && el.contains(topNav))) continue;
+        const hasLogo = el.querySelector('img[src*="logo-imland"], svg');
+        const r = el.getBoundingClientRect();
+        if (hasLogo && r.top >= 0 && r.top < 150 && r.height > 20 && r.height < 140) {
           let box = el;
           while (box.parentElement && box.parentElement !== document.body &&
                  ['fixed', 'absolute'].includes(getComputedStyle(box.parentElement).position)) {
             box = box.parentElement;
           }
-          if (box.id !== 'imland-mobile-top-nav') {
-            box.id = 'imland-mobile-logo';
-            logoEl = box;
+          if (box.id !== 'imland-unified-top-nav') {
+            box.id = 'imland-unified-logo';
+            break;
           }
         }
-      });
+      }
     }
 
-    // 3. Assicura che il colophon destro resti sotto le modali (z-index: 30)
     document.querySelectorAll('div, aside, span').forEach((el) => {
       const tx = (el.textContent || '').trim();
       if (tx.includes('ARCHIVE 2026') && tx.length < 80) {
@@ -2452,11 +2469,20 @@ const slides = slideItems.map((c: any) => {
     });
   }
 
-  function syncUI(adv) {
-    cleanupFloatingPillsIfClosed();
-    layoutMobileHeaderAndLogo();
+  function cleanupFloatingPillsIfClosed() {
+    const stage = document.getElementById('editorial-stage');
+    if (stage && !stage.classList.contains('is-active')) {
+      const cBox = document.getElementById('imland-carousel-controls');
+      if (cBox) cBox.remove();
+      const vPill = document.getElementById('imland-video-pill');
+      if (vPill) vPill.remove();
+    }
+  }
 
-    // Aggiorna caroselli IMWEAR
+  function syncUI(adv) {
+    tagTopNavAndLogoOnce();
+    cleanupFloatingPillsIfClosed();
+
     const m = document.getElementById('brand-modal') || document.body;
     const t = { c1: null, c2: null, c3: null };
     m.querySelectorAll('article, div, section').forEach((el) => {
@@ -2482,7 +2508,6 @@ const slides = slideItems.map((c: any) => {
         'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
     });
 
-    // Centra le modali su document.body
     ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
       const o = document.querySelector(q);
       if (!o) return;
