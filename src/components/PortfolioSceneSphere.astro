@@ -333,11 +333,9 @@ import brandProducts from '../brand_products.json';
         <h2 class="editorial-heading font-syne">IMLAND, DOVE L'UNICA RISPOSTA È NATURA.</h2>
         
         <p class="editorial-prose font-sans">
-          IMLAND nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina. 
-        </p>
-        <p class="editorial-prose font-sans">
-          Progettiamo <strong>outfit outdoor ad alte prestazioni</strong> per chi vive la montagna con rispetto, silenzio e radici profonde. In un mondo saturo di rumore digitale, Alagna e le sue valli selvagge rimangono la nostra unica bussola esistenziale.
-        </p>
+          IMLAND nasce sotto l'ombra imponente della parete est del Monte Rosa. Non creiamo capi per il consumo di massa, né per la moda da passerella cittadina.</p>
+<p style="margin-top:1.1rem;max-width:680px;line-height:1.65;">Progettiamo <strong>outfit outdoor ad alte prestazioni</strong> per chi vive la montagna con rispetto, silenzio e radici profonde. In un mondo saturo di rumore digitale, Alagna e le sue valli da scoprire rimangono la nostra unica bussola esistenziale.</p>
+<p style="margin-top:1.1rem;max-width:680px;line-height:1.65;">Affiancando al rigore dell'equipaggiamento alpino la <strong>fotografia</strong> come strumento di ascolto lento, ogni immagine che ruota nel vortice smette di essere un semplice post e si trasforma in un indizio silenzioso nascosto tra le pieghe della valle.</p>
           <p style="margin-top: 1.15rem;">Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.</p>
 
         <div class="manifesto-quote-box font-mono-tech">
@@ -1023,9 +1021,9 @@ import brandProducts from '../brand_products.json';
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: window.innerWidth > 768, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(window.innerWidth <= 768 ? 1 : Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0xf2f2f0, 1); 
     container.appendChild(renderer.domElement);
 
@@ -1166,7 +1164,7 @@ import brandProducts from '../brand_products.json';
     `;
 
     const textureLoader = new THREE.TextureLoader();
-    const mediaItems = ((typeof window !== "undefined" && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))) ? ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))).slice(0, 48) : ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || [])))); 
+    const mediaItems = (window.innerWidth <= 768 ? (((typeof window !== "undefined" && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))) ? ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))).slice(0, 48) : ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))))).slice(0, 45) : (((typeof window !== "undefined" && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))) ? ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || []))).slice(0, 48) : ((typeof window !== "undefined" && window.innerWidth <= 768 ? (rawData.data || []).slice(0, 85) : (rawData.data || [])))))); 
 
     const materials: THREE.ShaderMaterial[] = [];
     const meshes: THREE.Mesh[] = [];
@@ -1198,9 +1196,9 @@ import brandProducts from '../brand_products.json';
         side: THREE.DoubleSide, transparent: true
       });
 
-      const texture = ((t) => { if (typeof window !== "undefined" && window.innerWidth <= 768) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; })(textureLoader.load(
+      const texture = textureLoader.load(
         initialUrl, 
-        (tex)) => {
+        (tex) => {
           if (tex.image) material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
           material.uniforms.uTexture.value = tex;
           mesh.userData.isLoaded = true;
@@ -1345,7 +1343,7 @@ import brandProducts from '../brand_products.json';
       const data = activeMesh.userData;
 
       if (data.media_url) {
-        ((t) => { if (typeof window !== "undefined" && window.innerWidth <= 768) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; })(textureLoader.load(data.media_url, (highResTex)) => {
+        textureLoader.load(data.media_url, (highResTex) => {
           if (activeMesh === mesh) {
             activeMesh.material.uniforms.uTexture.value = highResTex;
             if (highResTex.image) activeMesh.material.uniforms.uTexAspect.value = highResTex.image.width / highResTex.image.height;
@@ -1372,13 +1370,28 @@ import brandProducts from '../brand_products.json';
       if (videoStage) {
         videoStage.innerHTML = '';
         if (data.media_type === 'VIDEO') {
-          const video = document.createElement('video'); video.src = data.media_url; video.autoplay = true; video.loop = true; video.controls = true; video.playsInline = true; video.muted = true; video.setAttribute("playsinline", "");
-          video.style.cssText = 'width:90%; max-width:800px; max-height:55vh; object-fit:contain; border-radius:4px; box-shadow:0 30px 60px rgba(0,0,0,0.12); pointer-events:auto;';
-          videoStage.appendChild(video);
-        } else if (data.media_type === 'CAROUSEL_ALBUM') {
+  videoStage.style.cssText = 'display:flex;align-items:center;justify-content:center;' +
+    'width:min(88vw,440px);min-height:280px;max-height:62vh;margin:0 auto;pointer-events:auto;';
+  const v = document.createElement('video');
+  v.src = data.media_url;
+  v.poster = data.thumbnail_url || '';
+  v.autoplay = true; v.loop = true; v.muted = true; v.controls = true; v.playsInline = true;
+  v.setAttribute('playsinline', '');
+  v.style.cssText = 'width:100%;height:auto;max-height:62vh;object-fit:contain;' +
+    'border-radius:4px;background:#0b0b0b;pointer-events:auto;';
+  v.onerror = () => {
+    if (!data.thumbnail_url) return;
+    videoStage.innerHTML = '<a href="' + (data.permalink || '#') + '" target="_blank" ' +
+      'style="display:block;width:100%;text-align:center;text-decoration:none;">' +
+      '<img src="' + data.thumbnail_url + '" style="max-height:56vh;margin:0 auto;border-radius:4px;"/>' +
+      '<div style="margin-top:8px;font-family:monospace;font-size:10px;background:#111;' +
+      'color:#fff;padding:6px 12px;display:inline-block;">[ GUARDA VIDEO SU INSTAGRAM ]</div></a>';
+  };
+  videoStage.appendChild(v);
+} else if (data.media_type === 'CAROUSEL_ALBUM') {
           const children = data.children || []; let slideIndex = 0;
           const slides = children.length > 0 ? children.map((c: any) => c.media_url || c.thumbnail_url) : [data.media_url];
-          const slideTextures = slides.map(url => ((t) => { if (typeof window !== "undefined" && window.innerWidth <= 768) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; })(textureLoader.load(url, (tex)) => {
+          const slideTextures = slides.map(url => textureLoader.load(url, (tex) => {
             if (tex.image && activeMesh) activeMesh.material.uniforms.uTexAspect.value = tex.image.width / tex.image.height;
           }));
 
@@ -2042,373 +2055,26 @@ import brandProducts from '../brand_products.json';
 </script>
 
 
-<style id="imland-mobile-precision-css" is:global>
-  @media (max-width: 768px) {
-    /* Mantieni sempre visibili e speculari entrambi i binari verticali ai bordi */
-    body.mobile-artwork-isolated nav,
-    body.mobile-artwork-isolated .vertical-nav,
-    body.mobile-artwork-isolated #axis-nav,
-    body.mobile-artwork-isolated .sidebar-nav {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-    }
 
-    /* Compatta i testi della barra carosello superiore su una singola riga */
-    button {
-      white-space: nowrap !important;
-    }
-  }
-</style>
 
-<script id="imland-center-zip-fix" is:inline>
-(function() {
-  if (window.__IMLAND_CENTER_ZIP_ACTIVE) return;
-  window.__IMLAND_CENTER_ZIP_ACTIVE = true;
 
-  const ZIP_SLIDES = [
-    '/brand/hoodie_zip-1.jpg',
-    '/brand/hoodie_zip-2.jpg',
-    '/brand/hoodie_zip-3.jpg'
-  ];
-  let zipIndex = 0;
 
-  // 1. CENTRATURA MATEMATICA DEL BOX MODALE (Desktop & Smartphone)
-  function centerActiveModals() {
-    const markers = [
-      'IMWEAR: EQUIPAGGIAMENTO MINERALE',
-      "CONNETTITI CON L'ARCHIVIO",
-      'DOVE L’UNICA RISPOSTA',
-      "DOVE L'UNICA RISPOSTA"
-    ];
 
-    const allNodes = document.querySelectorAll('div, section, article');
-    for (const el of allNodes) {
-      const txt = el.textContent || '';
-      if (!markers.some(m => txt.includes(m))) continue;
 
-      // Risale fino al foglio bianco principale (quello dentro l'overlay full-screen)
-      let card = el;
-      while (card.parentElement && card.parentElement !== document.body) {
-        const parentRect = card.parentElement.getBoundingClientRect();
-        // Se il padre copre l'intera viewport, 'card' è il box della modale
-        if (parentRect.width >= window.innerWidth * 0.96 && parentRect.height >= window.innerHeight * 0.90) {
-          break;
-        }
-        card = card.parentElement;
-      }
 
-      if (card && card !== document.body) {
-        card.style.setProperty('position', 'fixed', 'important');
-        card.style.setProperty('top', '50%', 'important');
-        card.style.setProperty('left', '50%', 'important');
-        card.style.setProperty('right', 'auto', 'important');
-        card.style.setProperty('bottom', 'auto', 'important');
-        card.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-        card.style.setProperty('margin', '0', 'important');
-        card.style.setProperty('width', 'min(92vw, 880px)', 'important');
-        card.style.setProperty('max-width', 'min(92vw, 880px)', 'important');
-        card.style.setProperty('max-height', '85dvh', 'important');
-        card.style.setProperty('overflow-y', 'auto', 'important');
-        card.style.setProperty('overflow-x', 'hidden', 'important');
-        card.style.setProperty('box-sizing', 'border-box', 'important');
-      }
-    }
-  }
 
-  // 2. LOCK ESCLUSIVO SULLA COLONNA CENTRALE (FULL-ZIP HOODIE -> hoodie_zip-1, 2, 3)
-  function lockFullZipColumn(advance) {
-    const modal = document.getElementById('brand-modal') || document.body;
-    // Individua il contenitore della seconda colonna tramite il testo FULL-ZIP (qualsiasi tag HTML)
-    let zipCard = null;
-    const candidates = modal.querySelectorAll('div, article, section');
-    for (const el of candidates) {
-      const t = (el.textContent || '').toUpperCase();
-      if (t.includes('FULL-ZIP') && !t.includes('CLASSIC HOODIE') && !t.includes('ESSENTIALS') && el.querySelectorAll('img').length > 0) {
-        zipCard = el;
-        break;
-      }
-    }
 
-    // Fallback posizionale: il secondo contenitore immagine dentro la modale IMWEAR
-    if (!zipCard) {
-      const wrappers = modal.querySelectorAll('.carousel-wrapper');
-      if (wrappers.length >= 2) zipCard = wrappers[1];
-    }
 
-    if (!zipCard) return;
 
-    if (advance) {
-      zipIndex = (zipIndex + 1) % ZIP_SLIDES.length;
-    }
 
-    const currentZipSrc = ZIP_SLIDES[zipIndex];
-    const imgs = zipCard.querySelectorAll('img');
 
-    imgs.forEach((img, idx) => {
-      const targetSrc = imgs.length === 1 ? currentZipSrc : ZIP_SLIDES[idx % ZIP_SLIDES.length];
-      if (!img.getAttribute('src') || !img.getAttribute('src').endsWith(targetSrc)) {
-        img.setAttribute('src', targetSrc);
-      }
-      if (imgs.length > 1) {
-        img.style.setProperty('opacity', idx === zipIndex ? '1' : '0', 'important');
-        img.style.setProperty('transition', 'opacity 0.75s ease', 'important');
-      } else {
-        img.style.setProperty('opacity', '1', 'important');
-      }
-    });
-  }
 
-  // Avvio immediato, ciclo fluido ogni 2.8s per le 3 zip e ascolto mutazioni DOM
-  window.addEventListener('DOMContentLoaded', () => {
-    centerActiveModals();
-    lockFullZipColumn(false);
-  });
 
-  setInterval(() => {
-    centerActiveModals();
-    lockFullZipColumn(true);
-  }, 2800);
 
-  const observer = new MutationObserver(() => {
-    centerActiveModals();
-    lockFullZipColumn(false);
-  });
-  observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class', 'src'] });
-})();
-</script>
 
-<style id="imland-center-zip-css" is:global>
-  .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-    width: min(92vw, 880px) !important;
-    max-width: min(92vw, 880px) !important;
-    max-height: 85dvh !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-  }
 
-  /* Su smartphone impila le 3 colonne IMWEAR in verticale dentro il box centrato (zero tagli a destra) */
-  @media (max-width: 768px) {
-    .brand-panel-content .grid,
-    #brand-modal .grid,
-    [class*="brand-panel"] [class*="grid"] {
-      display: grid !important;
-      grid-template-columns: 1fr !important;
-      gap: 24px !important;
-      width: 100% !important;
-    }
-  }
-</style>
 
-<script id="imland-master-v10" is:inline>
-(function() {
-  if (window.__IMLAND_MASTER_V10) return;
-  window.__IMLAND_MASTER_V10 = true;
-
-  const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  // 1. SCUDO HARDWARE MOBILE: PixelRatio 1.0x + WebGL Low-Power + Time-Slicing TextureLoader
-  if (isMobile) {
-    try {
-      Object.defineProperty(window, 'devicePixelRatio', { get: function() { return 1.0; } });
-    } catch (e) {}
-
-    const origGetContext = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = function(type, attrs) {
-      if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
-        attrs = Object.assign({}, attrs, {
-          antialias: false,
-          powerPreference: 'low-power',
-          precision: 'mediump'
-        });
-      }
-      return origGetContext.call(this, type, attrs);
-    };
-
-    // Diluisce i caricamenti delle texture nel tempo per impedire ad Android Chrome di mostrare "UI non risponde"
-    const patchThreeLoader = () => {
-      if (window.THREE && window.THREE.TextureLoader && !window.THREE.TextureLoader.__patchedV10) {
-        window.THREE.TextureLoader.__patchedV10 = true;
-        const origLoad = window.THREE.TextureLoader.prototype.load;
-        let slotIndex = 0;
-
-        window.THREE.TextureLoader.prototype.load = function(url, onLoad, onProgress, onError) {
-          const tex = new window.THREE.Texture();
-          tex.generateMipmaps = false;
-          tex.minFilter = window.THREE.LinearFilter;
-          tex.magFilter = window.THREE.LinearFilter;
-
-          const delay = Math.floor(slotIndex / 3) * 65;
-          slotIndex++;
-
-          setTimeout(() => {
-            origLoad.call(this, url, (loadedTex) => {
-              tex.image = loadedTex.image;
-              tex.needsUpdate = true;
-              if (onLoad) onLoad(tex);
-            }, onProgress, onError);
-          }, delay);
-
-          return tex;
-        };
-      }
-    };
-    patchThreeLoader();
-    setInterval(patchThreeLoader, 120);
-  }
-
-  // 2. PAUSA MOTORE 3D QUANDO UNA MODALE E' APERTA (Libera 100% CPU/GPU)
-  const nativeRAF = window.requestAnimationFrame.bind(window);
-  let lastTick = 0;
-  window.requestAnimationFrame = function(cb) {
-    return nativeRAF(function(ts) {
-      if (document.hidden) {
-        setTimeout(() => nativeRAF(cb), 500);
-        return;
-      }
-      const anyModalOpen = Array.from(document.querySelectorAll('#brand-modal, #contacts-modal, #manifesto-modal')).some(
-        m => getComputedStyle(m).display !== 'none' && getComputedStyle(m).opacity !== '0'
-      );
-      if (anyModalOpen) {
-        setTimeout(() => nativeRAF(cb), 350);
-        return;
-      }
-      if (isMobile && ts - lastTick < 33) {
-        nativeRAF(cb);
-        return;
-      }
-      lastTick = ts;
-      cb(ts);
-    });
-  };
-
-  // 3. SINCRONIZZAZIONE TESTI MANIFESTO & CENTRATURA MATEMATICA MODALI
-  function syncManifestoAndCenterModals() {
-    // Assicura la rimozione di MONTEROSA e la presenza del paragrafo fotografico anche su render dinamici
-    const manifestoRoot = document.getElementById('manifesto-modal') || document.body;
-    const paragraphs = manifestoRoot.querySelectorAll('p');
-    paragraphs.forEach((p) => {
-      if (p.textContent && p.textContent.includes('IMLAND MONTEROSA nasce sotto')) {
-        p.innerHTML = p.innerHTML.replace(/IMLAND\s+MONTEROSA\s+nasce\s+sotto/gi, 'IMLAND nasce sotto');
-      }
-      if (p.textContent && p.textContent.includes('bussola esistenziale.') && p.parentElement && !p.parentElement.textContent.includes('Questo senso di appartenenza')) {
-        const extra = document.createElement('p');
-        extra.style.marginTop = '1.15rem';
-        extra.innerHTML = 'Questo senso di appartenenza — visivo, immersivo e profondamente romantico — trova nella <strong>fotografia</strong> il suo fulcro naturale: uno sguardo lento che custodisce il legame intimo con la valle, rivelando sfumature silenziose e messaggi nascosti a chi sa fermarsi ad ascoltare con la giusta attenzione.';
-        p.parentElement.appendChild(extra);
-      }
-    });
-
-    // Centra perfettamente ogni scheda modale rispetto all'intera pagina (zero slittamento a destra)
-    const overlays = document.querySelectorAll('#brand-modal, #contacts-modal, #manifesto-modal');
-    overlays.forEach((ov) => {
-      if (getComputedStyle(ov).display === 'none') return;
-      ov.style.setProperty('position', 'fixed', 'important');
-      ov.style.setProperty('inset', '0', 'important');
-      ov.style.setProperty('left', '0', 'important');
-      ov.style.setProperty('top', '0', 'important');
-      ov.style.setProperty('width', '100vw', 'important');
-      ov.style.setProperty('height', '100dvh', 'important');
-      ov.style.setProperty('margin', '0', 'important');
-      ov.style.setProperty('padding', '16px', 'important');
-      ov.style.setProperty('transform', 'none', 'important');
-      ov.style.setProperty('display', 'flex', 'important');
-      ov.style.setProperty('align-items', 'center', 'important');
-      ov.style.setProperty('justify-content', 'center', 'important');
-      ov.style.setProperty('box-sizing', 'border-box', 'important');
-
-      const box = ov.firstElementChild;
-      if (box) {
-        box.style.setProperty('position', 'relative', 'important');
-        box.style.setProperty('left', 'auto', 'important');
-        box.style.setProperty('right', 'auto', 'important');
-        box.style.setProperty('top', 'auto', 'important');
-        box.style.setProperty('bottom', 'auto', 'important');
-        box.style.setProperty('transform', 'none', 'important');
-        box.style.setProperty('margin', '0 auto', 'important');
-        box.style.setProperty('width', 'min(92vw, 880px)', 'important');
-        box.style.setProperty('max-width', 'min(92vw, 880px)', 'important');
-        box.style.setProperty('max-height', '85dvh', 'important');
-        box.style.setProperty('overflow-y', 'auto', 'important');
-        box.style.setProperty('box-sizing', 'border-box', 'important');
-      }
-    });
-
-    // 4. ALLINEAMENTO A FILO BORDO SINISTRO DEL MENU MOBILE (Speculare ad ARCHIVE 2026)
-    if (isMobile) {
-      let leftRail = null;
-      let rightRail = null;
-
-      const allBlocks = document.querySelectorAll('nav, aside, header, div');
-      for (const el of allBlocks) {
-        const txt = (el.textContent || '').trim();
-        if (!leftRail && txt.includes('MANIFESTO') && txt.includes('IMWEAR') && txt.length < 140) {
-          leftRail = el;
-        }
-        if (!rightRail && txt.includes('ARCHIVE 2026') && txt.length < 140) {
-          rightRail = el;
-        }
-      }
-
-      if (leftRail) {
-        // Risale eventuale wrapper fixed esterno per azzerarne offset e sfondo satinato
-        let container = leftRail;
-        while (container.parentElement && container.parentElement !== document.body) {
-          const pos = getComputedStyle(container.parentElement).position;
-          if (pos === 'fixed' || pos === 'absolute') {
-            container = container.parentElement;
-          } else {
-            break;
-          }
-        }
-
-        let targetLeft = 10;
-        if (rightRail) {
-          const rRect = rightRail.getBoundingClientRect();
-          const rightMargin = window.innerWidth - rRect.right;
-          if (rightMargin >= 4 && rightMargin <= 24) {
-            targetLeft = Math.round(rightMargin);
-          }
-        }
-
-        [container, leftRail].forEach((node) => {
-          node.style.setProperty('background', 'transparent', 'important');
-          node.style.setProperty('background-color', 'transparent', 'important');
-          node.style.setProperty('backdrop-filter', 'none', 'important');
-          node.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-          node.style.setProperty('box-shadow', 'none', 'important');
-          node.style.setProperty('border', 'none', 'important');
-          node.style.setProperty('padding', '0', 'important');
-        });
-
-        container.style.setProperty('position', 'fixed', 'important');
-        container.style.setProperty('top', '50%', 'important');
-        container.style.setProperty('left', targetLeft + 'px', 'important');
-        container.style.setProperty('right', 'auto', 'important');
-        container.style.setProperty('margin', '0', 'important');
-        container.style.setProperty('width', 'auto', 'important');
-        container.style.setProperty('height', 'auto', 'important');
-        container.style.setProperty('writing-mode', 'vertical-rl', 'important');
-        container.style.setProperty('transform', 'translateY(-50%) rotate(180deg)', 'important');
-        container.style.setProperty('z-index', '45', 'important');
-      }
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', syncManifestoAndCenterModals);
-  window.addEventListener('resize', syncManifestoAndCenterModals);
-  setInterval(syncManifestoAndCenterModals, 200);
-})();
-</script>
-
-<style id="imland-master-v10-css" is:global>
+<style id="imland-v14-css" is:global>
   #brand-modal, #contacts-modal, #manifesto-modal {
     position: fixed !important;
     inset: 0 !important;
@@ -2421,84 +2087,120 @@ import brandProducts from '../brand_products.json';
     justify-content: center !important;
     box-sizing: border-box !important;
   }
-
   .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
     position: relative !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    bottom: auto !important;
+    inset: auto !important;
     transform: none !important;
     margin: 0 auto !important;
     width: min(92vw, 880px) !important;
     max-width: min(92vw, 880px) !important;
     max-height: 85dvh !important;
+    padding: 36px !important;
     overflow-y: auto !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.06) !important;
     box-sizing: border-box !important;
   }
-</style>
-
-
-<style id="imland-symmetric-padding-css" is:global>
-  /* Forza la simmetria del padding su tutte le modali per correggere lo sbilanciamento a destra */
-  #brand-modal, #contacts-modal, #manifesto-modal {
-    padding: 16px !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
-    margin: 0 auto !important;
-    padding: 36px 36px !important; /* Padding simmetrico essenziale */
-    box-sizing: border-box !important;
-    left: 0 !important;
-    right: 0 !important;
-    transform: none !important;
-    position: relative !important;
-  }
-
-  /* Su mobile, riduciamo il padding simmetricamente */
   @media (max-width: 768px) {
     .brand-panel-content, .contacts-panel-content, .manifesto-panel-content {
-      padding: 24px 24px !important;
+      width: 94vw !important;
+      padding: 24px !important;
+    }
+    .brand-panel-content .grid, #brand-modal .grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 24px !important;
     }
   }
 </style>
-
-
-
-
-<script id="imland-simple-carousel" is:inline>
+<script id="imland-v14-js" is:inline>
 (function() {
-  if (window.__IMLAND_CAROUSEL_INIT) return;
-  window.__IMLAND_CAROUSEL_INIT = true;
+  if (window.__V14) return;
+  window.__V14 = 1;
+  const isMob = window.innerWidth <= 768;
+  const CAT = {
+    c1: [
+      '/brand/hoodie-2.jpg', '/brand/hoodie-3.jpg', '/brand/hoodie-4.jpg', '/brand/hoodie-5.jpg',
+      '/brand/hoodie-6.jpg', '/brand/hoodie-7.jpg', '/brand/hoodie-8.jpg', '/brand/hoodie-9.jpg'
+    ],
+    c2: ['/brand/hoodie_zip-1.jpg', '/brand/hoodie_zip-2.jpg', '/brand/hoodie_zip-3.jpg'],
+    c3: ['/brand/tee-1.jpg', '/brand/tee-2.jpg', '/brand/tee-3.jpg', '/brand/tee-4.jpg', '/brand/tee-5.jpg']
+  };
+  const idx = { c1: 0, c2: 0, c3: 0 };
 
-  function rotateCarousels() {
-    const wrappers = document.querySelectorAll('.carousel-wrapper');
-    wrappers.forEach(wrapper => {
-      const imgs = wrapper.querySelectorAll('img');
-      if (imgs.length <= 1) return;
-      
-      // Trova l'immagine attualmente visibile (opacity = 1)
-      let activeIdx = -1;
-      imgs.forEach((img, idx) => {
-        if (img.style.opacity === '1' || img.style.opacity === 1) {
-          activeIdx = idx;
-        }
-      });
-      
-      if (activeIdx === -1) activeIdx = 0;
-      
-      // Calcola la prossima immagine
-      const nextIdx = (activeIdx + 1) % imgs.length;
-      
-      // Applica la transizione
-      imgs[activeIdx].style.opacity = '0';
-      imgs[nextIdx].style.opacity = '1';
+  function syncUI(adv) {
+    const m = document.getElementById('brand-modal') || document.body;
+    const t = { c1: null, c2: null, c3: null };
+    m.querySelectorAll('article, div, section').forEach((el) => {
+      if (!el.querySelector('img')) return;
+      const u = (el.textContent || '').toUpperCase();
+      const a = u.includes('CLASSIC HOODIE');
+      const b = u.includes('FULL-ZIP');
+      const c = u.includes('ESSENTIALS');
+      if (a && !b && !c) t.c1 = el;
+      if (b && !a && !c) t.c2 = el;
+      if (c && !a && !b) t.c3 = el;
     });
+    ['c1', 'c2', 'c3'].forEach((k) => {
+      if (!t[k]) return;
+      if (adv) idx[k] = (idx[k] + 1) % CAT[k].length;
+      const imgs = Array.from(t[k].querySelectorAll('img'));
+      if (!imgs.length) return;
+      for (let i = 1; i < imgs.length; i++) imgs[i].remove();
+      if (imgs[0].getAttribute('src') !== CAT[k][idx[k]]) {
+        imgs[0].setAttribute('src', CAT[k][idx[k]]);
+      }
+      imgs[0].style.cssText = 'opacity:1!important;position:relative!important;' +
+        'width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;';
+    });
+    ['#brand-modal', '#contacts-modal', '#manifesto-modal'].forEach((q) => {
+      const o = document.querySelector(q);
+      if (o && getComputedStyle(o).display !== 'none') {
+        o.style.display = 'flex';
+        o.style.alignItems = 'center';
+        o.style.justifyContent = 'center';
+      }
+    });
+    if (isMob) {
+      let l = null, r = null;
+      document.querySelectorAll('nav, aside, header, div').forEach((el) => {
+        const tx = (el.textContent || '').trim();
+        if (!l && tx.includes('MANIFESTO') && tx.includes('IMWEAR') && tx.length < 140) l = el;
+        if (!r && tx.includes('ARCHIVE 2026') && tx.length < 140) r = el;
+      });
+      if (l) {
+        let b = l;
+        while (b.parentElement && b.parentElement !== document.body &&
+               ['fixed', 'absolute'].includes(getComputedStyle(b.parentElement).position)) {
+          b = b.parentElement;
+        }
+        let g = 10;
+        if (r) {
+          const d = window.innerWidth - r.getBoundingClientRect().right;
+          if (d >= 4 && d <= 28) g = Math.round(d);
+        }
+        [b, l].forEach((n) => {
+          n.style.background = 'transparent';
+          n.style.backdropFilter = 'none';
+          n.style.webkitBackdropFilter = 'none';
+          n.style.boxShadow = 'none';
+          n.style.border = 'none';
+          n.style.padding = '0';
+        });
+        b.style.position = 'fixed';
+        b.style.top = '50%';
+        b.style.left = g + 'px';
+        b.style.right = 'auto';
+        b.style.writingMode = 'vertical-rl';
+        b.style.transform = 'translateY(-50%) rotate(180deg)';
+        b.style.zIndex = '45';
+      }
+    }
   }
 
-  // Ruota ogni 3 secondi
-  setInterval(rotateCarousels, 3000);
+  window.addEventListener('DOMContentLoaded', () => syncUI(false));
+  document.addEventListener('click', () => setTimeout(() => syncUI(false), 30));
+  setInterval(() => syncUI(true), 2800);
 })();
 </script>
